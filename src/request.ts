@@ -34,9 +34,11 @@
 
 import * as http from "http";
 import * as https from "https";
+import * as stream from "stream";
 import * as url from "url";
+import * as zlib from "zlib";
 
-import { LogMessage, LogWarning, LogError } from "./log";
+import { LogMessage, LogError } from "./log";
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -56,6 +58,7 @@ const RequestHeadersDefault: RequestHeaders = {
     "Cache-Control": "no-cache",
     "Accept": "text/plain, text/*, */*;q=0.9",
     "Accept-Encoding": "deflate, gzip, identity",
+    "User-Agent": "NanoMeow",
 };
 
 const RequestRedirectStatusCode: Set<number> = new Set<number>([
@@ -64,25 +67,86 @@ const RequestRedirectStatusCode: Set<number> = new Set<number>([
     307,
 ]);
 
+const RequestRedirectSafeLink: RegExp = /^https:\/\/(?:\w+\.)+\w+\//;
+
 // --------------------------------------------------------------------------------------------- //
 
 export class RequestEngine {
 
     // ----------------------------------------------------------------------------------------- //
 
-    private StreamToText(res: http.ServerResponse): Promise<string> {
-
-    }
-
-    private LinkToStream(link: string, method: RequestMethod): Promise<http.ServerResponse> {
+    private StreamToText(res: http.IncomingMessage): Promise<string> {
         return new Promise((
-            resolve: (res: http.ServerResponse) => void,
+            resolve: (txt: string) => void,
             reject: (err: Error) => void,
         ): void => {
 
-            LogMessage(method + " " + link);
+            let s: stream.Readable;
+            let encoding: string = res.headers["content-encoding"] || "identity";
 
-            const opt: http.ClientRequestArgs = url.parse(link);
+            switch (encoding) {
+                case "identity":
+                    s = res;
+                    break;
+
+                case "gzip":
+                    s = res.pipe(zlib.createGunzip());
+                    break;
+
+                case "deflate":
+                    s = res.pipe(zlib.createInflate());
+                    break;
+
+                default:
+                    reject(new Error("Unrecognized encoding '" + encoding + "'"));
+                    return;
+            }
+
+            let aborted: boolean = false;
+            let data: string = "";
+
+            // TODO: Properly handle encoding
+            s.setEncoding("utf8");
+            s.on("data", (c: string): void => {
+                if (aborted)
+                    return;
+
+                data += c;
+                if (data.length > 10 * 1024 * 1024) {
+                    aborted = true;
+                    reject(new Error("Payload too large"));
+                }
+            });
+            s.on("end", (): void => {
+                if (aborted)
+                    return;
+
+                resolve(data);
+            });
+            s.on("error", (err: Error): void => {
+                if (aborted)
+                    return;
+
+                aborted = true;
+                reject(err);
+            });
+
+        });
+    }
+
+    private LinkToStream(
+        link: string,
+        method: RequestMethod,
+        payload?: string | Buffer,
+    ): Promise<http.IncomingMessage> {
+        return new Promise((
+            resolve: (res: http.IncomingMessage) => void,
+            reject: (err: Error) => void,
+        ): void => {
+
+            LogMessage(method + " - " + link);
+
+            const opt: http.RequestOptions = url.parse(link);
             opt.headers = RequestHeadersDefault;
             opt.method = method;
 
@@ -92,7 +156,11 @@ export class RequestEngine {
             const req: http.ClientRequest = https.request(opt);
             req.on("response", resolve);
             req.on("error", reject);
-            req.end();
+
+            if (typeof payload !== "undefined")
+                req.end(payload);
+            else
+                req.end();
 
         });
     }
@@ -100,10 +168,10 @@ export class RequestEngine {
     // ----------------------------------------------------------------------------------------- //
 
     public async Get(link: string): Promise<null | string> {
-        let redirect = 5;
+        let redirect: number = 5;
 
-        while (redirect > 0) {
-            let res: http.ServerResponse;
+        while (redirect-- > 0) {
+            let res: http.IncomingMessage;
             try {
                 res = await this.LinkToStream(link, RequestMethod.GET);
             } catch (err) {
@@ -111,19 +179,31 @@ export class RequestEngine {
                 return null;
             }
 
-            if (RequestRedirectStatusCode.has(res.statusCode)) {
-
+            if (RequestRedirectStatusCode.has(<number>res.statusCode)) {
+                const location: undefined | string = res.headers.location;
+                if (typeof location === "string" && RequestRedirectSafeLink.test(location)) {
+                    res.resume();
+                    link = location;
+                    continue;
+                } else {
+                    LogError("Invalid redirect link '" + location + "'");
+                    return null;
+                }
             }
-
-
 
             let txt: string;
             try {
                 txt = await this.StreamToText(res);
             } catch (err) {
-
+                LogError((<Error>err).message);
+                return null;
             }
+
+            return txt;
         }
+
+        LogError("Too Many Redirects");
+        return null;
     }
 
     // ----------------------------------------------------------------------------------------- //
