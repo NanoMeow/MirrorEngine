@@ -3,6 +3,9 @@
   "bugs": {
     "url": "https://github.com/NanoMeow/MirrorEngine/issues"
   },
+  "dependencies": {
+    "fs-extra": "~7.0.1"
+  },
   "description": "Mirror everything!",
   "devDependencies": {
     "@types/node": "~10.12.5",
