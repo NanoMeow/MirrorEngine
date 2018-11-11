@@ -72,7 +72,7 @@ class RequestEngine {
             const opt = url.parse(link);
             opt.headers = RequestHeadersDefault;
             opt.method = method;
-            if (opt.protocol !== "https")
+            if (opt.protocol !== "https:")
                 return void reject(new Error("Unrecognized protocol '" + opt.protocol + "'"));
             const req = https.request(opt);
             req.on("response", resolve);

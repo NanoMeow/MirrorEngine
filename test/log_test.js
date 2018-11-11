@@ -24,7 +24,7 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-// Logging utility
+// Logging utility test
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -32,32 +32,41 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-const StringToIterable = function* (str: string): Iterable<string> {
-    if (str.trim().length === 0)
-        return;
+const { LogMessage, LogWarning, LogError } = require("../dist/log");
 
-    const now: string = (new Date()).toUTCString();
-    const lines: string[] = str.split("\n");
+// --------------------------------------------------------------------------------------------- //
 
-    for (const line of lines)
-        yield "[" + now + "] " + line;
+const Log = (msg) => {
+    console.log(msg);
 };
 
 // --------------------------------------------------------------------------------------------- //
 
-export const LogMessage = (message: string): void => {
-    for (const line of StringToIterable(message))
-        console.log(line);
+const TestAll = (msg) => {
+    LogMessage(msg);
+    LogWarning(msg);
+    LogError(msg);
 };
 
-export const LogWarning = (message: string): void => {
-    for (const line of StringToIterable(message))
-        console.warn(line);
+// --------------------------------------------------------------------------------------------- //
+
+const TestMain = () => {
+    Log("Test 0: Empty message");
+    TestAll("");
+    Log("Test 0: Ended, no message should be logged");
+
+    Log("Test 1: Single-line message");
+    TestAll("Test");
+    Log("Test 1: Ended, three single-line message should be logged");
+
+    Log("Test 2: Multi-line message");
+    TestAll([
+        "Test",
+        "    Test",
+    ].join("\n"));
+    Log("Test 2: Ended, three multi-line message should be logged, spaces should be conserved");
 };
 
-export const LogError = (message: string): void => {
-    for (const line of StringToIterable(message))
-        console.error(line);
-};
+TestMain();
 
 // --------------------------------------------------------------------------------------------- //

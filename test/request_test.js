@@ -24,7 +24,7 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-// Logging utility
+// Network request utility test
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -32,32 +32,27 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-const StringToIterable = function* (str: string): Iterable<string> {
-    if (str.trim().length === 0)
-        return;
+const assert = require("assert");
 
-    const now: string = (new Date()).toUTCString();
-    const lines: string[] = str.split("\n");
+const { RequestEngine } = require("../dist/request");
 
-    for (const line of lines)
-        yield "[" + now + "] " + line;
+// --------------------------------------------------------------------------------------------- //
+
+const Log = (msg) => {
+    console.log(msg);
 };
 
 // --------------------------------------------------------------------------------------------- //
 
-export const LogMessage = (message: string): void => {
-    for (const line of StringToIterable(message))
-        console.log(line);
+const TestMain = async () => {
+    const requestEngine = new RequestEngine();
+
+    Log("Test 0: GET https://google.com/");
+    const data = await requestEngine.Get("https://google.com/");
+    assert(typeof data === "string" && data.length > 1000);
+    Log("Test 0: Passed");
 };
 
-export const LogWarning = (message: string): void => {
-    for (const line of StringToIterable(message))
-        console.warn(line);
-};
-
-export const LogError = (message: string): void => {
-    for (const line of StringToIterable(message))
-        console.error(line);
-};
+TestMain();
 
 // --------------------------------------------------------------------------------------------- //

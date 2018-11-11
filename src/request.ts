@@ -150,7 +150,7 @@ export class RequestEngine {
             opt.headers = RequestHeadersDefault;
             opt.method = method;
 
-            if (opt.protocol !== "https")
+            if (opt.protocol !== "https:")
                 return void reject(new Error("Unrecognized protocol '" + opt.protocol + "'"));
 
             const req: http.ClientRequest = https.request(opt);
