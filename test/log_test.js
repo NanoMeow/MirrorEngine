@@ -90,17 +90,19 @@ const TestMain = () => {
         "    Test",
     ].join("\n"));
     Log("Test 2: Ended, three multi-line messages should be logged, spaces should be conserved");
+
     Log("");
 
     // ----------------------------------------------------------------------------------------- //
 
-    const file = path.resolve(os.tmpdir(), RandomId + ".txt");
+    const file = path.resolve(os.tmpdir(), RandomId() + ".txt");
 
     // ----------------------------------------------------------------------------------------- //
 
     Log("Test 3: Set log path");
     LogSetFile(file);
     Log("Test 3: Ended, log path set to '" + file + "'");
+
     Log("");
 
     // ----------------------------------------------------------------------------------------- //
@@ -111,7 +113,6 @@ const TestMain = () => {
         "Test 4: Ended, three single-line messages should be logged into the temporary file " +
         "instead of the console",
     );
-    Log("");
 
     // ----------------------------------------------------------------------------------------- //
 
