@@ -76,6 +76,10 @@ export class RequestEngine {
 
     // ----------------------------------------------------------------------------------------- //
 
+    private Busy: boolean = false;
+
+    // ----------------------------------------------------------------------------------------- //
+
     private StreamToHeader(
         res: http.IncomingMessage,
         key: string,
@@ -186,13 +190,18 @@ export class RequestEngine {
 
     // ----------------------------------------------------------------------------------------- //
 
-    public async Get(link: string): Promise<null | string> {
+    private async LinkToText(
+        link: string,
+        method: RequestMethod = RequestMethod.GET,
+        payload?: string | Buffer
+    ): Promise<null | string> {
+
         let redirect: number = 5;
 
         while (redirect-- > 0) {
             let res: http.IncomingMessage;
             try {
-                res = await this.LinkToStream(link, RequestMethod.GET);
+                res = await this.LinkToStream(link, method, payload);
             } catch (err) {
                 LogError((<Error>err).message);
                 return null;
@@ -228,6 +237,22 @@ export class RequestEngine {
 
         LogError("Too Many Redirects");
         return null;
+
+    }
+
+    // ----------------------------------------------------------------------------------------- //
+
+    public async Get(link: string): Promise<null | string> {
+        if (this.Busy) {
+            LogError("Request Engine Busy");
+            return null;
+        }
+
+        this.Busy = true;
+        const result: null | string = await this.LinkToText(link);
+        this.Busy = false;
+
+        return result;
     }
 
     // ----------------------------------------------------------------------------------------- //

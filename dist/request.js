@@ -24,6 +24,9 @@ const RequestRedirectStatusCode = new Set([
 const RequestRedirectSafeAbsoluteLink = /^https:\/\/(?:\w+\.)+\w+\//;
 const RequestRedirectSafeRelativeLink = /^\/\w/;
 class RequestEngine {
+    constructor() {
+        this.Busy = false;
+    }
     StreamToHeader(res, key, def = "") {
         const header = res.headers[key];
         if (typeof header === "undefined")
@@ -93,12 +96,12 @@ class RequestEngine {
                 req.end();
         });
     }
-    async Get(link) {
+    async LinkToText(link, method = RequestMethod.GET, payload) {
         let redirect = 5;
         while (redirect-- > 0) {
             let res;
             try {
-                res = await this.LinkToStream(link, RequestMethod.GET);
+                res = await this.LinkToStream(link, method, payload);
             }
             catch (err) {
                 log_1.LogError(err.message);
@@ -133,6 +136,16 @@ class RequestEngine {
         }
         log_1.LogError("Too Many Redirects");
         return null;
+    }
+    async Get(link) {
+        if (this.Busy) {
+            log_1.LogError("Request Engine Busy");
+            return null;
+        }
+        this.Busy = true;
+        const result = await this.LinkToText(link);
+        this.Busy = false;
+        return result;
     }
 }
 exports.RequestEngine = RequestEngine;
