@@ -56,7 +56,9 @@ const StringToIterable = function* (str: string): Iterable<string> {
 
 // --------------------------------------------------------------------------------------------- //
 
-export const ValidateFilter = (data: string): boolean => {
+// TODO: What about non-filter files?
+
+export const ValidateFile = (data: string): boolean => {
 
     // ----------------------------------------------------------------------------------------- //
 

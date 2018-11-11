@@ -1,8 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs-extra");
-const os = require("os");
-const path = require("path");
 const log_1 = require("./log");
 const request_1 = require("./request");
 const ConfigManifestNameOverride = new Map([
@@ -17,12 +15,13 @@ const ConfigManifestNameOverride = new Map([
 const ConfigParse = (data) => {
     const parsed = JSON.parse(data);
     if (parsed instanceof Object === false)
-        throw new Error("Invalid Configuration File: Object expected");
+        throw new Error("Configuration File Error: Object expected at root level");
     if (typeof parsed.User !== "string" ||
         typeof parsed.Repo !== "string" ||
         typeof parsed.Secret !== "string" ||
-        typeof parsed.Data !== "string") {
-        throw new Error("Invalid Configuration File: Invalid or missing fields");
+        typeof parsed.Data !== "string" ||
+        !parsed.Data.startsWith("https://")) {
+        throw new Error("Configuration File Error: Invalid or missing fields");
     }
     return {
         User: parsed.User,
@@ -37,40 +36,39 @@ const ConfigManifestNormalizeName = (key) => {
         return ConfigManifestNameOverride.get(key);
     if (key.includes("."))
         return key;
-    return key + ".txt";
+    else
+        return key + ".txt";
 };
 const ConfigManifestNormalizeLinks = (links) => {
     if (typeof links === "string")
         links = [links];
     if (!Array.isArray(links))
-        throw new Error("Invalid Manifest: String or array expected for 'contentURL'");
-    return links.filter((l) => l.startsWith("https://"));
+        throw new Error("Manifest Error: String or array expected for 'contentURL'");
+    return links.filter((l) => typeof l === "string" && l.startsWith("https://"));
 };
 const ConfigManifestParse = (data) => {
     if (data === null)
-        throw new Error("Failed to Load Manifest");
+        throw new Error("Manifest Error: Network error");
     const parsed = JSON.parse(data);
     if (parsed instanceof Object === false)
-        throw new Error("Invalid Manifest: Object expected");
+        throw new Error("Manifest Error: Object expected at root level");
     let out = [];
     for (const key in parsed) {
         const entry = parsed[key];
         if (entry instanceof Object === false)
-            throw new Error("Invalid manifest: Object expected for key '" + key + "'");
+            throw new Error("Manifest Error: Object expected for '" + key + "'");
         const normalized = {
             Name: ConfigManifestNormalizeName(key),
             Links: ConfigManifestNormalizeLinks(entry.contentURL),
         };
         if (normalized.Links.length === 0)
-            log_1.LogWarning("No Valid Links Found for '" + normalized.Name + "'");
+            log_1.LogWarning("Manifest Warning: No Valid links found for '" + normalized.Name + "'");
         else
             out.push(normalized);
     }
     return out;
 };
-exports.ConfigLoad = async () => {
-    const home = os.homedir();
-    const file = path.resolve(home, "mirror-engine-config.json");
+exports.ConfigLoad = async (file) => {
     const config = ConfigParse(await fs.readFile(file, "utf8"));
     const requester = new request_1.RequestEngine();
     config.Manifest = ConfigManifestParse(await requester.Get(config.Data));

@@ -33,8 +33,6 @@
 // --------------------------------------------------------------------------------------------- //
 
 import * as fs from "fs-extra";
-import * as os from "os";
-import * as path from "path";
 
 import { LogWarning } from "./log";
 import { RequestEngine } from "./request";
@@ -45,18 +43,6 @@ export interface ConfigManifestEntry {
     Name: string,
     Links: string[],
 }
-
-export interface ConfigData {
-    User: string,
-    Repo: string,
-
-    Secret: string, // Base 64 encoded "user:pass" or "user:token"
-    Data: string, // Link to "assets.json"
-
-    Manifest: ConfigManifestEntry[], // Filled at runtime
-}
-
-// --------------------------------------------------------------------------------------------- //
 
 const ConfigManifestNameOverride: Map<string, string> = new Map<string, string>([
     ["public_suffix_list.dat", "public-suffix-list.txt"],
@@ -71,19 +57,34 @@ const ConfigManifestNameOverride: Map<string, string> = new Map<string, string>(
 
 // --------------------------------------------------------------------------------------------- //
 
+interface ConfigFile {
+    User: string,
+    Repo: string,
+
+    Secret: string, // Base 64 encoded "user:token"
+    Data: string, // Link to "assets.json"
+}
+
+export interface ConfigData extends ConfigFile {
+    Manifest: ConfigManifestEntry[],
+}
+
+// --------------------------------------------------------------------------------------------- //
+
 const ConfigParse = (data: string): ConfigData => {
     const parsed: any = JSON.parse(data);
 
     if (parsed instanceof Object === false)
-        throw new Error("Invalid Configuration File: Object expected");
+        throw new Error("Configuration File Error: Object expected at root level");
 
     if (
         typeof parsed.User !== "string" ||
         typeof parsed.Repo !== "string" ||
         typeof parsed.Secret !== "string" ||
-        typeof parsed.Data !== "string"
+        typeof parsed.Data !== "string" ||
+        !parsed.Data.startsWith("https://")
     ) {
-        throw new Error("Invalid Configuration File: Invalid or missing fields");
+        throw new Error("Configuration File Error: Invalid or missing fields");
     }
 
     return {
@@ -103,8 +104,8 @@ const ConfigManifestNormalizeName = (key: string): string => {
 
     if (key.includes("."))
         return key;
-
-    return key + ".txt";
+    else
+        return key + ".txt";
 };
 
 const ConfigManifestNormalizeLinks = (links: any): string[] => {
@@ -112,19 +113,18 @@ const ConfigManifestNormalizeLinks = (links: any): string[] => {
         links = [links];
 
     if (!Array.isArray(links))
-        throw new Error("Invalid Manifest: String or array expected for 'contentURL'");
+        throw new Error("Manifest Error: String or array expected for 'contentURL'");
 
-    return links.filter((l: string): boolean => l.startsWith("https://"));
+    return links.filter((l: any): boolean => typeof l === "string" && l.startsWith("https://"));
 };
 
 const ConfigManifestParse = (data: null | string): ConfigManifestEntry[] => {
     if (data === null)
-        throw new Error("Failed to Load Manifest");
+        throw new Error("Manifest Error: Network error");
 
     const parsed: any = JSON.parse(data);
-
     if (parsed instanceof Object === false)
-        throw new Error("Invalid Manifest: Object expected");
+        throw new Error("Manifest Error: Object expected at root level");
 
     let out: ConfigManifestEntry[] = [];
 
@@ -132,7 +132,7 @@ const ConfigManifestParse = (data: null | string): ConfigManifestEntry[] => {
         const entry: any = parsed[key];
 
         if (entry instanceof Object === false)
-            throw new Error("Invalid manifest: Object expected for key '" + key + "'");
+            throw new Error("Manifest Error: Object expected for '" + key + "'");
 
         const normalized: ConfigManifestEntry = {
             Name: ConfigManifestNormalizeName(key),
@@ -140,7 +140,7 @@ const ConfigManifestParse = (data: null | string): ConfigManifestEntry[] => {
         };
 
         if (normalized.Links.length === 0)
-            LogWarning("No Valid Links Found for '" + normalized.Name + "'");
+            LogWarning("Manifest Warning: No Valid links found for '" + normalized.Name + "'");
         else
             out.push(normalized);
     }
@@ -150,10 +150,7 @@ const ConfigManifestParse = (data: null | string): ConfigManifestEntry[] => {
 
 // --------------------------------------------------------------------------------------------- //
 
-export const ConfigLoad = async (): Promise<ConfigData> => {
-    const home: string = os.homedir();
-    const file: string = path.resolve(home, "mirror-engine-config.json");
-
+export const ConfigLoad = async (file: string): Promise<ConfigData> => {
     const config: ConfigData = ConfigParse(await fs.readFile(file, "utf8"));
 
     const requester = new RequestEngine();

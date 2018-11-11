@@ -1,8 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const os = require("os");
+const path = require("path");
 const config_1 = require("./config");
 const request_1 = require("./request");
 const validate_1 = require("./validate");
+process.on("unhandledRejection", (err) => {
+    throw err;
+});
 let Running = true;
 let Sleeping = false;
 const ShutDown = () => {
@@ -10,9 +15,6 @@ const ShutDown = () => {
     if (Sleeping)
         process.exit(0);
 };
-process.on("unhandledRejection", (err) => {
-    throw err;
-});
 process.on("SIGHUP", ShutDown);
 process.on("SIGTERM", ShutDown);
 process.on("SIGINT", ShutDown);
@@ -22,8 +24,11 @@ const Sleep = (delay) => {
     });
 };
 const Main = async () => {
-    const config = await config_1.ConfigLoad();
+    const home = os.homedir();
+    const file = path.resolve(home, "mirror-engine-config.json");
+    const config = await config_1.ConfigLoad(file);
     const manifest = config.Manifest;
+    request_1.RequestSetUserAgent(config.User);
     const requester = new request_1.RequestEngine();
     let i = 0;
     while (Running) {
@@ -32,7 +37,9 @@ const Main = async () => {
         const entry = manifest[i];
         const link = entry.Links[0];
         const data = await requester.Get(link);
-        if (typeof data === "string" && validate_1.ValidateFilter(data)) {
+        if (typeof data === "string" && validate_1.ValidateFile(data)) {
+            console.log(config);
+            console.log(data);
         }
         i++;
         if (Running) {

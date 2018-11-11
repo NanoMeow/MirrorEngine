@@ -34,7 +34,7 @@
 
 const assert = require("assert");
 
-const { ValidateFilter } = require("../dist/validate");
+const { ValidateFile } = require("../dist/validate");
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -55,7 +55,7 @@ const TestMain = () => {
     // ----------------------------------------------------------------------------------------- //
 
     Log("Test 0: Basic rules");
-    assert(ValidateFilter("example.com") === true);
+    assert(ValidateFile("example.com") === true);
     Log("Test 0: Passed");
 
     Log("");
@@ -63,7 +63,7 @@ const TestMain = () => {
     // ----------------------------------------------------------------------------------------- //
 
     Log("Test 1: Unexpected HTML");
-    assert(ValidateFilter("<!DOCTYPE>") === false);
+    assert(ValidateFile("<!DOCTYPE>") === false);
     Log("Test 1: Passed");
 
     Log("");
@@ -71,7 +71,7 @@ const TestMain = () => {
     // ----------------------------------------------------------------------------------------- //
 
     Log("Test 2: Unexpected short rule");
-    assert(ValidateFilter([
+    assert(ValidateFile([
         "example.com",
         "a",
     ].join("\n")) === false);

@@ -11,7 +11,7 @@ const StringToIterable = function* (str) {
             yield line;
     }
 };
-exports.ValidateFilter = (data) => {
+exports.ValidateFile = (data) => {
     data = data.trim();
     if (data.startsWith("<")) {
         log_1.LogError("Validation Error: A filter should not begin with '<'");

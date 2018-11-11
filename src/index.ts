@@ -32,9 +32,18 @@
 
 // --------------------------------------------------------------------------------------------- //
 
+import * as os from "os";
+import * as path from "path";
+
 import { ConfigManifestEntry, ConfigData, ConfigLoad } from "./config";
-import { RequestEngine } from "./request";
-import { ValidateFilter } from "./validate";
+import { RequestSetUserAgent, RequestEngine } from "./request";
+import { ValidateFile } from "./validate";
+
+// --------------------------------------------------------------------------------------------- //
+
+process.on("unhandledRejection", (err: Error): void => {
+    throw err;
+});
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -47,10 +56,6 @@ const ShutDown = (): void => {
     if (Sleeping)
         process.exit(0);
 };
-
-process.on("unhandledRejection", (err: Error): void => {
-    throw err;
-});
 
 process.on("SIGHUP", ShutDown);
 process.on("SIGTERM", ShutDown);
@@ -67,8 +72,13 @@ const Sleep = (delay: number): Promise<void> => {
 // --------------------------------------------------------------------------------------------- //
 
 const Main = async (): Promise<void> => {
-    const config: ConfigData = await ConfigLoad();
+    const home :string= os.homedir();
+    const file: string= path.resolve(home, "mirror-engine-config.json");
+
+    const config: ConfigData = await ConfigLoad(file);
     const manifest: ConfigManifestEntry[] = config.Manifest;
+
+    RequestSetUserAgent(config.User);
     const requester: RequestEngine = new RequestEngine();
 
     let i: number = 0;
@@ -81,8 +91,10 @@ const Main = async (): Promise<void> => {
         const link = entry.Links[0];
 
         const data: string | null = await requester.Get(link);
-        if (typeof data === "string" && ValidateFilter(data)) {
-
+        if (typeof data === "string" && ValidateFile(data)) { 
+            // TODO
+            console.log(config);
+            console.log(data);
         }
 
         i++;
