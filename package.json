@@ -1,0 +1,20 @@
+{
+  "author": "Hugo Xu",
+  "bugs": {
+    "url": "https://github.com/NanoMeow/MirrorEngine/issues"
+  },
+  "description": "Mirror everything!",
+  "devDependencies": {
+    "@types/node": "~10.12.5",
+    "typescript": "~3.1.6"
+  },
+  "engines": {
+    "node": ">=10.13.0"
+  },
+  "homepage": "https://github.com/NanoMeow/MirrorEngine",
+  "license": "MIT",
+  "name": "mirror-engine",
+  "private": true,
+  "repository": "https://github.com/NanoMeow/MirrorEngine",
+  "version": "1.0.0"
+}

@@ -1,0 +1,17 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "forceConsistentCasingInFileNames": true,
+    "lib": [ "esnext" ],
+    "module": "none",
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "strict": true,
+    "target": "esnext"
+  }
+}
