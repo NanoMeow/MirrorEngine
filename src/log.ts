@@ -24,7 +24,7 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-// Entry point
+// Logging utility
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -32,14 +32,28 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-import { RequestEngine } from "./request";
+const StringToIterable = (str: string): string[] => {
+    if (str.trim().length === 0)
+        return [];
+
+    return str.split("\n");
+};
 
 // --------------------------------------------------------------------------------------------- //
 
-const main = async (): Promise<void> => {
-
+export const LogMessage = (message: string): void => {
+    for (const line of StringToIterable(message))
+        console.log(line);
 };
 
-main();
+export const LogWarning = (message: string): void => {
+    for (const line of StringToIterable(message))
+        console.warn(line);
+};
+
+export const LogError = (message: string): void => {
+    for (const line of StringToIterable(message))
+        console.error(line);
+};
 
 // --------------------------------------------------------------------------------------------- //

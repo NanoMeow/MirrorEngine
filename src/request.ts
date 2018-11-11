@@ -1,3 +1,5 @@
+// --------------------------------------------------------------------------------------------- //
+
 // MIT License
 //
 // Copyright (c) 2018 Hugo Xu
@@ -22,54 +24,109 @@
 
 // --------------------------------------------------------------------------------------------- //
 
+// Network request utility
+
+// --------------------------------------------------------------------------------------------- //
+
 "use strict";
 
 // --------------------------------------------------------------------------------------------- //
 
-import http = require("http");
-import https = require("https");
-import url = require("url");
+import * as http from "http";
+import * as https from "https";
+import * as url from "url";
+
+import { LogMessage, LogWarning, LogError } from "./log";
 
 // --------------------------------------------------------------------------------------------- //
 
-interface RequestResponse {
-    res: http.ServerResponse,
-    data: string,
+interface RequestHeaders {
+    [key: string]: string,
 }
+
+enum RequestMethod {
+    GET = "GET",
+    POST = "POST",
+    PUT = "PUT",
+}
+
+// --------------------------------------------------------------------------------------------- //
+
+const RequestHeadersDefault: RequestHeaders = {
+    "Cache-Control": "no-cache",
+    "Accept": "text/plain, text/*, */*;q=0.9",
+    "Accept-Encoding": "deflate, gzip, identity",
+};
+
+const RequestRedirectStatusCode: Set<number> = new Set<number>([
+    301,
+    302,
+    307,
+]);
 
 // --------------------------------------------------------------------------------------------- //
 
 export class RequestEngine {
 
-    private GetOne(link: string): Promise<RequestResponse> {
-        return new Promise((resolve, reject) => {
+    // ----------------------------------------------------------------------------------------- //
 
-            const opt = url.parse(link);
+    private StreamToText(res: http.ServerResponse): Promise<string> {
+
+    }
+
+    private LinkToStream(link: string, method: RequestMethod): Promise<http.ServerResponse> {
+        return new Promise((
+            resolve: (res: http.ServerResponse) => void,
+            reject: (err: Error) => void,
+        ): void => {
+
+            LogMessage(method + " " + link);
+
+            const opt: http.ClientRequestArgs = url.parse(link);
+            opt.headers = RequestHeadersDefault;
+            opt.method = method;
+
             if (opt.protocol !== "https")
-                reject(new Error("Insecure connection not allowed"));
+                return void reject(new Error("Unrecognized protocol '" + opt.protocol + "'"));
 
-            const req = https.request(opt);
-
-            req.on("response", (res: http.ServerResponse) => {
-                //
-            });
+            const req: http.ClientRequest = https.request(opt);
+            req.on("response", resolve);
+            req.on("error", reject);
+            req.end();
 
         });
     }
+
+    // ----------------------------------------------------------------------------------------- //
 
     public async Get(link: string): Promise<null | string> {
         let redirect = 5;
 
         while (redirect > 0) {
-            let result;
-
+            let res: http.ServerResponse;
             try {
-                result = await this.GetOne(link);
+                res = await this.LinkToStream(link, RequestMethod.GET);
+            } catch (err) {
+                LogError((<Error>err).message);
+                return null;
+            }
+
+            if (RequestRedirectStatusCode.has(res.statusCode)) {
+
+            }
+
+
+
+            let txt: string;
+            try {
+                txt = await this.StreamToText(res);
             } catch (err) {
 
             }
         }
     }
+
+    // ----------------------------------------------------------------------------------------- //
 
 }
 
