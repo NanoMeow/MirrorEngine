@@ -49,17 +49,17 @@ const Log = (msg) => {
     console.log(msg);
 };
 
-const RandomId = () => {
-    const hex = Math.random().toString(16);
-    return hex.substring(2);
-};
-
-// --------------------------------------------------------------------------------------------- //
-
 const TestAll = (msg) => {
     LogMessage(msg);
     LogWarning(msg);
     LogError(msg);
+};
+
+// --------------------------------------------------------------------------------------------- //
+
+const RandomId = () => {
+    const hex = Math.random().toString(16);
+    return hex.substring(2);
 };
 
 // --------------------------------------------------------------------------------------------- //

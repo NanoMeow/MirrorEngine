@@ -113,7 +113,7 @@ const ConfigManifestNormalizeLinks = (links: any): string[] => {
         links = [links];
 
     if (!Array.isArray(links))
-        throw new Error("Manifest Error: String or array expected for 'contentURL'");
+        throw new Error("Manifest Error: String or string array expected for 'contentURL'");
 
     return links.filter((l: any): boolean => typeof l === "string" && l.startsWith("https://"));
 };
@@ -140,7 +140,7 @@ const ConfigManifestParse = (data: null | string): ConfigManifestEntry[] => {
         };
 
         if (normalized.Links.length === 0)
-            LogWarning("Manifest Warning: No Valid links found for '" + normalized.Name + "'");
+            LogWarning("Manifest Warning: No valid links found for '" + normalized.Name + "'");
         else
             out.push(normalized);
     }
