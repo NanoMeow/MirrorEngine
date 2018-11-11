@@ -36,6 +36,10 @@
 
 // --------------------------------------------------------------------------------------------- //
 
+process.on("unhandledRejection", (err: Error): void => {
+    throw err;
+});
+
 const Main = async (): Promise<void> => {
 
 };

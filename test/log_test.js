@@ -36,6 +36,10 @@ const { LogMessage, LogWarning, LogError } = require("../dist/log");
 
 // --------------------------------------------------------------------------------------------- //
 
+process.on("unhandledRejection", (err) => {
+    throw err;
+});
+
 const Log = (msg) => {
     console.log(msg);
 };
@@ -54,10 +58,12 @@ const TestMain = () => {
     Log("Test 0: Empty message");
     TestAll("");
     Log("Test 0: Ended, no message should be logged");
+    Log("");
 
     Log("Test 1: Single-line message");
     TestAll("Test");
     Log("Test 1: Ended, three single-line message should be logged");
+    Log("");
 
     Log("Test 2: Multi-line message");
     TestAll([

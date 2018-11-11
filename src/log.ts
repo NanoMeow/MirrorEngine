@@ -47,17 +47,17 @@ const StringToIterable = function* (str: string): Iterable<string> {
 
 export const LogMessage = (message: string): void => {
     for (const line of StringToIterable(message))
-        console.log(line);
+        console.log("MSG " + line);
 };
 
 export const LogWarning = (message: string): void => {
     for (const line of StringToIterable(message))
-        console.warn(line);
+        console.warn("WRN " + line);
 };
 
 export const LogError = (message: string): void => {
     for (const line of StringToIterable(message))
-        console.error(line);
+        console.error("ERR " + line);
 };
 
 // --------------------------------------------------------------------------------------------- //

@@ -10,13 +10,13 @@ const StringToIterable = function* (str) {
 };
 exports.LogMessage = (message) => {
     for (const line of StringToIterable(message))
-        console.log(line);
+        console.log("MSG " + line);
 };
 exports.LogWarning = (message) => {
     for (const line of StringToIterable(message))
-        console.warn(line);
+        console.warn("WRN " + line);
 };
 exports.LogError = (message) => {
     for (const line of StringToIterable(message))
-        console.error(line);
+        console.error("ERR " + line);
 };

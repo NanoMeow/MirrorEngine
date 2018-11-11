@@ -38,6 +38,10 @@ const { RequestEngine } = require("../dist/request");
 
 // --------------------------------------------------------------------------------------------- //
 
+process.on("unhandledRejection", (err) => {
+    throw err;
+});
+
 const Log = (msg) => {
     console.log(msg);
 };
@@ -47,10 +51,33 @@ const Log = (msg) => {
 const TestMain = async () => {
     const requestEngine = new RequestEngine();
 
-    Log("Test 0: GET https://google.com/");
-    const data = await requestEngine.Get("https://google.com/");
-    assert(typeof data === "string" && data.length > 1000);
+    Log("Test 0: GET https://httpbin.org/get");
+    {
+        const data = await requestEngine.Get("https://httpbin.org/get");
+        assert(typeof data === "string" && data.length > 200 && data.startsWith("{"));
+    }
     Log("Test 0: Passed");
+
+    Log("Test 1: GET https://httpbin.org/absolute-redirect/2");
+    {
+        const data = await requestEngine.Get("https://httpbin.org/absolute-redirect/2");
+        assert(typeof data === "string" && data.length > 200 && data.startsWith("{"));
+    }
+    Log("Test 1: Passed");
+
+    Log("Test 2: GET https://httpbin.org/relative-redirect/2");
+    {
+        const data = await requestEngine.Get("https://httpbin.org/relative-redirect/2");
+        assert(typeof data === "string" && data.length > 200 && data.startsWith("{"));
+    }
+    Log("Test 2: Passed");
+
+    Log("Test 3: GET https://httpbin.org/absolute-redirect/10");
+    {
+        const data = await requestEngine.Get("https://httpbin.org/absolute-redirect/10");
+        assert(data === null);
+    }
+    Log("Test 3: Passed");
 };
 
 TestMain();
