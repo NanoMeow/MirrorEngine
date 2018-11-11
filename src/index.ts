@@ -32,7 +32,7 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-import * as fs from "fs";
+import * as fs from "fs-extra";
 
 import { RequestEngine } from "./request";
 
@@ -43,7 +43,7 @@ process.on("unhandledRejection", (err: Error): void => {
 });
 
 const Main = async (): Promise<void> => {
-
+    const data = await fs.readFile("");
 };
 
 Main();

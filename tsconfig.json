@@ -4,6 +4,7 @@
     "forceConsistentCasingInFileNames": true,
     "lib": [ "esnext" ],
     "module": "none",
+    "moduleResolution": "node",
     "noEmitOnError": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
@@ -13,7 +14,6 @@
     "removeComments": true,
     "rootDir": "src",
     "strict": true,
-    "target": "esnext",
-    "types": [ "node" ]
+    "target": "esnext"
   }
 }
