@@ -32,7 +32,10 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-const { LogMessage, LogWarning, LogError } = require("../dist/log");
+const os = require("os");
+const path = require("path");
+
+const { LogMessage, LogWarning, LogError, LogSetFile } = require("../dist/log");
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -40,8 +43,15 @@ process.on("unhandledRejection", (err) => {
     throw err;
 });
 
+// --------------------------------------------------------------------------------------------- //
+
 const Log = (msg) => {
     console.log(msg);
+};
+
+const RandomId = () => {
+    const hex = Math.random().toString(16);
+    return hex.substring(2);
 };
 
 // --------------------------------------------------------------------------------------------- //
@@ -68,7 +78,7 @@ const TestMain = () => {
 
     Log("Test 1: Single-line message");
     TestAll("Test");
-    Log("Test 1: Ended, three single-line message should be logged");
+    Log("Test 1: Ended, three single-line messages should be logged");
 
     Log("");
 
@@ -79,9 +89,32 @@ const TestMain = () => {
         "Test",
         "    Test",
     ].join("\n"));
-    Log("Test 2: Ended, three multi-line message should be logged, spaces should be conserved");
+    Log("Test 2: Ended, three multi-line messages should be logged, spaces should be conserved");
+    Log("");
 
     // ----------------------------------------------------------------------------------------- //
+
+    const file = path.resolve(os.tmpdir(), RandomId + ".txt");
+
+    // ----------------------------------------------------------------------------------------- //
+
+    Log("Test 3: Set log path");
+    LogSetFile(file);
+    Log("Test 3: Ended, log path set to '" + file + "'");
+    Log("");
+
+    // ----------------------------------------------------------------------------------------- //
+
+    Log("Test 4: Write log to file");
+    TestAll("Test");
+    Log(
+        "Test 4: Ended, three single-line messages should be logged into the temporary file " +
+        "instead of the console",
+    );
+    Log("");
+
+    // ----------------------------------------------------------------------------------------- //
+
 };
 
 TestMain();

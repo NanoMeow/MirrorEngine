@@ -32,32 +32,62 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-const StringToIterable = function* (str: string): Iterable<string> {
+import * as fs from "fs-extra";
+
+// --------------------------------------------------------------------------------------------- //
+
+let LogStream: null | fs.WriteStream = null;
+
+export const LogSetFile = (file: string): void => {
+    LogStream = fs.createWriteStream(file, { flags: "a", encoding: "utf8" });
+};
+
+// --------------------------------------------------------------------------------------------- //
+
+const StringToIterable = function* (str: string, prefix?: string): Iterable<string> {
     if (str.trim().length === 0)
         return;
 
     const now: string = (new Date()).toUTCString();
     const lines: string[] = str.split("\n");
 
-    for (const line of lines)
-        yield "[" + now + "] " + line;
+    for (let line of lines) {
+        line = "[" + now + "] " + line;
+
+        if (typeof prefix === "string")
+            yield prefix + " " + line;
+        else
+            yield line;
+    }
 };
 
 // --------------------------------------------------------------------------------------------- //
 
 export const LogMessage = (message: string): void => {
-    for (const line of StringToIterable(message))
-        console.log("MSG " + line);
+    for (const line of StringToIterable(message, "MSG")) {
+        if (LogStream === null)
+            console.log(line);
+        else
+            LogStream.write(line + "\n");
+    }
 };
 
 export const LogWarning = (message: string): void => {
-    for (const line of StringToIterable(message))
-        console.warn("WRN " + line);
+    for (const line of StringToIterable(message, "WRN")) {
+        if (LogStream === null)
+            console.warn(line);
+        else
+            LogStream.write(line + "\n");
+    }
 };
 
 export const LogError = (message: string): void => {
-    for (const line of StringToIterable(message))
-        console.error("ERR " + line);
+    for (const line of StringToIterable(message, "ERR")) {
+        if (LogStream === null)
+            console.error(line);
+        else
+            LogStream.write(line + "\n");
+    }
 };
 
 // --------------------------------------------------------------------------------------------- //
