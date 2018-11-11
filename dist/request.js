@@ -139,7 +139,9 @@ class RequestEngine {
                     return null;
                 }
             }
-            if (res.statusCode < 200 || res.statusCode > 299) {
+            if (!opt.stubborn &&
+                (res.statusCode < 200 ||
+                    res.statusCode > 299)) {
                 log_1.LogError("Request Error: Unexpected status code '" + res.statusCode + "'");
                 return null;
             }
