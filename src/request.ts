@@ -46,25 +46,11 @@ interface RequestHeaders {
     [key: string]: string,
 }
 
-enum RequestMethod {
-    GET = "GET",
-    POST = "POST",
-    PUT = "PUT",
-}
-
-// --------------------------------------------------------------------------------------------- //
-
 const RequestHeadersDefault: RequestHeaders = {
     "Cache-Control": "no-cache",
     "Accept": "text/plain, text/*, */*;q=0.9",
     "Accept-Encoding": "deflate, gzip, identity",
 };
-
-const RequestRedirectStatusCode: Set<number> = new Set<number>([
-    301,
-    302,
-    307,
-]);
 
 export const RequestSetUserAgent = (str: string): void => {
     RequestHeadersDefault["User-Agent"] = str;
@@ -72,8 +58,22 @@ export const RequestSetUserAgent = (str: string): void => {
 
 // --------------------------------------------------------------------------------------------- //
 
+enum RequestMethods {
+    GET = "GET",
+    POST = "POST",
+    PUT = "PUT",
+}
+
+// --------------------------------------------------------------------------------------------- //
+
 const RequestRedirectSafeAbsoluteLink: RegExp = /^https:\/\/(?:\w+\.)+\w+\//;
 const RequestRedirectSafeRelativeLink: RegExp = /^\/\w/;
+
+const RequestRedirectStatusCode: Set<number> = new Set<number>([
+    301,
+    302,
+    307,
+]);
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -90,24 +90,26 @@ export class RequestEngine {
         key: string,
         def: string = "",
     ): string {
+
         const header: undefined | string | string[] = res.headers[key];
 
         if (typeof header === "undefined")
             return def;
 
         if (Array.isArray(header))
-            return header.join(",");
+            return header.join(", ");
         else
             return header;
-    }
 
-    // ----------------------------------------------------------------------------------------- //
+    }
 
     private StreamToText(res: http.IncomingMessage): Promise<string> {
         return new Promise((
             resolve: (txt: string) => void,
             reject: (err: Error) => void,
         ): void => {
+
+            // --------------------------------------------------------------------------------- //
 
             let s: stream.Readable;
             const encoding: string = this.StreamToHeader(res, "content-encoding", "identity");
@@ -126,15 +128,18 @@ export class RequestEngine {
                     break;
 
                 default:
-                    reject(new Error("Unrecognized encoding '" + encoding + "'"));
+                    reject(new Error("Request Error: Unknown encoding '" + encoding + "'"));
                     return;
             }
+
+            // --------------------------------------------------------------------------------- //
 
             let aborted: boolean = false;
             let data: string = "";
 
-            // TODO: Properly handle encoding
+            // TODO: Properly handle text encoding
             s.setEncoding("utf8");
+
             s.on("data", (c: string): void => {
                 if (aborted)
                     return;
@@ -142,7 +147,7 @@ export class RequestEngine {
                 data += c;
                 if (data.length > 10 * 1024 * 1024) {
                     aborted = true;
-                    reject(new Error("Payload too large"));
+                    reject(new Error("Request Error: Response payload too large"));
                 }
             });
             s.on("end", (): void => {
@@ -159,12 +164,16 @@ export class RequestEngine {
                 reject(err);
             });
 
+            // --------------------------------------------------------------------------------- //
+
         });
     }
 
+    // ----------------------------------------------------------------------------------------- //
+
     private LinkToStream(
         link: string,
-        method: RequestMethod,
+        method: RequestMethods,
         payload?: string | Buffer,
     ): Promise<http.IncomingMessage> {
         return new Promise((
@@ -172,14 +181,23 @@ export class RequestEngine {
             reject: (err: Error) => void,
         ): void => {
 
+            // --------------------------------------------------------------------------------- //
+
             LogMessage(method + " - " + link);
+
+            // --------------------------------------------------------------------------------- //
 
             const opt: http.RequestOptions = url.parse(link);
             opt.headers = RequestHeadersDefault;
             opt.method = method;
 
-            if (opt.protocol !== "https:")
-                return void reject(new Error("Unrecognized protocol '" + opt.protocol + "'"));
+            if (opt.protocol !== "https:") {
+                return void reject(
+                    new Error("Request Error: Unknown protocol '" + opt.protocol + "'"),
+                );
+            }
+
+            // --------------------------------------------------------------------------------- //
 
             const req: http.ClientRequest = https.request(opt);
             req.on("response", resolve);
@@ -190,20 +208,23 @@ export class RequestEngine {
             else
                 req.end();
 
+            // --------------------------------------------------------------------------------- //
+
         });
     }
 
-    // ----------------------------------------------------------------------------------------- //
-
     private async LinkToText(
         link: string,
-        method: RequestMethod = RequestMethod.GET,
+        method: RequestMethods = RequestMethods.GET,
         payload?: string | Buffer
     ): Promise<null | string> {
 
         let redirect: number = 5;
 
         while (redirect-- > 0) {
+
+            // --------------------------------------------------------------------------------- //
+
             let res: http.IncomingMessage;
             try {
                 res = await this.LinkToStream(link, method, payload);
@@ -211,6 +232,8 @@ export class RequestEngine {
                 LogError((<Error>err).message);
                 return null;
             }
+
+            // --------------------------------------------------------------------------------- //
 
             if (RequestRedirectStatusCode.has(<number>res.statusCode)) {
                 const location: string = this.StreamToHeader(res, "location");
@@ -224,15 +247,17 @@ export class RequestEngine {
                     link = "https://" + url.parse(link).hostname + location;
                     continue;
                 } else {
-                    LogError("Invalid redirect link '" + location + "'");
+                    LogError("Request Error: Invalid redirect link '" + location + "'");
                     return null;
                 }
             }
 
             if (<number>res.statusCode < 200 || <number>res.statusCode > 299) {
-                LogError("Unexpected Status Code '" + res.statusCode + "'");
+                LogError("Request Error: Unexpected status code '" + res.statusCode + "'");
                 return null;
             }
+
+            // --------------------------------------------------------------------------------- //
 
             let txt: string;
             try {
@@ -243,9 +268,12 @@ export class RequestEngine {
             }
 
             return txt;
+
+            // --------------------------------------------------------------------------------- //
+
         }
 
-        LogError("Too Many Redirects");
+        LogError("Request Error: Too many redirects");
         return null;
 
     }
@@ -254,7 +282,7 @@ export class RequestEngine {
 
     public async Get(link: string): Promise<null | string> {
         if (this.Busy) {
-            LogError("Request Engine Busy");
+            LogError("Request Error: Request engine busy");
             return null;
         }
 

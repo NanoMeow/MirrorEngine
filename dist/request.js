@@ -4,27 +4,27 @@ const https = require("https");
 const url = require("url");
 const zlib = require("zlib");
 const log_1 = require("./log");
-var RequestMethod;
-(function (RequestMethod) {
-    RequestMethod["GET"] = "GET";
-    RequestMethod["POST"] = "POST";
-    RequestMethod["PUT"] = "PUT";
-})(RequestMethod || (RequestMethod = {}));
 const RequestHeadersDefault = {
     "Cache-Control": "no-cache",
     "Accept": "text/plain, text/*, */*;q=0.9",
     "Accept-Encoding": "deflate, gzip, identity",
 };
+exports.RequestSetUserAgent = (str) => {
+    RequestHeadersDefault["User-Agent"] = str;
+};
+var RequestMethods;
+(function (RequestMethods) {
+    RequestMethods["GET"] = "GET";
+    RequestMethods["POST"] = "POST";
+    RequestMethods["PUT"] = "PUT";
+})(RequestMethods || (RequestMethods = {}));
+const RequestRedirectSafeAbsoluteLink = /^https:\/\/(?:\w+\.)+\w+\//;
+const RequestRedirectSafeRelativeLink = /^\/\w/;
 const RequestRedirectStatusCode = new Set([
     301,
     302,
     307,
 ]);
-exports.RequestSetUserAgent = (str) => {
-    RequestHeadersDefault["User-Agent"] = str;
-};
-const RequestRedirectSafeAbsoluteLink = /^https:\/\/(?:\w+\.)+\w+\//;
-const RequestRedirectSafeRelativeLink = /^\/\w/;
 class RequestEngine {
     constructor() {
         this.Busy = false;
@@ -34,7 +34,7 @@ class RequestEngine {
         if (typeof header === "undefined")
             return def;
         if (Array.isArray(header))
-            return header.join(",");
+            return header.join(", ");
         else
             return header;
     }
@@ -53,7 +53,7 @@ class RequestEngine {
                     s = res.pipe(zlib.createInflate());
                     break;
                 default:
-                    reject(new Error("Unrecognized encoding '" + encoding + "'"));
+                    reject(new Error("Request Error: Unknown encoding '" + encoding + "'"));
                     return;
             }
             let aborted = false;
@@ -65,7 +65,7 @@ class RequestEngine {
                 data += c;
                 if (data.length > 10 * 1024 * 1024) {
                     aborted = true;
-                    reject(new Error("Payload too large"));
+                    reject(new Error("Request Error: Response payload too large"));
                 }
             });
             s.on("end", () => {
@@ -87,8 +87,9 @@ class RequestEngine {
             const opt = url.parse(link);
             opt.headers = RequestHeadersDefault;
             opt.method = method;
-            if (opt.protocol !== "https:")
-                return void reject(new Error("Unrecognized protocol '" + opt.protocol + "'"));
+            if (opt.protocol !== "https:") {
+                return void reject(new Error("Request Error: Unknown protocol '" + opt.protocol + "'"));
+            }
             const req = https.request(opt);
             req.on("response", resolve);
             req.on("error", reject);
@@ -98,7 +99,7 @@ class RequestEngine {
                 req.end();
         });
     }
-    async LinkToText(link, method = RequestMethod.GET, payload) {
+    async LinkToText(link, method = RequestMethods.GET, payload) {
         let redirect = 5;
         while (redirect-- > 0) {
             let res;
@@ -122,12 +123,12 @@ class RequestEngine {
                     continue;
                 }
                 else {
-                    log_1.LogError("Invalid redirect link '" + location + "'");
+                    log_1.LogError("Request Error: Invalid redirect link '" + location + "'");
                     return null;
                 }
             }
             if (res.statusCode < 200 || res.statusCode > 299) {
-                log_1.LogError("Unexpected Status Code '" + res.statusCode + "'");
+                log_1.LogError("Request Error: Unexpected status code '" + res.statusCode + "'");
                 return null;
             }
             let txt;
@@ -140,12 +141,12 @@ class RequestEngine {
             }
             return txt;
         }
-        log_1.LogError("Too Many Redirects");
+        log_1.LogError("Request Error: Too many redirects");
         return null;
     }
     async Get(link) {
         if (this.Busy) {
-            log_1.LogError("Request Engine Busy");
+            log_1.LogError("Request Error: Request engine busy");
             return null;
         }
         this.Busy = true;

@@ -24,7 +24,7 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-// Filter validation utility
+// Content validation utility
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -36,34 +36,54 @@ import { LogError } from "./log";
 
 // --------------------------------------------------------------------------------------------- //
 
-const ValidatePureAlphanumeric: RegExp = /^[a-zA-Z0-9]*$/;
+const ValidateAlphanumeric: RegExp = /^[a-zA-Z0-9]*$/;
 
-const ValidateRuleWhitelist: Set<string> = new Set<string>([
+const ValidateWhitelist: Set<string> = new Set<string>([
 ]);
 
 // --------------------------------------------------------------------------------------------- //
 
+const StringToIterable = function* (str: string): Iterable<string> {
+    const lines: string[] = str.split("\n");
+
+    for (let line of lines) {
+        line = line.trim();
+
+        if (line.length > 0)
+            yield line;
+    }
+};
+
+// --------------------------------------------------------------------------------------------- //
+
 export const ValidateFilter = (data: string): boolean => {
+
+    // ----------------------------------------------------------------------------------------- //
+
     data = data.trim();
 
+    // ----------------------------------------------------------------------------------------- //
+
     if (data.startsWith("<")) {
-        LogError("Integrity Guard: A filter should not begin with '<'");
+        LogError("Validation Error: A filter should not begin with '<'");
         return false;
     }
 
-    for (let f of data.split("\n")) {
-        f = f.trim();
+    // ----------------------------------------------------------------------------------------- //
 
-        if (f.length === 0)
-            continue;
+    let passed: boolean = true;
 
-        if (f.length < 4 && ValidatePureAlphanumeric.test(f) && !ValidateRuleWhitelist.has(f)) {
-            LogError("Integrity Guard: Rule '" + f + "' is flagged for manual review");
-            return false;
+    for (let f of StringToIterable(data)) {
+        if (f.length < 4 && ValidateAlphanumeric.test(f) && !ValidateWhitelist.has(f)) {
+            LogError("Validation Error: Rule '" + f + "' was flagged for manual review");
+            passed = false;
         }
     }
 
-    return true;
+    return passed;
+
+    // ----------------------------------------------------------------------------------------- //
+
 };
 
 // --------------------------------------------------------------------------------------------- //
