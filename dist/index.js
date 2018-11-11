@@ -3,8 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const os = require("os");
 const path = require("path");
 const config_1 = require("./config");
+const github_1 = require("./github");
 const request_1 = require("./request");
 const validate_1 = require("./validate");
+const log_1 = require("./log");
 process.on("unhandledRejection", (err) => {
     throw err;
 });
@@ -28,8 +30,9 @@ const Main = async () => {
     const file = path.resolve(home, "mirror-engine-config.json");
     const config = await config_1.ConfigLoad(file);
     const manifest = config.Manifest;
-    request_1.RequestSetUserAgent(config.User);
     const requester = new request_1.RequestEngine();
+    requester.SetExtraHeader(request_1.RequestHeadersExtra.UserAgent, config.User);
+    const github = new github_1.GitHub(config.User, config.Secret);
     let i = 0;
     while (Running) {
         if (i == manifest.length)
@@ -38,8 +41,18 @@ const Main = async () => {
         const link = entry.Links[0];
         const data = await requester.Get(link);
         if (typeof data === "string" && validate_1.ValidateFile(data)) {
-            console.log(config);
-            console.log(data);
+            const payload = {
+                Repo: config.Repo,
+                Path: "/raw/" + entry.Name,
+                Content: data,
+                Message: "Automatic mirror update",
+            };
+            const response = await github.UpdateFile(payload);
+            if (response.success)
+                log_1.LogMessage("Update Successful: " + entry.Name);
+            else
+                log_1.LogMessage("Update Failed: " + entry.Name);
+            log_1.LogMessage(response.response);
         }
         i++;
         if (Running) {

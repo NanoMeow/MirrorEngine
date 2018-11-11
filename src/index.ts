@@ -36,8 +36,10 @@ import * as os from "os";
 import * as path from "path";
 
 import { ConfigManifestEntry, ConfigData, ConfigLoad } from "./config";
-import { RequestSetUserAgent, RequestEngine } from "./request";
+import { GitHubUpdateFileRequest, GitHubUpdateFileResult, GitHub } from "./github";
+import { RequestHeadersExtra, RequestEngine } from "./request";
 import { ValidateFile } from "./validate";
+import { LogMessage } from "./log";
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -72,14 +74,16 @@ const Sleep = (delay: number): Promise<void> => {
 // --------------------------------------------------------------------------------------------- //
 
 const Main = async (): Promise<void> => {
-    const home :string= os.homedir();
-    const file: string= path.resolve(home, "mirror-engine-config.json");
+    const home: string = os.homedir();
+    const file: string = path.resolve(home, "mirror-engine-config.json");
 
     const config: ConfigData = await ConfigLoad(file);
     const manifest: ConfigManifestEntry[] = config.Manifest;
 
-    RequestSetUserAgent(config.User);
     const requester: RequestEngine = new RequestEngine();
+    requester.SetExtraHeader(RequestHeadersExtra.UserAgent, config.User);
+
+    const github = new GitHub(config.User, config.Secret);
 
     let i: number = 0;
 
@@ -91,10 +95,21 @@ const Main = async (): Promise<void> => {
         const link = entry.Links[0];
 
         const data: string | null = await requester.Get(link);
-        if (typeof data === "string" && ValidateFile(data)) { 
-            // TODO
-            console.log(config);
-            console.log(data);
+        if (typeof data === "string" && ValidateFile(data)) {
+            const payload: GitHubUpdateFileRequest = {
+                Repo: config.Repo,
+                Path: "/raw/" + entry.Name,
+                Content: data,
+                Message: "Automatic mirror update",
+            };
+            const response: GitHubUpdateFileResult = await github.UpdateFile(payload);
+            if (response.success)
+                LogMessage("Update Successful: " + entry.Name);
+            else
+                LogMessage("Update Failed: " + entry.Name);
+
+            // TODO: Debug only
+            LogMessage(<string>response.response);
         }
 
         i++;

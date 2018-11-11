@@ -9,9 +9,12 @@ const RequestHeadersDefault = {
     "Accept": "text/plain, text/*, */*;q=0.9",
     "Accept-Encoding": "deflate, gzip, identity",
 };
-exports.RequestSetUserAgent = (str) => {
-    RequestHeadersDefault["User-Agent"] = str;
-};
+var RequestHeadersExtra;
+(function (RequestHeadersExtra) {
+    RequestHeadersExtra["Accept"] = "Accept";
+    RequestHeadersExtra["Authorization"] = "Authorization";
+    RequestHeadersExtra["UserAgent"] = "User-Agent";
+})(RequestHeadersExtra = exports.RequestHeadersExtra || (exports.RequestHeadersExtra = {}));
 var RequestMethods;
 (function (RequestMethods) {
     RequestMethods["GET"] = "GET";
@@ -27,9 +30,16 @@ const RequestRedirectStatusCode = new Set([
 ]);
 class RequestEngine {
     constructor() {
-        this.Busy = false;
+        this.Pending = 0;
+        this.ExtraHeaders = {};
     }
-    StreamToHeader(res, key, def = "") {
+    GetPendingRequestsCount() {
+        return this.Pending;
+    }
+    SetExtraHeader(key, val) {
+        this.ExtraHeaders[key] = val;
+    }
+    static StreamToHeader(res, key, def = "") {
         const header = res.headers[key];
         if (typeof header === "undefined")
             return def;
@@ -38,7 +48,7 @@ class RequestEngine {
         else
             return header;
     }
-    StreamToText(res) {
+    static StreamToText(res) {
         return new Promise((resolve, reject) => {
             let s;
             const encoding = this.StreamToHeader(res, "content-encoding", "identity");
@@ -85,7 +95,7 @@ class RequestEngine {
         return new Promise((resolve, reject) => {
             log_1.LogMessage(method + " - " + link);
             const opt = url.parse(link);
-            opt.headers = RequestHeadersDefault;
+            opt.headers = Object.assign({}, RequestHeadersDefault, this.ExtraHeaders);
             opt.method = method;
             if (opt.protocol !== "https:") {
                 return void reject(new Error("Request Error: Unknown protocol '" + opt.protocol + "'"));
@@ -111,7 +121,7 @@ class RequestEngine {
                 return null;
             }
             if (RequestRedirectStatusCode.has(res.statusCode)) {
-                const location = this.StreamToHeader(res, "location");
+                const location = RequestEngine.StreamToHeader(res, "location");
                 if (RequestRedirectSafeAbsoluteLink.test(location)) {
                     res.resume();
                     link = location;
@@ -133,7 +143,7 @@ class RequestEngine {
             }
             let txt;
             try {
-                txt = await this.StreamToText(res);
+                txt = await RequestEngine.StreamToText(res);
             }
             catch (err) {
                 log_1.LogError(err.message);
@@ -145,13 +155,17 @@ class RequestEngine {
         return null;
     }
     async Get(link) {
-        if (this.Busy) {
-            log_1.LogError("Request Error: Request engine busy");
-            return null;
-        }
-        this.Busy = true;
+        this.Pending++;
         const result = await this.LinkToText(link);
-        this.Busy = false;
+        this.Pending--;
+        return result;
+    }
+    async Put(link, payload) {
+        if (payload instanceof Object)
+            payload = JSON.stringify(payload);
+        this.Pending++;
+        const result = await this.LinkToText(link, RequestMethods.PUT, payload);
+        this.Pending--;
         return result;
     }
 }
