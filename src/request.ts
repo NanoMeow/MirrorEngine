@@ -67,11 +67,30 @@ const RequestRedirectStatusCode: Set<number> = new Set<number>([
     307,
 ]);
 
-const RequestRedirectSafeLink: RegExp = /^https:\/\/(?:\w+\.)+\w+\//;
+const RequestRedirectSafeAbsoluteLink: RegExp = /^https:\/\/(?:\w+\.)+\w+\//;
+const RequestRedirectSafeRelativeLink: RegExp = /^\/\w/;
 
 // --------------------------------------------------------------------------------------------- //
 
 export class RequestEngine {
+
+    // ----------------------------------------------------------------------------------------- //
+
+    private StreamToHeader(
+        res: http.IncomingMessage,
+        key: string,
+        def: string = "",
+    ): string {
+        const header: undefined | string | string[] = res.headers[key];
+
+        if (typeof header === "undefined")
+            return def;
+
+        if (Array.isArray(header))
+            return header.join(",");
+        else
+            return header;
+    }
 
     // ----------------------------------------------------------------------------------------- //
 
@@ -82,7 +101,7 @@ export class RequestEngine {
         ): void => {
 
             let s: stream.Readable;
-            let encoding: string = res.headers["content-encoding"] || "identity";
+            const encoding: string = this.StreamToHeader(res, "content-encoding", "identity");
 
             switch (encoding) {
                 case "identity":
@@ -180,10 +199,15 @@ export class RequestEngine {
             }
 
             if (RequestRedirectStatusCode.has(<number>res.statusCode)) {
-                const location: undefined | string = res.headers.location;
-                if (typeof location === "string" && RequestRedirectSafeLink.test(location)) {
+                const location: string = this.StreamToHeader(res, "location");
+
+                if (RequestRedirectSafeAbsoluteLink.test(location)) {
                     res.resume();
                     link = location;
+                    continue;
+                } else if (RequestRedirectSafeRelativeLink.test(location)) {
+                    res.resume();
+                    link = "https://" + url.parse(link).hostname + location;
                     continue;
                 } else {
                     LogError("Invalid redirect link '" + location + "'");

@@ -21,12 +21,22 @@ const RequestRedirectStatusCode = new Set([
     302,
     307,
 ]);
-const RequestRedirectSafeLink = /^https:\/\/(?:\w+\.)+\w+\//;
+const RequestRedirectSafeAbsoluteLink = /^https:\/\/(?:\w+\.)+\w+\//;
+const RequestRedirectSafeRelativeLink = /^\/\w/;
 class RequestEngine {
+    StreamToHeader(res, key, def = "") {
+        const header = res.headers[key];
+        if (typeof header === "undefined")
+            return def;
+        if (Array.isArray(header))
+            return header.join(",");
+        else
+            return header;
+    }
     StreamToText(res) {
         return new Promise((resolve, reject) => {
             let s;
-            let encoding = res.headers["content-encoding"] || "identity";
+            const encoding = this.StreamToHeader(res, "content-encoding", "identity");
             switch (encoding) {
                 case "identity":
                     s = res;
@@ -95,10 +105,15 @@ class RequestEngine {
                 return null;
             }
             if (RequestRedirectStatusCode.has(res.statusCode)) {
-                const location = res.headers.location;
-                if (typeof location === "string" && RequestRedirectSafeLink.test(location)) {
+                const location = this.StreamToHeader(res, "location");
+                if (RequestRedirectSafeAbsoluteLink.test(location)) {
                     res.resume();
                     link = location;
+                    continue;
+                }
+                else if (RequestRedirectSafeRelativeLink.test(location)) {
+                    res.resume();
+                    link = "https://" + url.parse(link).hostname + location;
                     continue;
                 }
                 else {

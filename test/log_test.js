@@ -55,15 +55,24 @@ const TestAll = (msg) => {
 // --------------------------------------------------------------------------------------------- //
 
 const TestMain = () => {
+
+    // ----------------------------------------------------------------------------------------- //
+
     Log("Test 0: Empty message");
     TestAll("");
     Log("Test 0: Ended, no message should be logged");
+
     Log("");
+
+    // ----------------------------------------------------------------------------------------- //
 
     Log("Test 1: Single-line message");
     TestAll("Test");
     Log("Test 1: Ended, three single-line message should be logged");
+
     Log("");
+
+    // ----------------------------------------------------------------------------------------- //
 
     Log("Test 2: Multi-line message");
     TestAll([
@@ -71,6 +80,8 @@ const TestMain = () => {
         "    Test",
     ].join("\n"));
     Log("Test 2: Ended, three multi-line message should be logged, spaces should be conserved");
+
+    // ----------------------------------------------------------------------------------------- //
 };
 
 TestMain();
