@@ -39,7 +39,7 @@ import { ConfigManifestEntry, ConfigData, ConfigLoad } from "./config";
 import { GitHubUpdateFileRequest, GitHubUpdateFileResult, GitHub } from "./github";
 import { RequestHeadersExtra, RequestEngine } from "./request";
 import { ValidateFile } from "./validate";
-import { LogMessage } from "./log";
+import { LogMessage, LogError } from "./log";
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -50,13 +50,9 @@ process.on("unhandledRejection", (err: Error): void => {
 // --------------------------------------------------------------------------------------------- //
 
 let Running: boolean = true;
-let Sleeping: boolean = false;
 
 const ShutDown = (): void => {
     Running = false;
-
-    if (Sleeping)
-        process.exit(0);
 };
 
 process.on("SIGHUP", ShutDown);
@@ -104,20 +100,21 @@ const Main = async (): Promise<void> => {
             };
             const response: GitHubUpdateFileResult = await github.UpdateFile(payload);
             if (response.success)
-                LogMessage("Update Successful: " + entry.Name);
+                LogMessage("Updated '" + entry.Name + "' successfully");
             else
-                LogMessage("Update Failed: " + entry.Name);
+                LogError("Update Error: Could not update '" + entry.Name + "'");
 
             // TODO: Debug only
-            LogMessage(<string>response.response);
+            if (response.response)
+                LogMessage(<string>response.response);
         }
 
         i++;
-        if (Running) {
-            Sleeping = true;
-            await Sleep(15 * 60 * 1000);
-            Sleeping = false;
-        }
+
+        // TODO: Make this more pretty
+        let sec: number = 15 * 60;
+        while (Running && sec-- > 0)
+            await Sleep(1000);
     }
 };
 

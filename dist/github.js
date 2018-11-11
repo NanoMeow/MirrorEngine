@@ -17,17 +17,24 @@ class GitHub {
     }
     async UpdateFile(opt) {
         opt.Content = GitHub.Base64Encode(opt.Content);
-        const link = "/repos/" + this.User + "/" + opt.Repo + "/contents" + opt.Path;
-        let sha = await this.Requester.Get(link);
-        if (sha === null)
+        const link = "https://api.github.com/repos/" + this.User + "/" + opt.Repo + "/contents" + opt.Path;
+        let response = await this.Requester.Get(link);
+        if (response === null)
             return { success: false };
+        let old;
+        let sha;
         try {
-            const parsed = JSON.parse(sha);
+            const parsed = JSON.parse(response);
+            old = parsed.content.toString();
             sha = parsed.sha.toString();
         }
         catch (err) {
             log_1.LogError(err.message);
             return { success: false };
+        }
+        if (opt.Content === old) {
+            log_1.LogMessage("File not changed");
+            return { success: true };
         }
         const payload = {
             path: opt.Path,

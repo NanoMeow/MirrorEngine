@@ -11,11 +11,8 @@ process.on("unhandledRejection", (err) => {
     throw err;
 });
 let Running = true;
-let Sleeping = false;
 const ShutDown = () => {
     Running = false;
-    if (Sleeping)
-        process.exit(0);
 };
 process.on("SIGHUP", ShutDown);
 process.on("SIGTERM", ShutDown);
@@ -49,17 +46,16 @@ const Main = async () => {
             };
             const response = await github.UpdateFile(payload);
             if (response.success)
-                log_1.LogMessage("Update Successful: " + entry.Name);
+                log_1.LogMessage("Updated '" + entry.Name + "' successfully");
             else
-                log_1.LogMessage("Update Failed: " + entry.Name);
-            log_1.LogMessage(response.response);
+                log_1.LogError("Update Error: Could not update '" + entry.Name + "'");
+            if (response.response)
+                log_1.LogMessage(response.response);
         }
         i++;
-        if (Running) {
-            Sleeping = true;
-            await Sleep(15 * 60 * 1000);
-            Sleeping = false;
-        }
+        let sec = 15 * 60;
+        while (Running && sec-- > 0)
+            await Sleep(1000);
     }
 };
 Main();

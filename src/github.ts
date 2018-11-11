@@ -32,7 +32,7 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-import { LogError } from "./log";
+import { LogMessage,LogError } from "./log";
 import { RequestHeadersExtra, RequestEngine } from "./request";
 
 // --------------------------------------------------------------------------------------------- //
@@ -96,20 +96,31 @@ export class GitHub {
 
         opt.Content = GitHub.Base64Encode(opt.Content);
 
-        const link = "/repos/" + this.User + "/" + opt.Repo + "/contents" + opt.Path;
+        const link =
+            "https://api.github.com/repos/" + this.User + "/" + opt.Repo + "/contents" + opt.Path;
 
         // ------------------------------------------------------------------------------------- //
 
-        let sha: null | string = await this.Requester.Get(link);
-        if (sha === null)
+        let response: null | string = await this.Requester.Get(link);
+        if (response === null)
             return { success: false };
 
+        let old: string;
+        let sha: string;
+
         try {
-            const parsed: any = JSON.parse(sha);
+            const parsed: any = JSON.parse(response);
+
+            old = parsed.content.toString();
             sha = parsed.sha.toString();
         } catch (err) {
             LogError((<Error>err).message);
             return { success: false };
+        }
+
+        if (opt.Content === old) {
+            LogMessage("File not changed");
+            return { success: true };
         }
 
         // ------------------------------------------------------------------------------------- //
