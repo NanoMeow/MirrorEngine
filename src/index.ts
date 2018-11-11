@@ -32,18 +32,66 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-import * as fs from "fs-extra";
-
+import { ConfigManifestEntry, ConfigData, ConfigLoad } from "./config";
 import { RequestEngine } from "./request";
+import { ValidateFilter } from "./validate";
 
 // --------------------------------------------------------------------------------------------- //
+
+let Running: boolean = true;
+let Sleeping: boolean = false;
+
+const ShutDown = (): void => {
+    Running = false;
+
+    if (Sleeping)
+        process.exit(0);
+};
 
 process.on("unhandledRejection", (err: Error): void => {
     throw err;
 });
 
+process.on("SIGHUP", ShutDown);
+process.on("SIGTERM", ShutDown);
+process.on("SIGINT", ShutDown);
+
+// --------------------------------------------------------------------------------------------- //
+
+const Sleep = (delay: number): Promise<void> => {
+    return new Promise((resolve) => {
+        setTimeout(resolve, delay);
+    });
+};
+
+// --------------------------------------------------------------------------------------------- //
+
 const Main = async (): Promise<void> => {
-    const data = await fs.readFile("");
+    const config: ConfigData = await ConfigLoad();
+    const manifest: ConfigManifestEntry[] = config.Manifest;
+    const requester: RequestEngine = new RequestEngine();
+
+    let i: number = 0;
+
+    while (Running) {
+        if (i == manifest.length)
+            i = 0;
+
+        const entry: ConfigManifestEntry = manifest[i];
+        const link = entry.Links[0];
+
+        const data: string | null = await requester.Get(link);
+        if (typeof data === "string" && ValidateFilter(data)) {
+
+        }
+
+        i++;
+        if (Running) {
+            Sleeping = true;
+            await Sleep(15 * 60 * 1000);
+            Sleeping = false;
+        }
+    }
 };
 
 Main();

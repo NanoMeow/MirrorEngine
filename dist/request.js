@@ -14,13 +14,15 @@ const RequestHeadersDefault = {
     "Cache-Control": "no-cache",
     "Accept": "text/plain, text/*, */*;q=0.9",
     "Accept-Encoding": "deflate, gzip, identity",
-    "User-Agent": "NanoMeow",
 };
 const RequestRedirectStatusCode = new Set([
     301,
     302,
     307,
 ]);
+exports.RequestSetUserAgent = (str) => {
+    RequestHeadersDefault["User-Agent"] = str;
+};
 const RequestRedirectSafeAbsoluteLink = /^https:\/\/(?:\w+\.)+\w+\//;
 const RequestRedirectSafeRelativeLink = /^\/\w/;
 class RequestEngine {

@@ -58,7 +58,6 @@ const RequestHeadersDefault: RequestHeaders = {
     "Cache-Control": "no-cache",
     "Accept": "text/plain, text/*, */*;q=0.9",
     "Accept-Encoding": "deflate, gzip, identity",
-    "User-Agent": "NanoMeow",
 };
 
 const RequestRedirectStatusCode: Set<number> = new Set<number>([
@@ -66,6 +65,12 @@ const RequestRedirectStatusCode: Set<number> = new Set<number>([
     302,
     307,
 ]);
+
+export const RequestSetUserAgent = (str: string): void => {
+    RequestHeadersDefault["User-Agent"] = str;
+};
+
+// --------------------------------------------------------------------------------------------- //
 
 const RequestRedirectSafeAbsoluteLink: RegExp = /^https:\/\/(?:\w+\.)+\w+\//;
 const RequestRedirectSafeRelativeLink: RegExp = /^\/\w/;
