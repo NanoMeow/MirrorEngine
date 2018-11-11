@@ -224,6 +224,11 @@ export class RequestEngine {
                 }
             }
 
+            if (<number>res.statusCode < 200 || <number>res.statusCode > 299) {
+                LogError("Unexpected Status Code '" + res.statusCode + "'");
+                return null;
+            }
+
             let txt: string;
             try {
                 txt = await this.StreamToText(res);
