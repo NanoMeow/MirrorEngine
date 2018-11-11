@@ -18,15 +18,19 @@ class GitHub {
     async UpdateFile(opt) {
         opt.Content = GitHub.Base64Encode(opt.Content);
         const link = "https://api.github.com/repos/" + this.User + "/" + opt.Repo + "/contents" + opt.Path;
-        let response = await this.Requester.Get(link);
+        let response = await this.Requester.Get(link, true);
         if (response === null)
             return { success: false };
         let old;
         let sha;
         try {
             const parsed = JSON.parse(response);
-            old = parsed.content.toString();
-            sha = parsed.sha.toString();
+            old = parsed.content;
+            if (typeof old !== "string")
+                old = "";
+            sha = parsed.sha;
+            if (typeof sha !== "string")
+                sha = "";
         }
         catch (err) {
             log_1.LogError(err.message);

@@ -79,6 +79,13 @@ const RequestRedirectStatusCode: Set<number> = new Set<number>([
 
 // --------------------------------------------------------------------------------------------- //
 
+interface RequestOptionalData {
+    payload?: string | Buffer,
+    stubborn?: boolean, // No abort even if response code is error
+}
+
+// --------------------------------------------------------------------------------------------- //
+
 export class RequestEngine {
 
     // ----------------------------------------------------------------------------------------- //
@@ -190,7 +197,7 @@ export class RequestEngine {
     private LinkToStream(
         link: string,
         method: RequestMethods,
-        payload?: string | Buffer,
+        opt: RequestOptionalData,
     ): Promise<http.IncomingMessage> {
         return new Promise((
             resolve: (res: http.IncomingMessage) => void,
@@ -203,24 +210,24 @@ export class RequestEngine {
 
             // --------------------------------------------------------------------------------- //
 
-            const opt: http.RequestOptions = url.parse(link);
-            opt.headers = Object.assign({}, RequestHeadersDefault, this.ExtraHeaders);
-            opt.method = method;
+            const option: http.RequestOptions = url.parse(link);
+            option.headers = Object.assign({}, RequestHeadersDefault, this.ExtraHeaders);
+            option.method = method;
 
-            if (opt.protocol !== "https:") {
+            if (option.protocol !== "https:") {
                 return void reject(
-                    new Error("Request Error: Unknown protocol '" + opt.protocol + "'"),
+                    new Error("Request Error: Unknown protocol '" + option.protocol + "'"),
                 );
             }
 
             // --------------------------------------------------------------------------------- //
 
-            const req: http.ClientRequest = https.request(opt);
+            const req: http.ClientRequest = https.request(option);
             req.on("response", resolve);
             req.on("error", reject);
 
-            if (typeof payload !== "undefined")
-                req.end(payload);
+            if (typeof opt.payload !== "undefined")
+                req.end(opt.payload);
             else
                 req.end();
 
@@ -232,8 +239,11 @@ export class RequestEngine {
     private async LinkToText(
         link: string,
         method: RequestMethods = RequestMethods.GET,
-        payload?: string | Buffer
+        opt?: RequestOptionalData,
     ): Promise<null | string> {
+
+        if (opt instanceof Object === false)
+            opt = { stubborn: false };
 
         let redirect: number = 5;
 
@@ -243,7 +253,7 @@ export class RequestEngine {
 
             let res: http.IncomingMessage;
             try {
-                res = await this.LinkToStream(link, method, payload);
+                res = await this.LinkToStream(link, method, <RequestOptionalData>opt);
             } catch (err) {
                 LogError((<Error>err).message);
                 return null;
@@ -296,9 +306,11 @@ export class RequestEngine {
 
     // ----------------------------------------------------------------------------------------- //
 
-    public async Get(link: string): Promise<null | string> {
+    public async Get(link: string, stubborn: boolean = false): Promise<null | string> {
         this.Pending++;
-        const result: null | string = await this.LinkToText(link);
+        const result: null | string = await this.LinkToText(link, RequestMethods.GET, {
+            stubborn: stubborn,
+        });
         this.Pending--;
 
         return result;
@@ -309,11 +321,9 @@ export class RequestEngine {
             payload = JSON.stringify(payload);
 
         this.Pending++;
-        const result: null | string = await this.LinkToText(
-            link,
-            RequestMethods.PUT,
-            <string>payload,
-        );
+        const result: null | string = await this.LinkToText(link, RequestMethods.PUT, {
+            payload: <string>payload,
+        });
         this.Pending--;
 
         return result;

@@ -32,7 +32,7 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-import { LogMessage,LogError } from "./log";
+import { LogMessage, LogError } from "./log";
 import { RequestHeadersExtra, RequestEngine } from "./request";
 
 // --------------------------------------------------------------------------------------------- //
@@ -101,7 +101,7 @@ export class GitHub {
 
         // ------------------------------------------------------------------------------------- //
 
-        let response: null | string = await this.Requester.Get(link);
+        let response: null | string = await this.Requester.Get(link, true);
         if (response === null)
             return { success: false };
 
@@ -111,8 +111,13 @@ export class GitHub {
         try {
             const parsed: any = JSON.parse(response);
 
-            old = parsed.content.toString();
-            sha = parsed.sha.toString();
+            old = parsed.content;
+            if (typeof old !== "string")
+                old = "";
+
+            sha = parsed.sha;
+            if (typeof sha !== "string")
+                sha = "";
         } catch (err) {
             LogError((<Error>err).message);
             return { success: false };

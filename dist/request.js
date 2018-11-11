@@ -91,30 +91,32 @@ class RequestEngine {
             });
         });
     }
-    LinkToStream(link, method, payload) {
+    LinkToStream(link, method, opt) {
         return new Promise((resolve, reject) => {
             log_1.LogMessage(method + " - " + link);
-            const opt = url.parse(link);
-            opt.headers = Object.assign({}, RequestHeadersDefault, this.ExtraHeaders);
-            opt.method = method;
-            if (opt.protocol !== "https:") {
-                return void reject(new Error("Request Error: Unknown protocol '" + opt.protocol + "'"));
+            const option = url.parse(link);
+            option.headers = Object.assign({}, RequestHeadersDefault, this.ExtraHeaders);
+            option.method = method;
+            if (option.protocol !== "https:") {
+                return void reject(new Error("Request Error: Unknown protocol '" + option.protocol + "'"));
             }
-            const req = https.request(opt);
+            const req = https.request(option);
             req.on("response", resolve);
             req.on("error", reject);
-            if (typeof payload !== "undefined")
-                req.end(payload);
+            if (typeof opt.payload !== "undefined")
+                req.end(opt.payload);
             else
                 req.end();
         });
     }
-    async LinkToText(link, method = RequestMethods.GET, payload) {
+    async LinkToText(link, method = RequestMethods.GET, opt) {
+        if (opt instanceof Object === false)
+            opt = { stubborn: false };
         let redirect = 5;
         while (redirect-- > 0) {
             let res;
             try {
-                res = await this.LinkToStream(link, method, payload);
+                res = await this.LinkToStream(link, method, opt);
             }
             catch (err) {
                 log_1.LogError(err.message);
@@ -154,9 +156,11 @@ class RequestEngine {
         log_1.LogError("Request Error: Too many redirects");
         return null;
     }
-    async Get(link) {
+    async Get(link, stubborn = false) {
         this.Pending++;
-        const result = await this.LinkToText(link);
+        const result = await this.LinkToText(link, RequestMethods.GET, {
+            stubborn: stubborn,
+        });
         this.Pending--;
         return result;
     }
@@ -164,7 +168,9 @@ class RequestEngine {
         if (payload instanceof Object)
             payload = JSON.stringify(payload);
         this.Pending++;
-        const result = await this.LinkToText(link, RequestMethods.PUT, payload);
+        const result = await this.LinkToText(link, RequestMethods.PUT, {
+            payload: payload,
+        });
         this.Pending--;
         return result;
     }
