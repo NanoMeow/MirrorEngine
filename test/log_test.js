@@ -49,12 +49,6 @@ const Log = (msg) => {
     console.log(msg);
 };
 
-const TestAll = (msg) => {
-    LogMessage(msg);
-    LogWarning(msg);
-    LogError(msg);
-};
-
 // --------------------------------------------------------------------------------------------- //
 
 const RandomId = () => {
@@ -63,6 +57,12 @@ const RandomId = () => {
 };
 
 // --------------------------------------------------------------------------------------------- //
+
+const TestAll = (msg) => {
+    LogMessage(msg);
+    LogWarning(msg);
+    LogError(msg);
+};
 
 const TestMain = () => {
 
