@@ -52,18 +52,14 @@ const LOG_DIRECTORY_NAME: string = "mirror-engine-logs";
 process.on("uncaughtException", (err: Error): void => {
     const file = path.resolve(os.homedir(), LOG_DIRECTORY_NAME, "crash-" + Date.now() + ".txt");
 
-    const content: string[] = [
-        "Node version: " + process.version,
-    ];
+    const content: string[] = [];
+    content.push("Node version: " + process.version);
     for (const arg of process.argv)
         content.push("Argument: " + arg);
-    content.push("Error:");
     content.push(<string>err.stack);
+    content.push("");
 
-    const data = content.join("\n");
-    console.log(data);
-    fs.appendFileSync(file, data, "utf8");
-
+    fs.appendFileSync(file, content.join("\n"), "utf8");
     throw err;
 });
 

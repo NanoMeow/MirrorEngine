@@ -12,16 +12,13 @@ const CONFIG_FILE_NAME = "mirror-engine-config.json";
 const LOG_DIRECTORY_NAME = "mirror-engine-logs";
 process.on("uncaughtException", (err) => {
     const file = path.resolve(os.homedir(), LOG_DIRECTORY_NAME, "crash-" + Date.now() + ".txt");
-    const content = [
-        "Node version: " + process.version,
-    ];
+    const content = [];
+    content.push("Node version: " + process.version);
     for (const arg of process.argv)
         content.push("Argument: " + arg);
-    content.push("Error:");
     content.push(err.stack);
-    const data = content.join("\n");
-    console.log(data);
-    fs.appendFileSync(file, data, "utf8");
+    content.push("");
+    fs.appendFileSync(file, content.join("\n"), "utf8");
     throw err;
 });
 process.on("unhandledRejection", (err) => {
