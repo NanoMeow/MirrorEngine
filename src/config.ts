@@ -62,7 +62,9 @@ interface ConfigFile {
     Repo: string,
 
     Secret: string, // Base 64 encoded "user:token"
+
     Data: string, // Link to "assets.json"
+    Lock: string, // Link to "lockfile"
 }
 
 export interface ConfigData extends ConfigFile {
@@ -82,7 +84,9 @@ const ConfigParse = (data: string): ConfigData => {
         typeof parsed.Repo !== "string" ||
         typeof parsed.Secret !== "string" ||
         typeof parsed.Data !== "string" ||
-        !parsed.Data.startsWith("https://")
+        !parsed.Data.startsWith("https://") ||
+        typeof parsed.Lock !== "string" ||
+        !parsed.Lock.startsWith("https://")
     ) {
         throw new Error("Configuration File Error: Invalid or missing fields");
     }
@@ -92,6 +96,7 @@ const ConfigParse = (data: string): ConfigData => {
         Repo: parsed.Repo,
         Secret: parsed.Secret,
         Data: parsed.Data,
+        Lock: parsed.Lock,
         Manifest: [],
     };
 };

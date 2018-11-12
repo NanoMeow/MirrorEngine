@@ -16,7 +16,9 @@ interface ConfigFile {
     Repo: string,   // GitHub repository name
 
     Secret: string, // Base 64 encoded "user:token"
+
     Data: string,   // Link to "assets.json"
+    Lock: string,   // Link to "lockfile"
 }
 ```
 

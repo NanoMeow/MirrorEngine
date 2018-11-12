@@ -20,7 +20,9 @@ const ConfigParse = (data) => {
         typeof parsed.Repo !== "string" ||
         typeof parsed.Secret !== "string" ||
         typeof parsed.Data !== "string" ||
-        !parsed.Data.startsWith("https://")) {
+        !parsed.Data.startsWith("https://") ||
+        typeof parsed.Lock !== "string" ||
+        !parsed.Lock.startsWith("https://")) {
         throw new Error("Configuration File Error: Invalid or missing fields");
     }
     return {
@@ -28,6 +30,7 @@ const ConfigParse = (data) => {
         Repo: parsed.Repo,
         Secret: parsed.Secret,
         Data: parsed.Data,
+        Lock: parsed.Lock,
         Manifest: [],
     };
 };
