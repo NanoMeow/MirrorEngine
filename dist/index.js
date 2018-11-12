@@ -78,6 +78,7 @@ const Main = async () => {
         if (lock.has(entry.Name)) {
             log_1.LogWarning("Update Skipped: File locked");
             i++;
+            await SleepWhileRunning(5 * 60);
             continue;
         }
         else {

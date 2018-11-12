@@ -83,6 +83,7 @@ const SleepWhileRunning = async (seconds: number): Promise<void> => {
 
 const StringToIterable = function* (str: string): Iterable<string> {
     const lines = str.split("\n");
+
     for (let line of lines) {
         line = line.trim();
         if (line.length === 0)
@@ -168,7 +169,9 @@ const Main = async (): Promise<void> => {
         if (lock.has(entry.Name)) {
 
             LogWarning("Update Skipped: File locked");
+
             i++;
+            await SleepWhileRunning(5 * 60); // In case all files are locked
             continue;
 
         } else {
