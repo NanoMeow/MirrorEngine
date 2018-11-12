@@ -60,7 +60,10 @@ process.on("uncaughtException", (err: Error): void => {
     content.push("Error:");
     content.push(<string>err.stack);
 
-    fs.appendFileSync(file, content.join("\n"), "utf8");
+    const data = content.join("\n");
+    console.log(data);
+    fs.appendFileSync(file, data, "utf8");
+
     throw err;
 });
 

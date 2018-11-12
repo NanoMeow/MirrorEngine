@@ -19,7 +19,9 @@ process.on("uncaughtException", (err) => {
         content.push("Argument: " + arg);
     content.push("Error:");
     content.push(err.stack);
-    fs.appendFileSync(file, content.join("\n"), "utf8");
+    const data = content.join("\n");
+    console.log(data);
+    fs.appendFileSync(file, data, "utf8");
     throw err;
 });
 process.on("unhandledRejection", (err) => {
