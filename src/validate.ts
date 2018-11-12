@@ -36,56 +36,15 @@ import { LogError } from "./log";
 
 // --------------------------------------------------------------------------------------------- //
 
-const ValidateAlphanumeric: RegExp = /^[a-zA-Z0-9]*$/;
-
-const ValidateWhitelist: Set<string> = new Set<string>([
-]);
-
-// --------------------------------------------------------------------------------------------- //
-
-const StringToIterable = function* (str: string): Iterable<string> {
-    const lines: string[] = str.split("\n");
-
-    for (let line of lines) {
-        line = line.trim();
-
-        if (line.length > 0)
-            yield line;
-    }
-};
-
-// --------------------------------------------------------------------------------------------- //
-
-// TODO: What about non-filter files?
-
 export const ValidateFile = (data: string): boolean => {
-
-    // ----------------------------------------------------------------------------------------- //
-
     data = data.trim();
-
-    // ----------------------------------------------------------------------------------------- //
 
     if (data.startsWith("<")) {
         LogError("Validation Error: A filter should not begin with '<'");
         return false;
     }
 
-    // ----------------------------------------------------------------------------------------- //
-
-    let passed: boolean = true;
-
-    for (let f of StringToIterable(data)) {
-        if (f.length < 4 && ValidateAlphanumeric.test(f) && !ValidateWhitelist.has(f)) {
-            LogError("Validation Error: Rule '" + f + "' was flagged for manual review");
-            passed = false;
-        }
-    }
-
-    return passed;
-
-    // ----------------------------------------------------------------------------------------- //
-
+    return true;
 };
 
 // --------------------------------------------------------------------------------------------- //
