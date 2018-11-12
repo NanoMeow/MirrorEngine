@@ -153,7 +153,7 @@ const Main = async (): Promise<void> => {
     const requester: RequestEngine = new RequestEngine();
     requester.SetExtraHeader(RequestHeadersExtra.UserAgent, config.User);
 
-    const github = new GitHub(config.User, config.Secret);
+    const github: GitHub = new GitHub(config.User, config.Secret);
 
     // ----------------------------------------------------------------------------------------- //
 
