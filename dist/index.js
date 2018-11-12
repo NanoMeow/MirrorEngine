@@ -11,7 +11,7 @@ const validate_1 = require("./validate");
 const CONFIG_FILE_NAME = "mirror-engine-config.json";
 const LOG_DIRECTORY_NAME = "mirror-engine-logs";
 process.on("uncaughtException", (err) => {
-    const file = path.resolve(os.homedir(), LOG_DIRECTORY_NAME, "error-" + Date.now() + ".txt");
+    const file = path.resolve(os.homedir(), LOG_DIRECTORY_NAME, "crash-" + Date.now() + ".txt");
     const content = [
         "Node version: " + process.version,
     ];

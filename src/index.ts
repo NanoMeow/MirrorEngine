@@ -50,7 +50,7 @@ const LOG_DIRECTORY_NAME: string = "mirror-engine-logs";
 // --------------------------------------------------------------------------------------------- //
 
 process.on("uncaughtException", (err: Error): void => {
-    const file = path.resolve(os.homedir(), LOG_DIRECTORY_NAME, "error-" + Date.now() + ".txt");
+    const file = path.resolve(os.homedir(), LOG_DIRECTORY_NAME, "crash-" + Date.now() + ".txt");
 
     const content: string[] = [
         "Node version: " + process.version,
