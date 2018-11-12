@@ -8,6 +8,8 @@ Clone this repository and run `npm install`. You need Node.js 10.
 
 ## Configuration
 
+Create `~/mirror-engine-config.json` according to interface below:
+
 ```TypeScript
 interface ConfigFile {
     User: string,   // GitHub username
