@@ -30,6 +30,7 @@ const Main = async () => {
     await fs.mkdirp(logs);
     logs = path.resolve(logs, Date.now() + ".txt");
     log_1.LogSetFile(logs);
+    log_1.LogMessage("Logging to '" + logs + "'");
     const config = await config_1.ConfigLoad(file);
     const manifest = config.Manifest;
     const requester = new request_1.RequestEngine();

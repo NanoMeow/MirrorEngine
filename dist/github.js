@@ -36,7 +36,7 @@ class GitHub {
             log_1.LogError(err.message);
             return { success: false };
         }
-        if (opt.Content === old) {
+        if (opt.Content === old.replace(/\n/g, "")) {
             log_1.LogMessage("File not changed");
             return { success: true };
         }

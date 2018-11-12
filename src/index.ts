@@ -78,6 +78,7 @@ const Main = async (): Promise<void> => {
     await fs.mkdirp(logs);
     logs = path.resolve(logs, Date.now() + ".txt");
     LogSetFile(logs);
+    LogMessage("Logging to '" + logs + "'");
 
     const config: ConfigData = await ConfigLoad(file);
     const manifest: ConfigManifestEntry[] = config.Manifest;

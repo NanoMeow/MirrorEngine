@@ -123,7 +123,7 @@ export class GitHub {
             return { success: false };
         }
 
-        if (opt.Content === old) {
+        if (opt.Content === old.replace(/\n/g, "")) {
             LogMessage("File not changed");
             return { success: true };
         }
