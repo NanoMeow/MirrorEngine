@@ -195,7 +195,7 @@ const Main = async (): Promise<void> => {
 
         } else {
 
-            const data: string | null = await requester.Get(link);
+            const data: null | string = await requester.Get(link);
 
             if (typeof data === "string" && ValidateRaw(data)) {
 
