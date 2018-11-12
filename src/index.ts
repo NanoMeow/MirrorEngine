@@ -171,7 +171,7 @@ const Main = async (): Promise<void> => {
             LogWarning("Update Skipped: File locked");
 
             i++;
-            await SleepWhileRunning(5 * 60); // In case all files are locked
+            await SleepWhileRunning(5 * 60);
             continue;
 
         } else {
