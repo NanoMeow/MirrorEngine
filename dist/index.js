@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const fs = require("fs-extra");
 const os = require("os");
 const path = require("path");
 const config_1 = require("./config");
@@ -25,6 +26,10 @@ const Sleep = (delay) => {
 const Main = async () => {
     const home = os.homedir();
     const file = path.resolve(home, "mirror-engine-config.json");
+    let logs = path.resolve(home, "mirror-engine-logs");
+    await fs.mkdirp(logs);
+    logs = path.resolve(logs, Date.now() + ".txt");
+    log_1.LogSetFile(logs);
     const config = await config_1.ConfigLoad(file);
     const manifest = config.Manifest;
     const requester = new request_1.RequestEngine();
@@ -49,8 +54,6 @@ const Main = async () => {
                 log_1.LogMessage("Updated '" + entry.Name + "' successfully");
             else
                 log_1.LogError("Update Error: Could not update '" + entry.Name + "'");
-            if (response.response)
-                log_1.LogMessage(response.response);
         }
         i++;
         let sec = 15 * 60;

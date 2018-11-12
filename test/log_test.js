@@ -35,7 +35,7 @@
 const os = require("os");
 const path = require("path");
 
-const { LogMessage, LogWarning, LogError, LogSetFile } = require("../dist/log");
+const { LogSetFile, LogMessage, LogWarning, LogError } = require("../dist/log");
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -109,10 +109,7 @@ const TestMain = () => {
 
     Log("Test 4: Write log to file");
     TestAll("Test");
-    Log(
-        "Test 4: Ended, three single-line messages should be logged into the temporary file " +
-        "instead of the console",
-    );
+    Log("Test 4: Ended, three single-line messages should be logged into the temporary file");
 
     // ----------------------------------------------------------------------------------------- //
 

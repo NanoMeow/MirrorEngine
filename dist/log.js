@@ -20,25 +20,22 @@ const StringToIterable = function* (str, prefix) {
 };
 exports.LogMessage = (message) => {
     for (const line of StringToIterable(message, "MSG")) {
-        if (LogStream === null)
-            console.log(line);
-        else
+        console.log(line);
+        if (LogStream !== null)
             LogStream.write(line + "\n");
     }
 };
 exports.LogWarning = (message) => {
     for (const line of StringToIterable(message, "WRN")) {
-        if (LogStream === null)
-            console.warn(line);
-        else
+        console.warn(line);
+        if (LogStream !== null)
             LogStream.write(line + "\n");
     }
 };
 exports.LogError = (message) => {
     for (const line of StringToIterable(message, "ERR")) {
-        if (LogStream === null)
-            console.error(line);
-        else
+        console.error(line);
+        if (LogStream !== null)
             LogStream.write(line + "\n");
     }
 };

@@ -65,27 +65,24 @@ const StringToIterable = function* (str: string, prefix?: string): Iterable<stri
 
 export const LogMessage = (message: string): void => {
     for (const line of StringToIterable(message, "MSG")) {
-        if (LogStream === null)
-            console.log(line);
-        else
+        console.log(line);
+        if (LogStream !== null)
             LogStream.write(line + "\n");
     }
 };
 
 export const LogWarning = (message: string): void => {
     for (const line of StringToIterable(message, "WRN")) {
-        if (LogStream === null)
-            console.warn(line);
-        else
+        console.warn(line);
+        if (LogStream !== null)
             LogStream.write(line + "\n");
     }
 };
 
 export const LogError = (message: string): void => {
     for (const line of StringToIterable(message, "ERR")) {
-        if (LogStream === null)
-            console.error(line);
-        else
+        console.error(line);
+        if (LogStream !== null)
             LogStream.write(line + "\n");
     }
 };

@@ -32,6 +32,7 @@
 
 // --------------------------------------------------------------------------------------------- //
 
+import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
 
@@ -39,7 +40,7 @@ import { ConfigManifestEntry, ConfigData, ConfigLoad } from "./config";
 import { GitHubUpdateFileRequest, GitHubUpdateFileResult, GitHub } from "./github";
 import { RequestHeadersExtra, RequestEngine } from "./request";
 import { ValidateFile } from "./validate";
-import { LogMessage, LogError } from "./log";
+import { LogSetFile, LogMessage, LogError } from "./log";
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -73,6 +74,11 @@ const Main = async (): Promise<void> => {
     const home: string = os.homedir();
     const file: string = path.resolve(home, "mirror-engine-config.json");
 
+    let logs: string = path.resolve(home, "mirror-engine-logs");
+    await fs.mkdirp(logs);
+    logs = path.resolve(logs, Date.now() + ".txt");
+    LogSetFile(logs);
+
     const config: ConfigData = await ConfigLoad(file);
     const manifest: ConfigManifestEntry[] = config.Manifest;
 
@@ -103,10 +109,6 @@ const Main = async (): Promise<void> => {
                 LogMessage("Updated '" + entry.Name + "' successfully");
             else
                 LogError("Update Error: Could not update '" + entry.Name + "'");
-
-            // TODO: Debug only
-            if (response.response)
-                LogMessage(<string>response.response);
         }
 
         i++;
