@@ -77,6 +77,8 @@ const Main = async () => {
         const link = entry.Links[0];
         if (lock.has(entry.Name)) {
             log_1.LogWarning("Update Skipped: File locked");
+            i++;
+            continue;
         }
         else {
             const data = await requester.Get(link);

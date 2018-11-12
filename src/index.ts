@@ -168,6 +168,8 @@ const Main = async (): Promise<void> => {
         if (lock.has(entry.Name)) {
 
             LogWarning("Update Skipped: File locked");
+            i++;
+            continue;
 
         } else {
 
