@@ -44,6 +44,26 @@ import { ValidateRaw } from "./validate";
 
 // --------------------------------------------------------------------------------------------- //
 
+const CONFIG_FILE_NAME: string = "mirror-engine-config.json";
+const LOG_DIRECTORY_NAME: string = "mirror-engine-logs";
+
+// --------------------------------------------------------------------------------------------- //
+
+process.on("uncaughtException", (err: Error): void => {
+    const file = path.resolve(os.homedir(), LOG_DIRECTORY_NAME, "error-" + Date.now() + ".txt");
+
+    const content: string[] = [
+        "Node version: " + process.version,
+    ];
+    for (const arg of process.argv)
+        content.push("Argument: " + arg);
+    content.push("Error:");
+    content.push(<string>err.stack);
+
+    fs.appendFileSync(file, content.join("\n"), "utf8");
+    throw err;
+});
+
 process.on("unhandledRejection", (err: Error): void => {
     throw err;
 });
@@ -113,11 +133,11 @@ const Main = async (): Promise<void> => {
     // ----------------------------------------------------------------------------------------- //
 
     const home: string = os.homedir();
-    const file: string = path.resolve(home, "mirror-engine-config.json");
+    const file: string = path.resolve(home, CONFIG_FILE_NAME);
 
     // ----------------------------------------------------------------------------------------- //
 
-    let logs: string = path.resolve(home, "mirror-engine-logs");
+    let logs: string = path.resolve(home, LOG_DIRECTORY_NAME);
     await fs.mkdirp(logs);
 
     logs = path.resolve(logs, Date.now() + ".txt");

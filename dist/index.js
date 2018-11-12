@@ -8,6 +8,20 @@ const github_1 = require("./github");
 const log_1 = require("./log");
 const request_1 = require("./request");
 const validate_1 = require("./validate");
+const CONFIG_FILE_NAME = "mirror-engine-config.json";
+const LOG_DIRECTORY_NAME = "mirror-engine-logs";
+process.on("uncaughtException", (err) => {
+    const file = path.resolve(os.homedir(), LOG_DIRECTORY_NAME, "error-" + Date.now() + ".txt");
+    const content = [
+        "Node version: " + process.version,
+    ];
+    for (const arg of process.argv)
+        content.push("Argument: " + arg);
+    content.push("Error:");
+    content.push(err.stack);
+    fs.appendFileSync(file, content.join("\n"), "utf8");
+    throw err;
+});
 process.on("unhandledRejection", (err) => {
     throw err;
 });
@@ -51,8 +65,8 @@ const LockfileParse = (data) => {
 };
 const Main = async () => {
     const home = os.homedir();
-    const file = path.resolve(home, "mirror-engine-config.json");
-    let logs = path.resolve(home, "mirror-engine-logs");
+    const file = path.resolve(home, CONFIG_FILE_NAME);
+    let logs = path.resolve(home, LOG_DIRECTORY_NAME);
     await fs.mkdirp(logs);
     logs = path.resolve(logs, Date.now() + ".txt");
     log_1.LogSetFile(logs);
