@@ -21,10 +21,30 @@ const Shutdown = () => {
 process.on("SIGHUP", Shutdown);
 process.on("SIGTERM", Shutdown);
 process.on("SIGINT", Shutdown);
-const Sleep = (delay) => {
+const Sleep = (milliseconds) => {
     return new Promise((resolve) => {
-        setTimeout(resolve, delay);
+        setTimeout(resolve, milliseconds);
     });
+};
+const SleepWhileRunning = async (seconds) => {
+    while (Running && seconds-- > 0)
+        await Sleep(1000);
+};
+const StringToIterable = function* (str) {
+    if (str.trim().length === 0)
+        return;
+    const lines = str.split("\n");
+    for (const line of lines)
+        yield line.trim();
+};
+const LockfileParse = (data) => {
+    const out = new Set();
+    data = data.trim();
+    if (data.length === 0)
+        return out;
+    for (const line of StringToIterable(data))
+        out.add(line);
+    return out;
 };
 const Main = async () => {
     const home = os.homedir();
@@ -43,26 +63,33 @@ const Main = async () => {
     while (Running) {
         if (i == manifest.length)
             i = 0;
+        const lockfile = await requester.Get(config.Lock);
+        if (lockfile === null) {
+            log_1.LogError("Lockfile Error: Network error");
+            await SleepWhileRunning(30 * 60);
+            continue;
+        }
+        const lock = LockfileParse(lockfile);
         const entry = manifest[i];
         const link = entry.Links[0];
-        const data = await requester.Get(link);
-        if (typeof data === "string" && validate_1.ValidateRaw(data)) {
-            const payload = {
-                Repo: config.Repo,
-                Path: "/raw/" + entry.Name,
-                Content: data,
-                Message: "Automatic mirror update",
-            };
-            const response = await github.UpdateFile(payload);
-            if (response.success)
-                log_1.LogMessage("Updated '" + entry.Name + "' successfully");
-            else
-                log_1.LogError("Update Error: Could not update '" + entry.Name + "'");
+        if (!lock.has(entry.Name)) {
+            const data = await requester.Get(link);
+            if (typeof data === "string" && validate_1.ValidateRaw(data)) {
+                const payload = {
+                    Repo: config.Repo,
+                    Path: "/raw/" + entry.Name,
+                    Content: data,
+                    Message: "Automatic mirror update",
+                };
+                const response = await github.UpdateFile(payload);
+                if (response.success)
+                    log_1.LogMessage("Updated '" + entry.Name + "' successfully");
+                else
+                    log_1.LogError("Update Error: Could not update '" + entry.Name + "'");
+            }
         }
         i++;
-        let sec = 15 * 60;
-        while (Running && sec-- > 0)
-            await Sleep(1000);
+        await SleepWhileRunning(15 * 60);
     }
 };
 Main();
