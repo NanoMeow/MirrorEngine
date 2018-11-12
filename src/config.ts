@@ -56,10 +56,14 @@ const ConfigManifestNameOverride: Map<string, string> = new Map<string, string>(
 ]);
 
 const ConfigManifestLinkBlacklist: Set<string> = new Set<string>([
+
     "https://gitcdn.xyz/repo/NanoMeow/MDLMirror/master/hosts.txt",
     "https://raw.githubusercontent.com/NanoMeow/MDLMirror/master/hosts.txt",
     "https://gitcdn.xyz/repo/NanoMeow/MDLMirror/master/filter.txt",
     "https://raw.githubusercontent.com/NanoMeow/MDLMirror/master/filter.txt",
+
+    "https://road.adblock.ro/lista.txt",
+
 ]);
 
 // --------------------------------------------------------------------------------------------- //

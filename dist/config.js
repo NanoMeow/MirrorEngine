@@ -17,6 +17,7 @@ const ConfigManifestLinkBlacklist = new Set([
     "https://raw.githubusercontent.com/NanoMeow/MDLMirror/master/hosts.txt",
     "https://gitcdn.xyz/repo/NanoMeow/MDLMirror/master/filter.txt",
     "https://raw.githubusercontent.com/NanoMeow/MDLMirror/master/filter.txt",
+    "https://road.adblock.ro/lista.txt",
 ]);
 const ConfigParse = (data) => {
     const parsed = JSON.parse(data);
