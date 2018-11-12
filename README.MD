@@ -8,7 +8,7 @@ Clone this repository and run `npm install`. You need Node.js 10.
 
 ## Configuration
 
-Create `~/mirror-engine-config.json` according to interface below:
+Create `~/mirror-engine-config.json` according to interface below.
 
 ```TypeScript
 interface ConfigFile {
@@ -19,3 +19,7 @@ interface ConfigFile {
     Data: string,   // Link to "assets.json"
 }
 ```
+
+## Running
+
+Run `node dist`.
