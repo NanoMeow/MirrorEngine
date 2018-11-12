@@ -55,6 +55,13 @@ const ConfigManifestNameOverride: Map<string, string> = new Map<string, string>(
     ["spa-1", "SPA-1.txt"],
 ]);
 
+const ConfigManifestLinkBlacklist: Set<string> = new Set<string>([
+    "https://gitcdn.xyz/repo/NanoMeow/MDLMirror/master/hosts.txt",
+    "https://raw.githubusercontent.com/NanoMeow/MDLMirror/master/hosts.txt",
+    "https://gitcdn.xyz/repo/NanoMeow/MDLMirror/master/filter.txt",
+    "https://raw.githubusercontent.com/NanoMeow/MDLMirror/master/filter.txt",
+]);
+
 // --------------------------------------------------------------------------------------------- //
 
 interface ConfigFile {
@@ -120,7 +127,18 @@ const ConfigManifestNormalizeLinks = (links: any): string[] => {
     if (!Array.isArray(links))
         throw new Error("Manifest Error: String or string array expected for 'contentURL'");
 
-    return links.filter((l: any): boolean => typeof l === "string" && l.startsWith("https://"));
+    return links.filter((l: any): boolean => {
+        if (typeof l !== "string")
+            return false;
+
+        if (!l.startsWith("https://"))
+            return false;
+
+        if (ConfigManifestLinkBlacklist.has(l))
+            return false;
+
+        return true;
+    });
 };
 
 const ConfigManifestParse = (data: null | string): ConfigManifestEntry[] => {
