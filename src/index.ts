@@ -168,7 +168,7 @@ const Main = async (): Promise<void> => {
 
         // ------------------------------------------------------------------------------------- //
 
-        const lockfile: string | null = await requester.Get(config.Lock);
+        const lockfile: null | string = await requester.Get(config.Lock);
 
         if (lockfile === null) {
             LogError("Lockfile Error: Network error");
