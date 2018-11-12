@@ -5,19 +5,22 @@ const os = require("os");
 const path = require("path");
 const config_1 = require("./config");
 const github_1 = require("./github");
+const log_1 = require("./log");
 const request_1 = require("./request");
 const validate_1 = require("./validate");
-const log_1 = require("./log");
 process.on("unhandledRejection", (err) => {
     throw err;
 });
 let Running = true;
-const ShutDown = () => {
+const Shutdown = () => {
+    if (!Running)
+        return;
     Running = false;
+    log_1.LogMessage("Shutdown initiated");
 };
-process.on("SIGHUP", ShutDown);
-process.on("SIGTERM", ShutDown);
-process.on("SIGINT", ShutDown);
+process.on("SIGHUP", Shutdown);
+process.on("SIGTERM", Shutdown);
+process.on("SIGINT", Shutdown);
 const Sleep = (delay) => {
     return new Promise((resolve) => {
         setTimeout(resolve, delay);

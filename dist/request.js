@@ -166,12 +166,13 @@ class RequestEngine {
         this.Pending--;
         return result;
     }
-    async Put(link, payload) {
+    async Put(link, payload, stubborn = false) {
         if (payload instanceof Object)
             payload = JSON.stringify(payload);
         this.Pending++;
         const result = await this.LinkToText(link, RequestMethods.PUT, {
             payload: payload,
+            stubborn: stubborn,
         });
         this.Pending--;
         return result;

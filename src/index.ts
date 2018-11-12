@@ -38,9 +38,9 @@ import * as path from "path";
 
 import { ConfigManifestEntry, ConfigData, ConfigLoad } from "./config";
 import { GitHubUpdateFileRequest, GitHubUpdateFileResult, GitHub } from "./github";
+import { LogSetFile, LogMessage, LogError } from "./log";
 import { RequestHeadersExtra, RequestEngine } from "./request";
 import { ValidateRaw } from "./validate";
-import { LogSetFile, LogMessage, LogError } from "./log";
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -52,13 +52,17 @@ process.on("unhandledRejection", (err: Error): void => {
 
 let Running: boolean = true;
 
-const ShutDown = (): void => {
+const Shutdown = (): void => {
+    if (!Running)
+        return;
+
     Running = false;
+    LogMessage("Shutdown initiated");
 };
 
-process.on("SIGHUP", ShutDown);
-process.on("SIGTERM", ShutDown);
-process.on("SIGINT", ShutDown);
+process.on("SIGHUP", Shutdown);
+process.on("SIGTERM", Shutdown);
+process.on("SIGINT", Shutdown);
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -114,7 +118,7 @@ const Main = async (): Promise<void> => {
 
         i++;
 
-        // TODO: Make this more pretty
+        // TODO: Make this less ugly
         let sec: number = 15 * 60;
         while (Running && sec-- > 0)
             await Sleep(1000);

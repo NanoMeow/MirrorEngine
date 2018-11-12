@@ -134,7 +134,7 @@ export class GitHub {
             path: opt.Path,
             message: opt.Message,
             content: opt.Content,
-            sha: <string>sha,
+            sha: sha,
         };
         let res: null | string = await this.Requester.Put(link, payload);
         if (res === null)

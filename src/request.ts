@@ -322,17 +322,24 @@ export class RequestEngine {
         return result;
     }
 
-    public async Put(link: string, payload: string | Object): Promise<null | string> {
+    public async Put(
+        link: string,
+        payload: string | Object,
+        stubborn: boolean = false,
+    ): Promise<null | string> {
+
         if (payload instanceof Object)
             payload = JSON.stringify(payload);
 
         this.Pending++;
         const result: null | string = await this.LinkToText(link, RequestMethods.PUT, {
             payload: <string>payload,
+            stubborn: stubborn,
         });
         this.Pending--;
 
         return result;
+
     }
 
     // ----------------------------------------------------------------------------------------- //
