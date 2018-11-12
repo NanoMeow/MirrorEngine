@@ -80,12 +80,14 @@ const SleepWhileRunning = async (seconds: number): Promise<void> => {
 // --------------------------------------------------------------------------------------------- //
 
 const StringToIterable = function* (str: string): Iterable<string> {
-    if (str.trim().length === 0)
-        return;
-
     const lines = str.split("\n");
-    for (const line of lines)
-        yield line.trim();
+    for (let line of lines) {
+        line = line.trim();
+        if (line.length === 0)
+            continue;
+
+        yield line;
+    }
 };
 
 const LockfileParse = (data: string): Set<string> => {

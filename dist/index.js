@@ -31,11 +31,13 @@ const SleepWhileRunning = async (seconds) => {
         await Sleep(1000);
 };
 const StringToIterable = function* (str) {
-    if (str.trim().length === 0)
-        return;
     const lines = str.split("\n");
-    for (const line of lines)
-        yield line.trim();
+    for (let line of lines) {
+        line = line.trim();
+        if (line.length === 0)
+            continue;
+        yield line;
+    }
 };
 const LockfileParse = (data) => {
     const out = new Set();
