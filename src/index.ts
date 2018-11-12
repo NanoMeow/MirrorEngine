@@ -39,7 +39,7 @@ import * as path from "path";
 import { ConfigManifestEntry, ConfigData, ConfigLoad } from "./config";
 import { GitHubUpdateFileRequest, GitHubUpdateFileResult, GitHub } from "./github";
 import { RequestHeadersExtra, RequestEngine } from "./request";
-import { ValidateFile } from "./validate";
+import { ValidateRaw } from "./validate";
 import { LogSetFile, LogMessage, LogError } from "./log";
 
 // --------------------------------------------------------------------------------------------- //
@@ -98,7 +98,7 @@ const Main = async (): Promise<void> => {
         const link = entry.Links[0];
 
         const data: string | null = await requester.Get(link);
-        if (typeof data === "string" && ValidateFile(data)) {
+        if (typeof data === "string" && ValidateRaw(data)) {
             const payload: GitHubUpdateFileRequest = {
                 Repo: config.Repo,
                 Path: "/raw/" + entry.Name,

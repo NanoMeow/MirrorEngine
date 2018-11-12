@@ -34,7 +34,7 @@
 
 const assert = require("assert");
 
-const { ValidateFile } = require("../dist/validate");
+const { ValidateRaw } = require("../dist/validate");
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -55,7 +55,7 @@ const TestMain = () => {
     // ----------------------------------------------------------------------------------------- //
 
     Log("Test 0: Basic rules");
-    assert(ValidateFile("example.com") === true);
+    assert(ValidateRaw("example.com") === true);
     Log("Test 0: Passed");
 
     Log("");
@@ -63,19 +63,8 @@ const TestMain = () => {
     // ----------------------------------------------------------------------------------------- //
 
     Log("Test 1: Unexpected HTML");
-    assert(ValidateFile("<!DOCTYPE>") === false);
+    assert(ValidateRaw("<!DOCTYPE>") === false);
     Log("Test 1: Passed");
-
-    Log("");
-
-    // ----------------------------------------------------------------------------------------- //
-
-    Log("Test 2: Unexpected short rule");
-    assert(ValidateFile([
-        "example.com",
-        "a",
-    ].join("\n")) === false);
-    Log("Test 2: Passed");
 
     // ----------------------------------------------------------------------------------------- //
 

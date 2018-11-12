@@ -43,7 +43,7 @@ const Main = async () => {
         const entry = manifest[i];
         const link = entry.Links[0];
         const data = await requester.Get(link);
-        if (typeof data === "string" && validate_1.ValidateFile(data)) {
+        if (typeof data === "string" && validate_1.ValidateRaw(data)) {
             const payload = {
                 Repo: config.Repo,
                 Path: "/raw/" + entry.Name,

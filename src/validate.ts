@@ -36,7 +36,7 @@ import { LogError } from "./log";
 
 // --------------------------------------------------------------------------------------------- //
 
-export const ValidateFile = (data: string): boolean => {
+export const ValidateRaw = (data: string): boolean => {
     data = data.trim();
 
     if (data.startsWith("<")) {
