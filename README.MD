@@ -22,7 +22,7 @@ interface ConfigFile {
 }
 ```
 
-## `assets.json` Interface
+## `assets.json`
 
 ```TypeScript
 interface AssetsManifestEntry {
@@ -33,6 +33,10 @@ interface AssetsManifest {
     [key: string]: AssetsManifestEntry,
 }
 ```
+
+## `lockfile`
+
+One file name per line, locked file will be skipped when updating.
 
 ## Running
 
