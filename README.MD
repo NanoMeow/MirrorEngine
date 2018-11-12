@@ -24,6 +24,10 @@ interface ConfigFile {
 
 ## `assets.json`
 
+The name of the resource entry will be the manifest key, plus `.txt` extension
+if it doesn't already have one. The link will be the first valid `contentURL`.
+Both can be overridden if needed.
+
 ```TypeScript
 interface AssetsManifestEntry {
     contentURL: string | string[],
