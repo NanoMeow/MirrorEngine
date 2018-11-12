@@ -22,6 +22,18 @@ interface ConfigFile {
 }
 ```
 
+## `assets.json` Interface
+
+```TypeScript
+interface AssetsManifestEntry {
+    contentURL: string | string[],
+}
+
+interface AssetsManifest {
+    [key: string]: AssetsManifestEntry,
+}
+```
+
 ## Running
 
 Run `node dist`.
