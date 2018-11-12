@@ -38,7 +38,7 @@ import * as path from "path";
 
 import { ConfigManifestEntry, ConfigData, ConfigLoad } from "./config";
 import { GitHubUpdateFileRequest, GitHubUpdateFileResult, GitHub } from "./github";
-import { LogSetFile, LogMessage, LogError } from "./log";
+import { LogSetFile, LogMessage, LogError, LogWarning } from "./log";
 import { RequestHeadersExtra, RequestEngine } from "./request";
 import { ValidateRaw } from "./validate";
 
@@ -73,8 +73,10 @@ const Sleep = (milliseconds: number): Promise<void> => {
 };
 
 const SleepWhileRunning = async (seconds: number): Promise<void> => {
+    seconds *= 2;
+
     while (Running && seconds-- > 0)
-        await Sleep(1000);
+        await Sleep(500);
 };
 
 // --------------------------------------------------------------------------------------------- //
@@ -163,7 +165,11 @@ const Main = async (): Promise<void> => {
 
         // ------------------------------------------------------------------------------------- //
 
-        if (!lock.has(entry.Name)) {
+        if (lock.has(entry.Name)) {
+
+            LogWarning("Update Skipped: File locked");
+
+        } else {
 
             const data: string | null = await requester.Get(link);
 

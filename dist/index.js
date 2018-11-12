@@ -27,8 +27,9 @@ const Sleep = (milliseconds) => {
     });
 };
 const SleepWhileRunning = async (seconds) => {
+    seconds *= 2;
     while (Running && seconds-- > 0)
-        await Sleep(1000);
+        await Sleep(500);
 };
 const StringToIterable = function* (str) {
     const lines = str.split("\n");
@@ -74,7 +75,10 @@ const Main = async () => {
         const lock = LockfileParse(lockfile);
         const entry = manifest[i];
         const link = entry.Links[0];
-        if (!lock.has(entry.Name)) {
+        if (lock.has(entry.Name)) {
+            log_1.LogWarning("Update Skipped: File locked");
+        }
+        else {
             const data = await requester.Get(link);
             if (typeof data === "string" && validate_1.ValidateRaw(data)) {
                 const payload = {
