@@ -211,6 +211,10 @@ const Main = async (): Promise<void> => {
                 else
                     LogError("Update Error: Could not update '" + entry.Name + "'");
 
+            } else {
+
+                LogError("Update Error: Could not update '" + entry.Name + "'");
+
             }
 
         }

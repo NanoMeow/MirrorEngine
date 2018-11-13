@@ -109,6 +109,9 @@ const Main = async () => {
                 else
                     log_1.LogError("Update Error: Could not update '" + entry.Name + "'");
             }
+            else {
+                log_1.LogError("Update Error: Could not update '" + entry.Name + "'");
+            }
         }
         i++;
         await SleepWhileRunning(15 * 60);
