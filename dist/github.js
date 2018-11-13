@@ -38,7 +38,7 @@ class GitHub {
             return { success: false };
         }
         if (old === "" || sha === "") {
-            log_1.LogDebug("GitHub API response:");
+            log_1.LogDebug("GitHub API returned unexpected response:");
             log_1.LogDebug(JSON.stringify(parsed, null, 4));
         }
         if (opt.Content === old.replace(/\n/g, "")) {
@@ -63,7 +63,7 @@ class GitHub {
                 return { success: true };
             }
             else {
-                log_1.LogDebug("GitHub API response:");
+                log_1.LogDebug("GitHub API returned unexpected response:");
                 log_1.LogDebug(JSON.stringify(parsed, null, 4));
                 return { success: false };
             }

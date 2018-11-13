@@ -73,7 +73,7 @@ const Main = async () => {
     const config = await config_1.ConfigLoad(file);
     const manifest = config.Manifest;
     const requester = new request_1.RequestEngine();
-    requester.SetExtraHeader(request_1.RequestHeadersExtra.UserAgent, config.User);
+    requester.SetExtraHeader(request_1.RequestHeadersCustomizable.UserAgent, config.User);
     const github = new github_1.GitHub(config.User, config.Secret);
     let i = 0;
     while (Running) {

@@ -46,13 +46,7 @@ interface RequestHeaders {
     [key: string]: string,
 }
 
-const RequestHeadersDefault: RequestHeaders = {
-    "Cache-Control": "no-cache",
-    "Accept": "text/plain, text/*, */*;q=0.9",
-    "Accept-Encoding": "deflate, gzip, identity",
-};
-
-export enum RequestHeadersExtra {
+export enum RequestHeadersCustomizable {
     Accept = "Accept",
     Authorization = "Authorization",
     UserAgent = "User-Agent",
@@ -68,8 +62,27 @@ enum RequestMethods {
 
 // --------------------------------------------------------------------------------------------- //
 
-const RequestRedirectSafeAbsoluteLink: RegExp = /^https:\/\/(?:\w+\.)+\w+\//;
-const RequestRedirectSafeRelativeLink: RegExp = /^\/\w/;
+export interface RequestRequest {
+    Payload?: string | Buffer,
+    Stubborn?: boolean, // Get response text even if response code is not in the 200 range
+}
+
+export interface RequestResponse {
+    RedirectRefused?: boolean,
+
+    Stream?: http.IncomingMessage,
+    Text?: string,
+}
+
+// --------------------------------------------------------------------------------------------- //
+
+const RequestHeadersDefault: RequestHeaders = {
+    "Cache-Control": "no-cache",
+    "Accept": "text/plain, text/*, */*;q=0.9",
+    "Accept-Encoding": "deflate, gzip, identity",
+};
+
+// --------------------------------------------------------------------------------------------- //
 
 const RequestRedirectStatusCode: Set<number> = new Set<number>([
     301,
@@ -77,12 +90,9 @@ const RequestRedirectStatusCode: Set<number> = new Set<number>([
     307,
 ]);
 
-// --------------------------------------------------------------------------------------------- //
+const RequestRedirectSafeAbsoluteLink: RegExp = /^https:\/\/(?:\w+\.)+\w+\//;
 
-interface RequestOptionalData {
-    payload?: string | Buffer,
-    stubborn?: boolean, // No abort even if response code is error
-}
+const RequestRedirectSafeRelativeLink: RegExp = /^\/\w/;
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -102,7 +112,7 @@ export class RequestEngine {
 
     private ExtraHeaders: RequestHeaders = {};
 
-    public SetExtraHeader(key: RequestHeadersExtra, val: string): void {
+    public SetExtraHeader(key: RequestHeadersCustomizable, val: string): void {
         this.ExtraHeaders[key] = val;
     }
 
@@ -114,7 +124,7 @@ export class RequestEngine {
         def: string = "",
     ): string {
 
-        const header: undefined | string | string[] = res.headers[key];
+        const header: string | undefined | string[] = res.headers[key];
 
         if (typeof header === "undefined")
             return def;
@@ -168,17 +178,19 @@ export class RequestEngine {
                     return;
 
                 data += c;
-                if (data.length > 10 * 1024 * 1024) {
+                if (data.length > 25 * 1024 * 1024) {
                     aborted = true;
                     reject(new Error("Request Error: Response payload too large"));
                 }
             });
+
             s.on("end", (): void => {
                 if (aborted)
                     return;
 
                 resolve(data);
             });
+
             s.on("error", (err: Error): void => {
                 if (aborted)
                     return;
@@ -197,7 +209,7 @@ export class RequestEngine {
     private LinkToStream(
         link: string,
         method: RequestMethods,
-        opt: RequestOptionalData,
+        opt: RequestRequest,
     ): Promise<http.IncomingMessage> {
         return new Promise((
             resolve: (res: http.IncomingMessage) => void,
@@ -226,8 +238,8 @@ export class RequestEngine {
             req.on("response", resolve);
             req.on("error", reject);
 
-            if (typeof opt.payload !== "undefined")
-                req.end(opt.payload);
+            if (typeof opt.Payload !== "undefined")
+                req.end(opt.Payload);
             else
                 req.end();
 
@@ -236,27 +248,29 @@ export class RequestEngine {
         });
     }
 
-    private async LinkToText(
+    private async LinkToResponse(
         link: string,
-        method: RequestMethods = RequestMethods.GET,
-        opt?: RequestOptionalData,
-    ): Promise<null | string> {
+        method: RequestMethods,
+        opt?: RequestRequest,
+    ): Promise<RequestResponse> {
 
-        if (opt instanceof Object === false)
-            opt = { stubborn: false };
+        if (typeof opt === "undefined")
+            opt = {};
 
+        let res: http.IncomingMessage | undefined;
         let redirect: number = 5;
 
         while (redirect-- > 0) {
 
             // --------------------------------------------------------------------------------- //
 
-            let res: http.IncomingMessage;
+            res = undefined;
+
             try {
-                res = await this.LinkToStream(link, method, <RequestOptionalData>opt);
+                res = await this.LinkToStream(link, method, opt);
             } catch (err) {
                 LogError((<Error>err).message);
-                return null;
+                return {};
             }
 
             // --------------------------------------------------------------------------------- //
@@ -274,19 +288,16 @@ export class RequestEngine {
                     continue;
                 } else {
                     LogError("Request Error: Invalid redirect link '" + location + "'");
-                    return null;
+                    return {
+                        RedirectRefused: true,
+                        Stream: res,
+                    };
                 }
             }
 
-            if (
-                !(<RequestOptionalData>opt).stubborn &&
-                (
-                    <number>res.statusCode < 200 ||
-                    <number>res.statusCode > 299
-                )
-            ) {
+            if (!opt.Stubborn && (<number>res.statusCode < 200 || <number>res.statusCode > 299)) {
                 LogError("Request Error: Unexpected status code '" + res.statusCode + "'");
-                return null;
+                return { Stream: res };
             }
 
             // --------------------------------------------------------------------------------- //
@@ -296,27 +307,30 @@ export class RequestEngine {
                 txt = await RequestEngine.StreamToText(res);
             } catch (err) {
                 LogError((<Error>err).message);
-                return null;
+                return { Stream: res };
             }
 
-            return txt;
+            return {
+                Stream: res,
+                Text: txt,
+            };
 
             // --------------------------------------------------------------------------------- //
 
         }
 
         LogError("Request Error: Too many redirects");
-        return null;
-
+        return {
+            RedirectRefused: true,
+            Stream: res,
+        };
     }
 
     // ----------------------------------------------------------------------------------------- //
 
-    public async Get(link: string, stubborn: boolean = false): Promise<null | string> {
+    public async Get(link: string, opt?: RequestRequest): Promise<RequestResponse> {
         this.Pending++;
-        const result: null | string = await this.LinkToText(link, RequestMethods.GET, {
-            stubborn: stubborn,
-        });
+        const result: RequestResponse = await this.LinkToResponse(link, RequestMethods.GET, opt);
         this.Pending--;
 
         return result;
@@ -325,17 +339,19 @@ export class RequestEngine {
     public async Put(
         link: string,
         payload: string | Object,
-        stubborn: boolean = false,
-    ): Promise<null | string> {
+        opt?: RequestRequest,
+    ): Promise<RequestResponse> {
 
-        if (payload instanceof Object)
+        if (typeof payload === "object")
             payload = JSON.stringify(payload);
 
+        if (typeof opt === "undefined")
+            opt = {};
+
+        opt.Payload = <string>payload;
+
         this.Pending++;
-        const result: null | string = await this.LinkToText(link, RequestMethods.PUT, {
-            payload: <string>payload,
-            stubborn: stubborn,
-        });
+        const result: RequestResponse = await this.LinkToResponse(link, RequestMethods.PUT, opt);
         this.Pending--;
 
         return result;

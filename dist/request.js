@@ -4,30 +4,30 @@ const https = require("https");
 const url = require("url");
 const zlib = require("zlib");
 const log_1 = require("./log");
-const RequestHeadersDefault = {
-    "Cache-Control": "no-cache",
-    "Accept": "text/plain, text/*, */*;q=0.9",
-    "Accept-Encoding": "deflate, gzip, identity",
-};
-var RequestHeadersExtra;
-(function (RequestHeadersExtra) {
-    RequestHeadersExtra["Accept"] = "Accept";
-    RequestHeadersExtra["Authorization"] = "Authorization";
-    RequestHeadersExtra["UserAgent"] = "User-Agent";
-})(RequestHeadersExtra = exports.RequestHeadersExtra || (exports.RequestHeadersExtra = {}));
+var RequestHeadersCustomizable;
+(function (RequestHeadersCustomizable) {
+    RequestHeadersCustomizable["Accept"] = "Accept";
+    RequestHeadersCustomizable["Authorization"] = "Authorization";
+    RequestHeadersCustomizable["UserAgent"] = "User-Agent";
+})(RequestHeadersCustomizable = exports.RequestHeadersCustomizable || (exports.RequestHeadersCustomizable = {}));
 var RequestMethods;
 (function (RequestMethods) {
     RequestMethods["GET"] = "GET";
     RequestMethods["POST"] = "POST";
     RequestMethods["PUT"] = "PUT";
 })(RequestMethods || (RequestMethods = {}));
-const RequestRedirectSafeAbsoluteLink = /^https:\/\/(?:\w+\.)+\w+\//;
-const RequestRedirectSafeRelativeLink = /^\/\w/;
+const RequestHeadersDefault = {
+    "Cache-Control": "no-cache",
+    "Accept": "text/plain, text/*, */*;q=0.9",
+    "Accept-Encoding": "deflate, gzip, identity",
+};
 const RequestRedirectStatusCode = new Set([
     301,
     302,
     307,
 ]);
+const RequestRedirectSafeAbsoluteLink = /^https:\/\/(?:\w+\.)+\w+\//;
+const RequestRedirectSafeRelativeLink = /^\/\w/;
 class RequestEngine {
     constructor() {
         this.Pending = 0;
@@ -73,7 +73,7 @@ class RequestEngine {
                 if (aborted)
                     return;
                 data += c;
-                if (data.length > 10 * 1024 * 1024) {
+                if (data.length > 25 * 1024 * 1024) {
                     aborted = true;
                     reject(new Error("Request Error: Response payload too large"));
                 }
@@ -103,24 +103,25 @@ class RequestEngine {
             const req = https.request(option);
             req.on("response", resolve);
             req.on("error", reject);
-            if (typeof opt.payload !== "undefined")
-                req.end(opt.payload);
+            if (typeof opt.Payload !== "undefined")
+                req.end(opt.Payload);
             else
                 req.end();
         });
     }
-    async LinkToText(link, method = RequestMethods.GET, opt) {
-        if (opt instanceof Object === false)
-            opt = { stubborn: false };
+    async LinkToResponse(link, method, opt) {
+        if (typeof opt === "undefined")
+            opt = {};
+        let res;
         let redirect = 5;
         while (redirect-- > 0) {
-            let res;
+            res = undefined;
             try {
                 res = await this.LinkToStream(link, method, opt);
             }
             catch (err) {
                 log_1.LogError(err.message);
-                return null;
+                return {};
             }
             if (RequestRedirectStatusCode.has(res.statusCode)) {
                 const location = RequestEngine.StreamToHeader(res, "location");
@@ -136,14 +137,15 @@ class RequestEngine {
                 }
                 else {
                     log_1.LogError("Request Error: Invalid redirect link '" + location + "'");
-                    return null;
+                    return {
+                        RedirectRefused: true,
+                        Stream: res,
+                    };
                 }
             }
-            if (!opt.stubborn &&
-                (res.statusCode < 200 ||
-                    res.statusCode > 299)) {
+            if (!opt.Stubborn && (res.statusCode < 200 || res.statusCode > 299)) {
                 log_1.LogError("Request Error: Unexpected status code '" + res.statusCode + "'");
-                return null;
+                return { Stream: res };
             }
             let txt;
             try {
@@ -151,29 +153,33 @@ class RequestEngine {
             }
             catch (err) {
                 log_1.LogError(err.message);
-                return null;
+                return { Stream: res };
             }
-            return txt;
+            return {
+                Stream: res,
+                Text: txt,
+            };
         }
         log_1.LogError("Request Error: Too many redirects");
-        return null;
+        return {
+            RedirectRefused: true,
+            Stream: res,
+        };
     }
-    async Get(link, stubborn = false) {
+    async Get(link, opt) {
         this.Pending++;
-        const result = await this.LinkToText(link, RequestMethods.GET, {
-            stubborn: stubborn,
-        });
+        const result = await this.LinkToResponse(link, RequestMethods.GET, opt);
         this.Pending--;
         return result;
     }
-    async Put(link, payload, stubborn = false) {
-        if (payload instanceof Object)
+    async Put(link, payload, opt) {
+        if (typeof payload === "object")
             payload = JSON.stringify(payload);
+        if (typeof opt === "undefined")
+            opt = {};
+        opt.Payload = payload;
         this.Pending++;
-        const result = await this.LinkToText(link, RequestMethods.PUT, {
-            payload: payload,
-            stubborn: stubborn,
-        });
+        const result = await this.LinkToResponse(link, RequestMethods.PUT, opt);
         this.Pending--;
         return result;
     }

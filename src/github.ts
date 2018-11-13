@@ -33,7 +33,19 @@
 // --------------------------------------------------------------------------------------------- //
 
 import { LogDebug, LogMessage, LogError } from "./log";
-import { RequestHeadersExtra, RequestEngine } from "./request";
+import { RequestHeadersCustomizable, RequestEngine } from "./request";
+
+// --------------------------------------------------------------------------------------------- //
+
+interface GitHubContentRequest {
+    Repo: string,
+    Path: string, // Including leading "/"
+}
+
+interface GitHubContentResult {
+    Content: string,
+    Sha: string,
+}
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -44,10 +56,7 @@ interface GitHubUpdateFilePayload {
     sha: string,
 }
 
-export interface GitHubUpdateFileRequest {
-    Repo: string,
-    Path: string, // Including leading "/"
-
+export interface GitHubUpdateFileRequest extends GitHubContentRequest {
     Content: string | Buffer,
     Message: string, // Commit message
 }
@@ -74,8 +83,8 @@ export class GitHub {
         this.Secret = secret;
 
         this.Requester = new RequestEngine();
-        this.Requester.SetExtraHeader(RequestHeadersExtra.Authorization, "Basic " + this.Secret);
-        this.Requester.SetExtraHeader(RequestHeadersExtra.UserAgent, this.User);
+        this.Requester.SetExtraHeader(RequestHeadersCustomizable.Authorization, "Basic " + this.Secret);
+        this.Requester.SetExtraHeader(RequestHeadersCustomizable.UserAgent, this.User);
     }
 
     // ----------------------------------------------------------------------------------------- //
@@ -85,6 +94,15 @@ export class GitHub {
             data = Buffer.from(data);
 
         return data.toString("base64");
+    }
+
+    // ----------------------------------------------------------------------------------------- //
+
+    private async GetCurrentContent(opt: GitHubContentRequest): Promise<GitHubContentResult> {
+        const root = "https://raw.githubusercontent.com/";
+        const link = root + this.User + "/" + opt.Repo + "/master" + opt.Path;
+
+
     }
 
     // ----------------------------------------------------------------------------------------- //
@@ -124,7 +142,7 @@ export class GitHub {
         }
 
         if (old === "" || sha === "") {
-            LogDebug("GitHub API response:");
+            LogDebug("GitHub API returned unexpected response:");
             LogDebug(JSON.stringify(parsed, null, 4));
         }
 
@@ -156,7 +174,7 @@ export class GitHub {
             ) {
                 return { success: true };
             } else {
-                LogDebug("GitHub API response:");
+                LogDebug("GitHub API returned unexpected response:");
                 LogDebug(JSON.stringify(parsed, null, 4));
                 return { success: false };
             }

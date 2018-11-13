@@ -35,7 +35,7 @@
 import * as fs from "fs-extra";
 
 import { LogWarning } from "./log";
-import { RequestEngine } from "./request";
+import { RequestResponse, RequestEngine } from "./request";
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -145,8 +145,8 @@ const ConfigManifestNormalizeLinks = (links: any): string[] => {
     });
 };
 
-const ConfigManifestParse = (data: null | string): ConfigManifestEntry[] => {
-    if (data === null)
+const ConfigManifestParse = (data: string | undefined): ConfigManifestEntry[] => {
+    if (typeof data === "undefined")
         throw new Error("Manifest Error: Network error");
 
     const parsed: any = JSON.parse(data);
@@ -180,8 +180,9 @@ const ConfigManifestParse = (data: null | string): ConfigManifestEntry[] => {
 export const ConfigLoad = async (file: string): Promise<ConfigData> => {
     const config: ConfigData = ConfigParse(await fs.readFile(file, "utf8"));
 
-    const requester = new RequestEngine();
-    config.Manifest = ConfigManifestParse(await requester.Get(config.Data));
+    const requester: RequestEngine = new RequestEngine();
+    const response: RequestResponse = await requester.Get(config.Data)
+    config.Manifest = ConfigManifestParse(response.Text);
 
     return config;
 };

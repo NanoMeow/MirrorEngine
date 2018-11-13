@@ -39,7 +39,7 @@ import * as path from "path";
 import { ConfigManifestEntry, ConfigData, ConfigLoad } from "./config";
 import { GitHubUpdateFileRequest, GitHubUpdateFileResult, GitHub } from "./github";
 import { LogSetFile, LogMessage, LogError, LogWarning } from "./log";
-import { RequestHeadersExtra, RequestEngine } from "./request";
+import { RequestHeadersCustomizable, RequestEngine } from "./request";
 import { ValidateRaw } from "./validate";
 
 // --------------------------------------------------------------------------------------------- //
@@ -151,7 +151,7 @@ const Main = async (): Promise<void> => {
     // ----------------------------------------------------------------------------------------- //
 
     const requester: RequestEngine = new RequestEngine();
-    requester.SetExtraHeader(RequestHeadersExtra.UserAgent, config.User);
+    requester.SetExtraHeader(RequestHeadersCustomizable.UserAgent, config.User);
 
     const github: GitHub = new GitHub(config.User, config.Secret);
 

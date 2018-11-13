@@ -65,7 +65,7 @@ const ConfigManifestNormalizeLinks = (links) => {
     });
 };
 const ConfigManifestParse = (data) => {
-    if (data === null)
+    if (typeof data === "undefined")
         throw new Error("Manifest Error: Network error");
     const parsed = JSON.parse(data);
     if (parsed instanceof Object === false)
@@ -89,6 +89,7 @@ const ConfigManifestParse = (data) => {
 exports.ConfigLoad = async (file) => {
     const config = ConfigParse(await fs.readFile(file, "utf8"));
     const requester = new request_1.RequestEngine();
-    config.Manifest = ConfigManifestParse(await requester.Get(config.Data));
+    const response = await requester.Get(config.Data);
+    config.Manifest = ConfigManifestParse(response.Text);
     return config;
 };
