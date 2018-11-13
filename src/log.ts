@@ -63,6 +63,14 @@ const StringToIterable = function* (str: string, prefix?: string): Iterable<stri
 
 // --------------------------------------------------------------------------------------------- //
 
+export const LogDebug = (message: string): void => {
+    for (const line of StringToIterable(message, "DBG")) {
+        console.log(line);
+        if (LogStream !== null)
+            LogStream.write(line + "\n");
+    }
+};
+
 export const LogMessage = (message: string): void => {
     for (const line of StringToIterable(message, "MSG")) {
         console.log(line);

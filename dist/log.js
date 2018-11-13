@@ -18,6 +18,13 @@ const StringToIterable = function* (str, prefix) {
             yield line;
     }
 };
+exports.LogDebug = (message) => {
+    for (const line of StringToIterable(message, "DBG")) {
+        console.log(line);
+        if (LogStream !== null)
+            LogStream.write(line + "\n");
+    }
+};
 exports.LogMessage = (message) => {
     for (const line of StringToIterable(message, "MSG")) {
         console.log(line);

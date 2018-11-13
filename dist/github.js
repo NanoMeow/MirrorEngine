@@ -23,8 +23,9 @@ class GitHub {
             return { success: false };
         let old;
         let sha;
+        let parsed;
         try {
-            const parsed = JSON.parse(response);
+            parsed = JSON.parse(response);
             old = parsed.content;
             if (typeof old !== "string")
                 old = "";
@@ -36,6 +37,10 @@ class GitHub {
             log_1.LogError(err.message);
             return { success: false };
         }
+        if (old === "" || sha === "") {
+            log_1.LogDebug("GitHub API response:");
+            log_1.LogDebug(JSON.stringify(parsed, null, 4));
+        }
         if (opt.Content === old.replace(/\n/g, "")) {
             log_1.LogMessage("File not changed");
             return { success: true };
@@ -46,10 +51,26 @@ class GitHub {
             content: opt.Content,
             sha: sha,
         };
-        let res = await this.Requester.Put(link, payload);
+        let res = await this.Requester.Put(link, payload, true);
         if (res === null)
             return { success: false };
-        return { success: true, response: res };
+        try {
+            const parsed = JSON.parse(res);
+            if (parsed.commit instanceof Object &&
+                typeof parsed.commit.sha === "string" &&
+                parsed.commit.sha.length > 0) {
+                return { success: true };
+            }
+            else {
+                log_1.LogDebug("GitHub API response:");
+                log_1.LogDebug(JSON.stringify(parsed, null, 4));
+                return { success: false };
+            }
+        }
+        catch (err) {
+            log_1.LogError(err.message);
+            return { success: false };
+        }
     }
 }
 exports.GitHub = GitHub;

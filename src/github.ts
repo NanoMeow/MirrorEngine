@@ -32,7 +32,7 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-import { LogMessage, LogError } from "./log";
+import { LogDebug, LogMessage, LogError } from "./log";
 import { RequestHeadersExtra, RequestEngine } from "./request";
 
 // --------------------------------------------------------------------------------------------- //
@@ -54,7 +54,6 @@ export interface GitHubUpdateFileRequest {
 
 export interface GitHubUpdateFileResult {
     success: boolean,
-    response?: string,
 }
 
 // --------------------------------------------------------------------------------------------- //
@@ -107,9 +106,10 @@ export class GitHub {
 
         let old: string;
         let sha: string;
+        let parsed: any;
 
         try {
-            const parsed: any = JSON.parse(response);
+            parsed = JSON.parse(response);
 
             old = parsed.content;
             if (typeof old !== "string")
@@ -121,6 +121,11 @@ export class GitHub {
         } catch (err) {
             LogError((<Error>err).message);
             return { success: false };
+        }
+
+        if (old === "" || sha === "") {
+            LogDebug("GitHub API response:");
+            LogDebug(JSON.stringify(parsed, null, 4));
         }
 
         if (opt.Content === old.replace(/\n/g, "")) {
@@ -136,11 +141,28 @@ export class GitHub {
             content: opt.Content,
             sha: sha,
         };
-        let res: null | string = await this.Requester.Put(link, payload);
+        let res: null | string = await this.Requester.Put(link, payload, true);
         if (res === null)
             return { success: false };
 
-        return { success: true, response: res };
+        try {
+            const parsed: any = JSON.parse(res);
+
+            if (
+                parsed.commit instanceof Object &&
+                typeof parsed.commit.sha === "string" &&
+                parsed.commit.sha.length > 0
+            ) {
+                return { success: true };
+            } else {
+                LogDebug("GitHub API response:");
+                LogDebug(JSON.stringify(parsed, null, 4));
+                return { success: false };
+            }
+        } catch (err) {
+            LogError((<Error>err).message);
+            return { success: false };
+        }
 
         // ------------------------------------------------------------------------------------- //
 

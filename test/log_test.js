@@ -35,7 +35,7 @@
 const os = require("os");
 const path = require("path");
 
-const { LogSetFile, LogMessage, LogWarning, LogError } = require("../dist/log");
+const { LogSetFile, LogDebug, LogMessage, LogWarning, LogError } = require("../dist/log");
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -59,6 +59,7 @@ const RandomId = () => {
 // --------------------------------------------------------------------------------------------- //
 
 const TestAll = (msg) => {
+    LogDebug(msg);
     LogMessage(msg);
     LogWarning(msg);
     LogError(msg);
