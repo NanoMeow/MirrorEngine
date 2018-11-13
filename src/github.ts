@@ -149,6 +149,7 @@ export class GitHub {
             const parsed: any = JSON.parse(res);
 
             if (
+                parsed instanceof Object &&
                 parsed.commit instanceof Object &&
                 typeof parsed.commit.sha === "string" &&
                 parsed.commit.sha.length > 0

@@ -56,7 +56,8 @@ class GitHub {
             return { success: false };
         try {
             const parsed = JSON.parse(res);
-            if (parsed.commit instanceof Object &&
+            if (parsed instanceof Object &&
+                parsed.commit instanceof Object &&
                 typeof parsed.commit.sha === "string" &&
                 parsed.commit.sha.length > 0) {
                 return { success: true };
