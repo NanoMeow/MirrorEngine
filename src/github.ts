@@ -48,7 +48,9 @@ export interface GitHubBasicRequest {
 
 export interface GitHubFileContentRequest extends GitHubBasicRequest { }
 
-export interface GitHubFileContentResponse extends RequestResponse { }
+export interface GitHubFileContentResponse {
+    Text?: string,
+}
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -123,9 +125,10 @@ export class GitHub {
 
     public async FileContent(opt: GitHubFileContentRequest): Promise<GitHubFileContentResponse> {
         GitHub.ValidateOptions(opt);
-        return await this.RequesterAnonymous.Get(
+        const response: RequestResponse = await this.RequesterAnonymous.Get(
             "https://gitcdn.xyz/repo/" + this.User + "/" + opt.Repo + "/master/" + opt.Path,
         );
+        return { Text: response.Text };
     }
 
     // ----------------------------------------------------------------------------------------- //
@@ -147,7 +150,7 @@ export class GitHub {
             "      }",
             "    }",
             "  }",
-            "}"
+            "}",
         ].join("\n");
 
         // ------------------------------------------------------------------------------------- //

@@ -21,7 +21,8 @@ class GitHub {
     }
     async FileContent(opt) {
         GitHub.ValidateOptions(opt);
-        return await this.RequesterAnonymous.Get("https://gitcdn.xyz/repo/" + this.User + "/" + opt.Repo + "/master/" + opt.Path);
+        const response = await this.RequesterAnonymous.Get("https://gitcdn.xyz/repo/" + this.User + "/" + opt.Repo + "/master/" + opt.Path);
+        return { Text: response.Text };
     }
     async BlobSha(opt) {
         GitHub.ValidateOptions(opt);
@@ -34,7 +35,7 @@ class GitHub {
             "      }",
             "    }",
             "  }",
-            "}"
+            "}",
         ].join("\n");
         const res = await this.Requester.Post("https://api.github.com/graphql", {
             query: payload,
