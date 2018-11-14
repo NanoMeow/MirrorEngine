@@ -1,12 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs-extra");
-let LogStream = null;
+let LogStream;
 exports.LogSetFile = (file) => {
+    if (typeof LogStream !== "undefined")
+        LogStream.end();
     LogStream = fs.createWriteStream(file, { flags: "a", encoding: "utf8" });
 };
 const StringToIterable = function* (str, prefix) {
-    if (str.trim().length === 0)
+    if (str.length === 0)
         return;
     const now = (new Date()).toUTCString();
     const lines = str.split("\n");
@@ -18,31 +20,22 @@ const StringToIterable = function* (str, prefix) {
             yield line;
     }
 };
-exports.LogDebug = (message) => {
-    for (const line of StringToIterable(message, "DBG")) {
+const LogAny = (message, prefix) => {
+    for (const line of StringToIterable(message, prefix)) {
         console.log(line);
-        if (LogStream !== null)
+        if (typeof LogStream !== "undefined")
             LogStream.write(line + "\n");
     }
+};
+exports.LogDebug = (message) => {
+    LogAny(message, "DBG");
 };
 exports.LogMessage = (message) => {
-    for (const line of StringToIterable(message, "MSG")) {
-        console.log(line);
-        if (LogStream !== null)
-            LogStream.write(line + "\n");
-    }
+    LogAny(message, "MSG");
 };
 exports.LogWarning = (message) => {
-    for (const line of StringToIterable(message, "WRN")) {
-        console.warn(line);
-        if (LogStream !== null)
-            LogStream.write(line + "\n");
-    }
+    LogAny(message, "WRN");
 };
 exports.LogError = (message) => {
-    for (const line of StringToIterable(message, "ERR")) {
-        console.error(line);
-        if (LogStream !== null)
-            LogStream.write(line + "\n");
-    }
+    LogAny(message, "ERR");
 };
