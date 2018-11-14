@@ -45,7 +45,7 @@ class ParserIncludeResolver {
         }
         if (out.length === 0 || out[out.length - 1].length !== 0)
             out.push("");
-        return data;
+        return out.join("\n");
     }
 }
 exports.ParserIncludeResolver = ParserIncludeResolver;

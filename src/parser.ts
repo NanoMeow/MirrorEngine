@@ -111,7 +111,7 @@ export class ParserIncludeResolver {
                 continue;
             }
 
-            const original = line.substring(INCLUDE_DIRECTIVE.length).trim();
+            const original: string = line.substring(INCLUDE_DIRECTIVE.length).trim();
 
             if (!map.has(original)) {
                 LogWarning("Could not process include directive '" + line + "'");
@@ -123,9 +123,9 @@ export class ParserIncludeResolver {
         }
 
         if (out.length === 0 || out[out.length - 1].length !== 0)
-            out.push("");
+            out.push(""); // Ensure file ends with new line
 
-        return data;
+        return out.join("\n");
     }
 
     // ----------------------------------------------------------------------------------------- //
