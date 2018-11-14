@@ -32,7 +32,7 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-import { LogDebug, LogMessage, LogError } from "./log";
+import { LogDebug, LogError } from "./log";
 import { RequestHeadersCustomizable, RequestResponse, RequestEngine } from "./request";
 
 // --------------------------------------------------------------------------------------------- //
@@ -93,11 +93,11 @@ export class GitHub {
         this.Secret = secret;
 
         this.Requester = new RequestEngine();
+        this.Requester.SetHeadersCustom(RequestHeadersCustomizable.UserAgent, this.User);
         this.Requester.SetHeadersCustom(
             RequestHeadersCustomizable.Authorization,
             "Basic " + this.Secret,
         );
-        this.Requester.SetHeadersCustom(RequestHeadersCustomizable.UserAgent, this.User);
     }
 
     // ----------------------------------------------------------------------------------------- //
@@ -116,7 +116,7 @@ export class GitHub {
         ].join("\n");
 
         const res: RequestResponse = await this.Requester.Post(
-            "https://https://api.github.com/graphql",
+            "https://api.github.com/graphql",
             {
                 query: payload,
             },
@@ -130,14 +130,25 @@ export class GitHub {
 
         try {
             const parsed: any = JSON.parse(res.Text);
-            const oid: any = parsed.data.repository.object.oid;
-            if (typeof oid === "string" && oid.length > 0)
-                return { Sha: oid };
+
+            if (
+                typeof parsed === "object" &&
+                typeof parsed.data === "object" &&
+                typeof parsed.data.repository === "object" &&
+                typeof parsed.data.repository.object === "object" &&
+                typeof parsed.data.repository.object.oid === "string" &&
+                parsed.data.repository.object.oid.length > 0
+            ) {
+                return { Sha: parsed.data.repository.object.oid };
+            } else {
+                LogDebug("GitHub API returned unexpected response:");
+                LogDebug(JSON.stringify(parsed, null, 2));
+                return {};
+            }
         } catch (err) {
             LogError((<Error>err).message);
+            return {};
         }
-
-        return {};
     }
 
     // ----------------------------------------------------------------------------------------- //
@@ -146,20 +157,7 @@ export class GitHub {
 
         // ------------------------------------------------------------------------------------- //
 
-        const current: GitHubContentResponse = await GitHubContent({
-            User: this.User,
-            Repo: opt.Repo,
-            Path: opt.Path,
-        });
-
-        if (typeof current.Sha === "string") {
-            if (opt.Content === current.Response.Text) {
-                LogMessage("File not changed");
-                return { Success: true };
-            }
-        } else {
-            current.Sha = "";
-        }
+        const sha: string = (await this.FindSha(opt)).Sha || "";
 
         // ------------------------------------------------------------------------------------- //
 
@@ -167,7 +165,7 @@ export class GitHub {
             path: opt.Path,
             message: opt.Message,
             content: GitHubBase64Encode(opt.Content),
-            sha: current.Sha,
+            sha: sha,
         };
 
         const res: RequestResponse = await this.Requester.Put(
