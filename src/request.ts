@@ -342,12 +342,9 @@ export class RequestEngine {
         return result;
     }
 
-    public async Put(
-        link: string,
-        payload: string | Object,
-        opt?: RequestRequest,
-    ): Promise<RequestResponse> {
+    // ----------------------------------------------------------------------------------------- //
 
+    private static BindPayload(payload: string | Object, opt?: RequestRequest): RequestRequest {
         if (typeof payload === "object")
             payload = JSON.stringify(payload);
 
@@ -355,6 +352,33 @@ export class RequestEngine {
             opt = {};
 
         opt.Payload = <string>payload;
+
+        return opt;
+    }
+
+    public async Post(
+        link: string,
+        payload: string | Object,
+        opt?: RequestRequest,
+    ): Promise<RequestResponse> {
+
+        opt = RequestEngine.BindPayload(payload, opt);
+
+        this.PendingRequestsCount++;
+        const result: RequestResponse = await this.LinkToResponse(link, RequestMethods.POST, opt);
+        this.PendingRequestsCount--;
+
+        return result;
+
+    }
+
+    public async Put(
+        link: string,
+        payload: string | Object,
+        opt?: RequestRequest,
+    ): Promise<RequestResponse> {
+
+        opt = RequestEngine.BindPayload(payload, opt);
 
         this.PendingRequestsCount++;
         const result: RequestResponse = await this.LinkToResponse(link, RequestMethods.PUT, opt);

@@ -172,12 +172,23 @@ class RequestEngine {
         this.PendingRequestsCount--;
         return result;
     }
-    async Put(link, payload, opt) {
+    static BindPayload(payload, opt) {
         if (typeof payload === "object")
             payload = JSON.stringify(payload);
         if (typeof opt === "undefined")
             opt = {};
         opt.Payload = payload;
+        return opt;
+    }
+    async Post(link, payload, opt) {
+        opt = RequestEngine.BindPayload(payload, opt);
+        this.PendingRequestsCount++;
+        const result = await this.LinkToResponse(link, RequestMethods.POST, opt);
+        this.PendingRequestsCount--;
+        return result;
+    }
+    async Put(link, payload, opt) {
+        opt = RequestEngine.BindPayload(payload, opt);
         this.PendingRequestsCount++;
         const result = await this.LinkToResponse(link, RequestMethods.PUT, opt);
         this.PendingRequestsCount--;

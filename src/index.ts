@@ -37,7 +37,7 @@ import * as os from "os";
 import * as path from "path";
 
 import { ConfigManifestEntry, ConfigData, ConfigLoad } from "./config";
-import { GitHubUpdateFileRequest, GitHubUpdateFileResult, GitHub } from "./github";
+import { GitHubUpdateFileRequest, GitHubUpdateFileResponse, GitHub } from "./github";
 import { LogSetFile, LogMessage, LogError, LogWarning } from "./log";
 import { RequestHeadersCustomizable, RequestEngine } from "./request";
 import { ValidateRaw } from "./validate";
@@ -205,8 +205,8 @@ const Main = async (): Promise<void> => {
                     Content: data,
                     Message: "Automatic mirror update",
                 };
-                const response: GitHubUpdateFileResult = await github.UpdateFile(payload);
-                if (response.success)
+                const response: GitHubUpdateFileResponse = await github.UpdateFile(payload);
+                if (response.Success)
                     LogMessage("Updated '" + entry.Name + "' successfully");
                 else
                     LogError("Update Error: Could not update '" + entry.Name + "'");

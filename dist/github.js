@@ -1,76 +1,83 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const crypto = require("crypto");
 const log_1 = require("./log");
 const request_1 = require("./request");
+const GitHubBase64Encode = (data) => {
+    const buf = Buffer.from(data);
+    return buf.toString("base64");
+};
+const GitHubSha = (data) => {
+    const sha1 = crypto.createHash("sha1");
+    sha1.update(data);
+    return sha1.digest("hex");
+};
+const GitHubContentRequester = new request_1.RequestEngine();
+exports.GitHubContent = async (opt) => {
+    const res = await GitHubContentRequester.Get("https://raw.githubusercontent.com/" + opt.User + "/" + opt.Repo + "/master" + opt.Path);
+    if (typeof res.Text === "string") {
+        return {
+            Response: res,
+            Sha: GitHubSha(res.Text),
+        };
+    }
+    else {
+        return {
+            Response: res,
+        };
+    }
+};
 class GitHub {
     constructor(user, secret) {
         this.User = user;
         this.Secret = secret;
         this.Requester = new request_1.RequestEngine();
-        this.Requester.SetExtraHeader(request_1.RequestHeadersExtra.Authorization, "Basic " + this.Secret);
-        this.Requester.SetExtraHeader(request_1.RequestHeadersExtra.UserAgent, this.User);
-    }
-    static Base64Encode(data) {
-        if (typeof data === "string")
-            data = Buffer.from(data);
-        return data.toString("base64");
+        this.Requester.SetHeadersCustom(request_1.RequestHeadersCustomizable.Authorization, "Basic " + this.Secret);
+        this.Requester.SetHeadersCustom(request_1.RequestHeadersCustomizable.UserAgent, this.User);
     }
     async UpdateFile(opt) {
-        opt.Content = GitHub.Base64Encode(opt.Content);
-        const link = "https://api.github.com/repos/" + this.User + "/" + opt.Repo + "/contents" + opt.Path;
-        let response = await this.Requester.Get(link, true);
-        if (response === null)
-            return { success: false };
-        let old;
-        let sha;
-        let parsed;
-        try {
-            parsed = JSON.parse(response);
-            old = parsed.content;
-            if (typeof old !== "string")
-                old = "";
-            sha = parsed.sha;
-            if (typeof sha !== "string")
-                sha = "";
+        const current = await exports.GitHubContent({
+            User: this.User,
+            Repo: opt.Repo,
+            Path: opt.Path,
+        });
+        if (typeof current.Sha === "string") {
+            if (opt.Content === current.Response.Text) {
+                log_1.LogMessage("File not changed");
+                return { Success: true };
+            }
         }
-        catch (err) {
-            log_1.LogError(err.message);
-            return { success: false };
-        }
-        if (old === "" || sha === "") {
-            log_1.LogDebug("GitHub API returned unexpected response:");
-            log_1.LogDebug(JSON.stringify(parsed, null, 4));
-        }
-        if (opt.Content === old.replace(/\n/g, "")) {
-            log_1.LogMessage("File not changed");
-            return { success: true };
+        else {
+            current.Sha = "";
         }
         const payload = {
             path: opt.Path,
             message: opt.Message,
-            content: opt.Content,
-            sha: sha,
+            content: GitHubBase64Encode(opt.Content),
+            sha: current.Sha,
         };
-        let res = await this.Requester.Put(link, payload, true);
-        if (res === null)
-            return { success: false };
+        const res = await this.Requester.Put("https://api.github.com/repos/" + this.User + "/" + opt.Repo + "/contents" + opt.Path, payload, {
+            Stubborn: true,
+        });
+        if (typeof res.Text !== "string")
+            return { Success: false };
         try {
-            const parsed = JSON.parse(res);
-            if (parsed instanceof Object &&
-                parsed.commit instanceof Object &&
+            const parsed = JSON.parse(res.Text);
+            if (typeof parsed === "object" &&
+                typeof parsed.commit === "object" &&
                 typeof parsed.commit.sha === "string" &&
                 parsed.commit.sha.length > 0) {
-                return { success: true };
+                return { Success: true };
             }
             else {
                 log_1.LogDebug("GitHub API returned unexpected response:");
                 log_1.LogDebug(JSON.stringify(parsed, null, 4));
-                return { success: false };
+                return { Success: false };
             }
         }
         catch (err) {
             log_1.LogError(err.message);
-            return { success: false };
+            return { Success: false };
         }
     }
 }

@@ -33,37 +33,47 @@
 // --------------------------------------------------------------------------------------------- //
 
 import { LogDebug, LogMessage, LogError } from "./log";
-import { RequestHeadersCustomizable, RequestEngine } from "./request";
+import { RequestHeadersCustomizable, RequestResponse, RequestEngine } from "./request";
 
 // --------------------------------------------------------------------------------------------- //
 
-interface GitHubContentRequest {
+export interface GitHubFindShaRequest {
     Repo: string,
-    Path: string, // Including leading "/"
+    Path: string, // No leading "/"
 }
 
-interface GitHubContentResult {
-    Content: string,
-    Sha: string,
+export interface GitHubFindShaResponse {
+    Sha?: string,
 }
 
 // --------------------------------------------------------------------------------------------- //
 
-interface GitHubUpdateFilePayload {
+export interface GitHubUpdateFileRequest {
+    Repo: string,
+    Path: string, // No leading "/"
+    Content: string,
+    Message: string, // Commit message
+}
+
+export interface GitHubUpdateFileResponse {
+    Success: boolean,
+}
+
+// --------------------------------------------------------------------------------------------- //
+
+interface GitHubApiUpdateFilePayload {
     path: string,
     message: string,
     content: string,
     sha: string,
 }
 
-export interface GitHubUpdateFileRequest extends GitHubContentRequest {
-    Content: string | Buffer,
-    Message: string, // Commit message
-}
+// --------------------------------------------------------------------------------------------- //
 
-export interface GitHubUpdateFileResult {
-    success: boolean,
-}
+const GitHubBase64Encode = (data: string): string => {
+    const buf: Buffer = Buffer.from(data);
+    return buf.toString("base64");
+};
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -83,104 +93,112 @@ export class GitHub {
         this.Secret = secret;
 
         this.Requester = new RequestEngine();
-        this.Requester.SetHeadersCustom(RequestHeadersCustomizable.Authorization, "Basic " + this.Secret);
+        this.Requester.SetHeadersCustom(
+            RequestHeadersCustomizable.Authorization,
+            "Basic " + this.Secret,
+        );
         this.Requester.SetHeadersCustom(RequestHeadersCustomizable.UserAgent, this.User);
     }
 
     // ----------------------------------------------------------------------------------------- //
 
-    private static Base64Encode(data: string | Buffer): string {
-        if (typeof data === "string")
-            data = Buffer.from(data);
+    public async FindSha(opt: GitHubFindShaRequest): Promise<GitHubFindShaResponse> {
+        const payload: string = [
+            "{",
+            '  repository(owner: "' + this.User + '", name: "' + opt.Repo + '") {',
+            '    object(expression: "master:' + opt.Path + '") {',
+            "      ... on Blob {",
+            "        oid",
+            "      }",
+            "    }",
+            "  }",
+            "}"
+        ].join("\n");
 
-        return data.toString("base64");
-    }
+        const res: RequestResponse = await this.Requester.Post(
+            "https://https://api.github.com/graphql",
+            {
+                query: payload,
+            },
+            {
+                Stubborn: true,
+            },
+        );
 
-    // ----------------------------------------------------------------------------------------- //
-
-    private async GetCurrentContent(opt: GitHubContentRequest): Promise<GitHubContentResult> {
-        const root = "https://raw.githubusercontent.com/";
-        const link = root + this.User + "/" + opt.Repo + "/master" + opt.Path;
-
-
-    }
-
-    // ----------------------------------------------------------------------------------------- //
-
-    public async UpdateFile(opt: GitHubUpdateFileRequest): Promise<GitHubUpdateFileResult> {
-
-        // ------------------------------------------------------------------------------------- //
-
-        opt.Content = GitHub.Base64Encode(opt.Content);
-
-        const link =
-            "https://api.github.com/repos/" + this.User + "/" + opt.Repo + "/contents" + opt.Path;
-
-        // ------------------------------------------------------------------------------------- //
-
-        let response: null | string = await this.Requester.Get(link, true);
-        if (response === null)
-            return { success: false };
-
-        let old: string;
-        let sha: string;
-        let parsed: any;
+        if (typeof res.Text === "undefined")
+            return {};
 
         try {
-            parsed = JSON.parse(response);
-
-            old = parsed.content;
-            if (typeof old !== "string")
-                old = "";
-
-            sha = parsed.sha;
-            if (typeof sha !== "string")
-                sha = "";
+            const parsed: any = JSON.parse(res.Text);
+            const oid: any = parsed.data.repository.object.oid;
+            if (typeof oid === "string" && oid.length > 0)
+                return { Sha: oid };
         } catch (err) {
             LogError((<Error>err).message);
-            return { success: false };
         }
 
-        if (old === "" || sha === "") {
-            LogDebug("GitHub API returned unexpected response:");
-            LogDebug(JSON.stringify(parsed, null, 4));
-        }
+        return {};
+    }
 
-        if (opt.Content === old.replace(/\n/g, "")) {
-            LogMessage("File not changed");
-            return { success: true };
+    // ----------------------------------------------------------------------------------------- //
+
+    public async UpdateFile(opt: GitHubUpdateFileRequest): Promise<GitHubUpdateFileResponse> {
+
+        // ------------------------------------------------------------------------------------- //
+
+        const current: GitHubContentResponse = await GitHubContent({
+            User: this.User,
+            Repo: opt.Repo,
+            Path: opt.Path,
+        });
+
+        if (typeof current.Sha === "string") {
+            if (opt.Content === current.Response.Text) {
+                LogMessage("File not changed");
+                return { Success: true };
+            }
+        } else {
+            current.Sha = "";
         }
 
         // ------------------------------------------------------------------------------------- //
 
-        const payload: GitHubUpdateFilePayload = {
+        const payload: GitHubApiUpdateFilePayload = {
             path: opt.Path,
             message: opt.Message,
-            content: opt.Content,
-            sha: sha,
+            content: GitHubBase64Encode(opt.Content),
+            sha: current.Sha,
         };
-        let res: null | string = await this.Requester.Put(link, payload, true);
-        if (res === null)
-            return { success: false };
+
+        const res: RequestResponse = await this.Requester.Put(
+            "https://api.github.com/repos/" + this.User + "/" + opt.Repo + "/contents" + opt.Path,
+            payload,
+            {
+                Stubborn: true,
+            },
+        );
+
+        if (typeof res.Text !== "string")
+            return { Success: false };
 
         try {
-            const parsed: any = JSON.parse(res);
+            const parsed: any = JSON.parse(res.Text);
 
             if (
-                parsed instanceof Object &&
-                parsed.commit instanceof Object &&
+                typeof parsed === "object" &&
+                typeof parsed.commit === "object" &&
                 typeof parsed.commit.sha === "string" &&
                 parsed.commit.sha.length > 0
             ) {
-                return { success: true };
+                return { Success: true };
             } else {
                 LogDebug("GitHub API returned unexpected response:");
                 LogDebug(JSON.stringify(parsed, null, 4));
-                return { success: false };
+                return { Success: false };
             }
         } catch (err) {
             LogError((<Error>err).message);
-            return { success: false };
+            return { Success: false };
         }
 
         // ------------------------------------------------------------------------------------- //
