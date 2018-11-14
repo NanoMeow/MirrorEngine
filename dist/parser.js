@@ -4,9 +4,9 @@ const assert = require("assert");
 const log_1 = require("./log");
 const INCLUDE_DIRECTIVE = "!#include ";
 const StringToIterable = function* (str) {
-    const lines = str.split("\n");
+    const lines = str.split(/\r?\n/);
     for (let line of lines)
-        yield line.trim();
+        yield line;
 };
 class ParserIncludeResolver {
     static ValidateManifestEntry(entry) {

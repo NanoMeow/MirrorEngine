@@ -48,10 +48,10 @@ type StrToStr = Map<string, string>;
 // --------------------------------------------------------------------------------------------- //
 
 const StringToIterable = function* (str: string): Iterable<string> {
-    const lines: string[] = str.split("\n");
+    const lines: string[] = str.split(/\r?\n/);
 
     for (let line of lines)
-        yield line.trim();
+        yield line;
 };
 
 // --------------------------------------------------------------------------------------------- //

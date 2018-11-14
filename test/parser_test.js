@@ -99,7 +99,7 @@ const TestMain = () => {
             "text1",
             "text2",
         ];
-        const data = resolver.Resolve(manifest[2], arr.join("    \r\n"));
+        const data = resolver.Resolve(manifest[2], arr.join("\r\n"));
 
         arr.push("");
         assert(data === arr.join("\n"));
