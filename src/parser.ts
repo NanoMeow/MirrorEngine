@@ -43,7 +43,7 @@ const INCLUDE_DIRECTIVE: string = "!#include ";
 
 // --------------------------------------------------------------------------------------------- //
 
-type StringToString = Map<string, string>;
+type StrToStr = Map<string, string>;
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -61,7 +61,7 @@ export class ParserIncludeResolver {
     // ----------------------------------------------------------------------------------------- //
 
     // Parent to a map, then child original name to override name
-    private ParentToChildMap: Map<string, StringToString>;
+    private ParentToChildMap: Map<string, StrToStr>;
 
     // ----------------------------------------------------------------------------------------- //
 
@@ -73,7 +73,7 @@ export class ParserIncludeResolver {
     // ----------------------------------------------------------------------------------------- //
 
     constructor(manifest: ConfigManifestEntry[]) {
-        this.ParentToChildMap = new Map<string, StringToString>();
+        this.ParentToChildMap = new Map<string, StrToStr>();
 
         for (const entry of manifest) {
             if (!entry.IsSubfilter)
@@ -84,9 +84,7 @@ export class ParserIncludeResolver {
             if (!this.ParentToChildMap.has(<string>entry.Parent))
                 this.ParentToChildMap.set(<string>entry.Parent, new Map<string, string>());
 
-            const map: StringToString = <StringToString>this.ParentToChildMap.get(
-                <string>entry.Parent,
-            );
+            const map: StrToStr = <StrToStr>this.ParentToChildMap.get(<string>entry.Parent);
             map.set(<string>entry.Original, entry.Name);
         }
     }
@@ -99,9 +97,7 @@ export class ParserIncludeResolver {
 
         ParserIncludeResolver.ValidateManifestEntry(entry);
 
-        const map: StringToString = <StringToString>this.ParentToChildMap.get(
-            <string>entry.Parent,
-        );
+        const map: StrToStr = <StrToStr>this.ParentToChildMap.get(<string>entry.Parent);
 
         const out: string[] = [];
 
