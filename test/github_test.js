@@ -38,14 +38,14 @@ const assert = require("assert");
 const os = require("os");
 const path = require("path");
 
-const { GitHub } = require("../dist/github");
 const { ConfigLoad } = require("../dist/config");
+const { GitHub } = require("../dist/github");
 
 // --------------------------------------------------------------------------------------------- //
 
 const REPO = "TestRepo";
 const PATH = "GitHubApiTestFile.txt";
-const SHA = "acbe86c7c89586e0912a0a851bacf309c595c308";
+const SHA_EXPECTED = "acbe86c7c89586e0912a0a851bacf309c595c308";
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -75,7 +75,7 @@ const TestMain = async () => {
         Repo: REPO,
         Path: PATH,
     });
-    assert(typeof data.Sha === "string" && data.Sha === SHA);
+    assert(typeof data.Sha === "string" && data.Sha === SHA_EXPECTED);
     Log("Test 0: Passed");
 
     // ----------------------------------------------------------------------------------------- //
