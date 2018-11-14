@@ -43,7 +43,7 @@ const Sleep = (milliseconds) => {
 const SleepWhileRunning = async (seconds) => {
     seconds *= SLEEP_RESOLUTION;
     while (Running && seconds-- > 0)
-        await Sleep(1000 / SLEEP_RESOLUTION);
+        await Sleep(Math.ceil(1000 / SLEEP_RESOLUTION));
 };
 const LockfileParse = (data) => {
     const out = new Set();

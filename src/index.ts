@@ -96,7 +96,7 @@ const Sleep = (milliseconds: number): Promise<void> => {
 const SleepWhileRunning = async (seconds: number): Promise<void> => {
     seconds *= SLEEP_RESOLUTION;
     while (Running && seconds-- > 0)
-        await Sleep(1000 / SLEEP_RESOLUTION);
+        await Sleep(Math.ceil(1000 / SLEEP_RESOLUTION));
 };
 
 // --------------------------------------------------------------------------------------------- //
