@@ -92,12 +92,11 @@ export class ParserIncludeResolver {
     // ----------------------------------------------------------------------------------------- //
 
     public Resolve(entry: ConfigManifestEntry, data: string): string {
-        if (!this.ParentToChildMap.has(entry.Name))
-            return data;
-
         ParserIncludeResolver.ValidateManifestEntry(entry);
 
-        const map: StrToStr = <StrToStr>this.ParentToChildMap.get(<string>entry.Parent);
+        const map: StrToStr | undefined = <StrToStr>this.ParentToChildMap.get(<string>entry.Name);
+        if (typeof map === "undefined")
+            map = new Map<string, string>();
 
         const out: string[] = [];
 

@@ -26,10 +26,8 @@ class ParserIncludeResolver {
         }
     }
     Resolve(entry, data) {
-        if (!this.ParentToChildMap.has(entry.Name))
-            return data;
         ParserIncludeResolver.ValidateManifestEntry(entry);
-        const map = this.ParentToChildMap.get(entry.Parent);
+        const map = this.ParentToChildMap.get(entry.Name);
         const out = [];
         for (const line of StringToIterable(data)) {
             if (!line.startsWith(INCLUDE_DIRECTIVE)) {
