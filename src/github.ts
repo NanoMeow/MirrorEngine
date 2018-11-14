@@ -230,7 +230,7 @@ export class GitHub {
         };
 
         const res: RequestResponse = await this.Requester.Put(
-            "https://api.github.com/repos/" + this.User + "/" + opt.Repo + "/contents" + opt.Path,
+            "https://api.github.com/repos/" + this.User + "/" + opt.Repo + "/contents/" + opt.Path,
             payload,
             {
                 Stubborn: true,

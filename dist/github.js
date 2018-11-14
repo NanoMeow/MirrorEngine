@@ -85,7 +85,7 @@ class GitHub {
             content: Base64Encode(opt.Content),
             sha: sha.Sha,
         };
-        const res = await this.Requester.Put("https://api.github.com/repos/" + this.User + "/" + opt.Repo + "/contents" + opt.Path, payload, {
+        const res = await this.Requester.Put("https://api.github.com/repos/" + this.User + "/" + opt.Repo + "/contents/" + opt.Path, payload, {
             Stubborn: true,
         });
         if (typeof res.Text !== "string")
