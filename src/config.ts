@@ -41,7 +41,7 @@ import { RequestResponse, RequestEngine } from "./request";
 
 export interface ConfigManifestEntry {
     Name: string,
-    Links: string[],
+    Links: string,
 }
 
 const ConfigManifestNameOverride: Map<string, string> = new Map<string, string>([]);
@@ -53,7 +53,6 @@ const ConfigManifestLinkBlacklist: Set<string> = new Set<string>([]);
 interface ConfigFile {
     User: string,
     Repo: string,
-
     Secret: string, // Base 64 encoded "user:token"
 
     BaseManifest: string,
