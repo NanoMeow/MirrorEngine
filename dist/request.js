@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const assert = require("assert");
 const https = require("https");
 const url = require("url");
 const zlib = require("zlib");
@@ -177,6 +178,7 @@ class RequestEngine {
             payload = JSON.stringify(payload);
         if (typeof opt === "undefined")
             opt = {};
+        assert(typeof opt.Payload === "undefined");
         opt.Payload = payload;
         return opt;
     }

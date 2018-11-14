@@ -32,6 +32,7 @@
 
 // --------------------------------------------------------------------------------------------- //
 
+import * as assert from "assert";
 import * as http from "http";
 import * as https from "https";
 import * as stream from "stream";
@@ -351,6 +352,7 @@ export class RequestEngine {
         if (typeof opt === "undefined")
             opt = {};
 
+        assert(typeof opt.Payload === "undefined");
         opt.Payload = <string>payload;
 
         return opt;
