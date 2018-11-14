@@ -10,6 +10,7 @@ const parser_1 = require("./parser");
 const request_1 = require("./request");
 const CONFIG_FILE_NAME = "mirror-engine-config.json";
 const LOG_DIRECTORY_NAME = "mirror-engine-logs";
+const SLEEP_RESOLUTION = 4;
 process.on("uncaughtException", (err) => {
     const file = path.resolve(os.homedir(), LOG_DIRECTORY_NAME, "crash-" + Date.now() + ".txt");
     const content = [];
@@ -40,9 +41,9 @@ const Sleep = (milliseconds) => {
     });
 };
 const SleepWhileRunning = async (seconds) => {
-    seconds *= 2;
+    seconds *= SLEEP_RESOLUTION;
     while (Running && seconds-- > 0)
-        await Sleep(500);
+        await Sleep(1000 / SLEEP_RESOLUTION);
 };
 const LockfileParse = (data) => {
     const out = new Set();

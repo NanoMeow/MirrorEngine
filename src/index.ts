@@ -47,6 +47,8 @@ import { RequestHeadersCustomizable, RequestResponse, RequestEngine } from "./re
 const CONFIG_FILE_NAME: string = "mirror-engine-config.json";
 const LOG_DIRECTORY_NAME: string = "mirror-engine-logs";
 
+const SLEEP_RESOLUTION: number = 4; // Running check per second
+
 // --------------------------------------------------------------------------------------------- //
 
 process.on("uncaughtException", (err: Error): void => {
@@ -92,10 +94,9 @@ const Sleep = (milliseconds: number): Promise<void> => {
 };
 
 const SleepWhileRunning = async (seconds: number): Promise<void> => {
-    seconds *= 2;
-
+    seconds *= SLEEP_RESOLUTION;
     while (Running && seconds-- > 0)
-        await Sleep(500);
+        await Sleep(1000 / SLEEP_RESOLUTION);
 };
 
 // --------------------------------------------------------------------------------------------- //
