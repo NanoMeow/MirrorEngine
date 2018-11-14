@@ -201,7 +201,7 @@ const Main = async (): Promise<void> => {
 
                 const payload: GitHubUpdateFileRequest = {
                     Repo: config.Repo,
-                    Path: "/raw/" + entry.Name,
+                    Path: "raw/" + entry.Name,
                     Content: data,
                     Message: "Automatic mirror update",
                 };

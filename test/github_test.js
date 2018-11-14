@@ -71,7 +71,7 @@ const TestMain = async () => {
     // ----------------------------------------------------------------------------------------- //
 
     Log("Test 0: Find sha of a file");
-    const data = await github.FindSha({
+    const data = await github.BlobSha({
         Repo: REPO,
         Path: PATH,
     });

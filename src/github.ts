@@ -32,25 +32,35 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-import { LogDebug, LogError } from "./log";
+import * as assert from "assert";
+
+import { LogDebug, LogMessage, LogError } from "./log";
 import { RequestHeadersCustomizable, RequestResponse, RequestEngine } from "./request";
 
 // --------------------------------------------------------------------------------------------- //
 
-export interface GitHubFindShaRequest {
+export interface GitHubBasicRequest {
     Repo: string,
-    Path: string, // No leading "/"
+    Path: string,
 }
 
-export interface GitHubFindShaResponse {
+// --------------------------------------------------------------------------------------------- //
+
+export interface GitHubFileContentRequest extends GitHubBasicRequest { }
+
+export interface GitHubFileContentResponse extends RequestResponse { }
+
+// --------------------------------------------------------------------------------------------- //
+
+export interface GitHubBlobShaRequest extends GitHubBasicRequest { }
+
+export interface GitHubBlobShaResponse {
     Sha?: string,
 }
 
 // --------------------------------------------------------------------------------------------- //
 
-export interface GitHubUpdateFileRequest {
-    Repo: string,
-    Path: string, // No leading "/"
+export interface GitHubUpdateFileRequest extends GitHubBasicRequest {
     Content: string,
     Message: string, // Commit message
 }
@@ -70,7 +80,7 @@ interface GitHubApiUpdateFilePayload {
 
 // --------------------------------------------------------------------------------------------- //
 
-const GitHubBase64Encode = (data: string): string => {
+const Base64Encode = (data: string): string => {
     const buf: Buffer = Buffer.from(data);
     return buf.toString("base64");
 };
@@ -102,7 +112,29 @@ export class GitHub {
 
     // ----------------------------------------------------------------------------------------- //
 
-    public async FindSha(opt: GitHubFindShaRequest): Promise<GitHubFindShaResponse> {
+    private static ValidateOptions(opt: GitHubBasicRequest): void {
+        assert(!opt.Path.startsWith("/"));
+    }
+
+    // ----------------------------------------------------------------------------------------- //
+
+    public async FileContent(opt: GitHubFileContentRequest): Promise<GitHubFileContentResponse> {
+        GitHub.ValidateOptions(opt);
+        return await this.Requester.Get(
+            "https://gitcdn.xyz/repo/" + this.User + "/" + opt.Repo + "/master/" + opt.Path,
+        );
+    }
+
+    // ----------------------------------------------------------------------------------------- //
+
+    public async BlobSha(opt: GitHubBlobShaRequest): Promise<GitHubBlobShaResponse> {
+
+        // ------------------------------------------------------------------------------------- //
+
+        GitHub.ValidateOptions(opt);
+
+        // ------------------------------------------------------------------------------------- //
+
         const payload: string = [
             "{",
             '  repository(owner: "' + this.User + '", name: "' + opt.Repo + '") {',
@@ -115,6 +147,8 @@ export class GitHub {
             "}"
         ].join("\n");
 
+        // ------------------------------------------------------------------------------------- //
+
         const res: RequestResponse = await this.Requester.Post(
             "https://api.github.com/graphql",
             {
@@ -125,7 +159,9 @@ export class GitHub {
             },
         );
 
-        if (typeof res.Text === "undefined")
+        // ------------------------------------------------------------------------------------- //
+
+        if (typeof res.Text !== "string")
             return {};
 
         try {
@@ -149,6 +185,9 @@ export class GitHub {
             LogError((<Error>err).message);
             return {};
         }
+
+        // ------------------------------------------------------------------------------------- //
+
     }
 
     // ----------------------------------------------------------------------------------------- //
@@ -157,15 +196,37 @@ export class GitHub {
 
         // ------------------------------------------------------------------------------------- //
 
-        const sha: string = (await this.FindSha(opt)).Sha || "";
+        GitHub.ValidateOptions(opt);
+
+        // ------------------------------------------------------------------------------------- //
+
+        const current: GitHubFileContentResponse = await this.FileContent({
+            Repo: opt.Repo,
+            Path: opt.Path,
+        });
+
+        if (typeof current.Text === "string" && current.Text === opt.Content) {
+            LogMessage("File not changed");
+            return { Success: true };
+        }
+
+        // ------------------------------------------------------------------------------------- //
+
+        const sha: GitHubBlobShaResponse = await this.BlobSha({
+            Repo: opt.Repo,
+            Path: opt.Path,
+        });
+
+        if (typeof sha.Sha !== "string")
+            sha.Sha = "";
 
         // ------------------------------------------------------------------------------------- //
 
         const payload: GitHubApiUpdateFilePayload = {
             path: opt.Path,
             message: opt.Message,
-            content: GitHubBase64Encode(opt.Content),
-            sha: sha,
+            content: Base64Encode(opt.Content),
+            sha: sha.Sha,
         };
 
         const res: RequestResponse = await this.Requester.Put(

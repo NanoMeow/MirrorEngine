@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const assert = require("assert");
 const log_1 = require("./log");
 const request_1 = require("./request");
-const GitHubBase64Encode = (data) => {
+const Base64Encode = (data) => {
     const buf = Buffer.from(data);
     return buf.toString("base64");
 };
@@ -14,7 +15,15 @@ class GitHub {
         this.Requester.SetHeadersCustom(request_1.RequestHeadersCustomizable.UserAgent, this.User);
         this.Requester.SetHeadersCustom(request_1.RequestHeadersCustomizable.Authorization, "Basic " + this.Secret);
     }
-    async FindSha(opt) {
+    static ValidateOptions(opt) {
+        assert(!opt.Path.startsWith("/"));
+    }
+    async FileContent(opt) {
+        GitHub.ValidateOptions(opt);
+        return await this.Requester.Get("https://gitcdn.xyz/repo/" + this.User + "/" + opt.Repo + "/master/" + opt.Path);
+    }
+    async BlobSha(opt) {
+        GitHub.ValidateOptions(opt);
         const payload = [
             "{",
             '  repository(owner: "' + this.User + '", name: "' + opt.Repo + '") {',
@@ -31,7 +40,7 @@ class GitHub {
         }, {
             Stubborn: true,
         });
-        if (typeof res.Text === "undefined")
+        if (typeof res.Text !== "string")
             return {};
         try {
             const parsed = JSON.parse(res.Text);
@@ -55,12 +64,26 @@ class GitHub {
         }
     }
     async UpdateFile(opt) {
-        const sha = (await this.FindSha(opt)).Sha || "";
+        GitHub.ValidateOptions(opt);
+        const current = await this.FileContent({
+            Repo: opt.Repo,
+            Path: opt.Path,
+        });
+        if (typeof current.Text === "string" && current.Text === opt.Content) {
+            log_1.LogMessage("File not changed");
+            return { Success: true };
+        }
+        const sha = await this.BlobSha({
+            Repo: opt.Repo,
+            Path: opt.Path,
+        });
+        if (typeof sha.Sha !== "string")
+            sha.Sha = "";
         const payload = {
             path: opt.Path,
             message: opt.Message,
-            content: GitHubBase64Encode(opt.Content),
-            sha: sha,
+            content: Base64Encode(opt.Content),
+            sha: sha.Sha,
         };
         const res = await this.Requester.Put("https://api.github.com/repos/" + this.User + "/" + opt.Repo + "/contents" + opt.Path, payload, {
             Stubborn: true,
