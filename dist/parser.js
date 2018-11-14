@@ -8,7 +8,15 @@ const StringToIterable = function* (str) {
     for (let line of lines)
         yield line;
 };
-class ParserIncludeResolver {
+exports.ParserValidateRaw = (data) => {
+    data = data.trim();
+    if (data.startsWith("<")) {
+        log_1.LogError("Validation Error: A filter should not begin with '<'");
+        return false;
+    }
+    return true;
+};
+class ParserResolveInclude {
     static ValidateManifestEntry(entry) {
         if (entry.IsSubfilter)
             assert(typeof entry.Parent === "string" || typeof entry.Original === "string");
@@ -18,7 +26,7 @@ class ParserIncludeResolver {
         for (const entry of manifest) {
             if (!entry.IsSubfilter)
                 continue;
-            ParserIncludeResolver.ValidateManifestEntry(entry);
+            ParserResolveInclude.ValidateManifestEntry(entry);
             if (!this.ParentToChildMap.has(entry.Parent))
                 this.ParentToChildMap.set(entry.Parent, new Map());
             const map = this.ParentToChildMap.get(entry.Parent);
@@ -26,7 +34,7 @@ class ParserIncludeResolver {
         }
     }
     Resolve(entry, data) {
-        ParserIncludeResolver.ValidateManifestEntry(entry);
+        ParserResolveInclude.ValidateManifestEntry(entry);
         let map = this.ParentToChildMap.get(entry.Name);
         if (typeof map === "undefined")
             map = new Map();
@@ -48,5 +56,5 @@ class ParserIncludeResolver {
         return out.join("\n");
     }
 }
-exports.ParserIncludeResolver = ParserIncludeResolver;
+exports.ParserResolveInclude = ParserResolveInclude;
 ;

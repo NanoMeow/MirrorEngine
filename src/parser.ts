@@ -35,7 +35,7 @@
 import * as assert from "assert";
 
 import { ConfigManifestEntry } from "./config";
-import { LogWarning } from "./log";
+import { LogWarning, LogError } from "./log";
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -56,7 +56,20 @@ const StringToIterable = function* (str: string): Iterable<string> {
 
 // --------------------------------------------------------------------------------------------- //
 
-export class ParserIncludeResolver {
+export const ParserValidateRaw = (data: string): boolean => {
+    data = data.trim();
+
+    if (data.startsWith("<")) {
+        LogError("Validation Error: A filter should not begin with '<'");
+        return false;
+    }
+
+    return true;
+};
+
+// --------------------------------------------------------------------------------------------- //
+
+export class ParserResolveInclude {
 
     // ----------------------------------------------------------------------------------------- //
 
@@ -79,7 +92,7 @@ export class ParserIncludeResolver {
             if (!entry.IsSubfilter)
                 continue;
 
-            ParserIncludeResolver.ValidateManifestEntry(entry);
+            ParserResolveInclude.ValidateManifestEntry(entry);
 
             if (!this.ParentToChildMap.has(<string>entry.Parent))
                 this.ParentToChildMap.set(<string>entry.Parent, new Map<string, string>());
@@ -92,7 +105,7 @@ export class ParserIncludeResolver {
     // ----------------------------------------------------------------------------------------- //
 
     public Resolve(entry: ConfigManifestEntry, data: string): string {
-        ParserIncludeResolver.ValidateManifestEntry(entry);
+        ParserResolveInclude.ValidateManifestEntry(entry);
 
         let map: StrToStr | undefined = <StrToStr>this.ParentToChildMap.get(<string>entry.Name);
         if (typeof map === "undefined")

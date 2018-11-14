@@ -8,7 +8,6 @@ const github_1 = require("./github");
 const log_1 = require("./log");
 const parser_1 = require("./parser");
 const request_1 = require("./request");
-const validate_1 = require("./validate");
 const CONFIG_FILE_NAME = "mirror-engine-config.json";
 const LOG_DIRECTORY_NAME = "mirror-engine-logs";
 process.on("uncaughtException", (err) => {
@@ -69,7 +68,7 @@ const Main = async () => {
         throw new Error("Manifest Error: No entry found");
     const requester = new request_1.RequestEngine();
     requester.SetHeadersCustom(request_1.RequestHeadersCustomizable.UserAgent, config.User);
-    const resolver = new parser_1.ParserIncludeResolver(manifest);
+    const resolver = new parser_1.ParserResolveInclude(manifest);
     const github = new github_1.GitHub(config.User, config.Secret);
     let i = 0;
     while (Running) {
@@ -91,7 +90,7 @@ const Main = async () => {
         }
         else {
             const data = await requester.Get(entry.Link);
-            if (typeof data.Text === "string" && validate_1.ValidateRaw(data.Text)) {
+            if (typeof data.Text === "string" && parser_1.ParserValidateRaw(data.Text)) {
                 const payload = {
                     Repo: config.Repo,
                     Path: "raw/" + entry.Name,

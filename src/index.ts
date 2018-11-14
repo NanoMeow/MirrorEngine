@@ -39,9 +39,8 @@ import * as path from "path";
 import { ConfigManifestEntry, ConfigData, ConfigTextToIterable, ConfigLoad } from "./config";
 import { GitHubFileUpdateRequest, GitHubFileUpdateResponse, GitHub } from "./github";
 import { LogSetFile, LogDebug, LogMessage, LogError, LogWarning } from "./log";
-import { ParserIncludeResolver } from "./parser";
+import { ParserValidateRaw, ParserResolveInclude } from "./parser";
 import { RequestHeadersCustomizable, RequestResponse, RequestEngine } from "./request";
-import { ValidateRaw } from "./validate";
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -147,7 +146,7 @@ const Main = async (): Promise<void> => {
     const requester: RequestEngine = new RequestEngine();
     requester.SetHeadersCustom(RequestHeadersCustomizable.UserAgent, config.User);
 
-    const resolver: ParserIncludeResolver = new ParserIncludeResolver(manifest);
+    const resolver: ParserResolveInclude = new ParserResolveInclude(manifest);
     const github: GitHub = new GitHub(config.User, config.Secret);
 
     // ----------------------------------------------------------------------------------------- //
@@ -191,7 +190,7 @@ const Main = async (): Promise<void> => {
 
             const data: RequestResponse = await requester.Get(entry.Link);
 
-            if (typeof data.Text === "string" && ValidateRaw(data.Text)) {
+            if (typeof data.Text === "string" && ParserValidateRaw(data.Text)) {
 
                 const payload: GitHubFileUpdateRequest = {
                     Repo: config.Repo,
