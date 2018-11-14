@@ -113,7 +113,7 @@ const TestMain = () => {
         const arr = [
             "text0",
             "text1    ", // Space should be conserved
-            "text2",
+            "    text2",
         ];
         const data = resolver.Resolve(manifest[2], arr.join("\r\n"));
 
