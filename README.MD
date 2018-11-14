@@ -109,3 +109,7 @@ One file will be mirrored every 15 minutes.
 Locking files is intended to be a temporary measure, and will pause mirroring
 for 5 minutes. This is designed this way to prevent too many network requests
 being sent out when too many files are locked.
+
+To prevent committing no change, the current data will be checked with GitCDN,
+which cache the files for 2 hours. So the manifest should have at least 9
+entries.
