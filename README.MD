@@ -51,7 +51,7 @@ this way to avoid surprises.
 ```TypeScript
 interface IncludeJsonEntry {
     Name: string,     // Name of this subfilter, should be prefixed with
-                      // "include/"
+                      // "include/" and should have a file extension
     Link: string,     // Link of this subfilter
 
     Parent: string,   // Name of parent filter, including file extension
