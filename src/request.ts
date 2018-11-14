@@ -47,6 +47,20 @@ const RESPONSE_MAX_SIZE: number = 16 * 1024 * 1024;
 
 // --------------------------------------------------------------------------------------------- //
 
+export interface RequestRequest {
+    Payload?: string | Buffer,
+    Stubborn?: boolean, // Get response text even if response code is not in the 200 range
+}
+
+export interface RequestResponse {
+    RedirectRefused?: boolean,
+
+    Stream?: http.IncomingMessage,
+    Text?: string,
+}
+
+// --------------------------------------------------------------------------------------------- //
+
 interface RequestHeaders {
     [key: string]: string,
 }
@@ -63,20 +77,6 @@ enum RequestMethods {
     GET = "GET",
     POST = "POST",
     PUT = "PUT",
-}
-
-// --------------------------------------------------------------------------------------------- //
-
-export interface RequestRequest {
-    Payload?: string | Buffer,
-    Stubborn?: boolean, // Get response text even if response code is not in the 200 range
-}
-
-export interface RequestResponse {
-    RedirectRefused?: boolean,
-
-    Stream?: http.IncomingMessage,
-    Text?: string,
 }
 
 // --------------------------------------------------------------------------------------------- //
