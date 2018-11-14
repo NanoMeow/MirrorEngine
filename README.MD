@@ -67,7 +67,8 @@ with `# ` (hashtag space) are ignored.
 
 ### `name-override.json`
 
-If the default `Name` from `assets.json` is not good, they can be overriden.
+If the default `Name` from `assets.json` is not good, they can be overriden
+here.
 
 ```TypeScript
 interface NameOverrideEntry {
@@ -83,10 +84,10 @@ interface NameOverride {
 ### `link-blacklist.txt`
 
 If the default `Link` from `assets.json` is not good, they can be blacklisted.
-The next valid element of `contentURL` will be taken as `Link`.
+The next valid `contentURL` will be taken as `Link`.
 
-List one link per line. Empty lines and lines starting with `# ` (hashtag
-space) are ignored.
+One `Link` per line. Empty lines and lines starting with `# ` (hashtag space)
+are ignored.
 
 ## Running
 
