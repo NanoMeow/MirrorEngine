@@ -62,7 +62,7 @@ const Main = async () => {
     const config = await config_1.ConfigLoad(file);
     const manifest = config.Manifest;
     log_1.LogDebug("Configuration data:");
-    log_1.LogDebug(JSON.stringify(config, null, 2));
+    log_1.LogDebug(JSON.stringify(config, null, 2).replace(config.Secret, "<redacted>"));
     if (manifest.length === 0)
         throw new Error("Manifest Error: No entry found");
     const requester = new request_1.RequestEngine();
@@ -81,7 +81,6 @@ const Main = async () => {
         }
         const lock = LockfileParse(lockfile.Text);
         const entry = manifest[i];
-        const link = entry.Link[0];
         if (lock.has(entry.Name)) {
             log_1.LogWarning("Update Skipped: File locked");
             i++;
@@ -89,7 +88,7 @@ const Main = async () => {
             continue;
         }
         else {
-            const data = await requester.Get(link);
+            const data = await requester.Get(entry.Link);
             if (typeof data.Text === "string" && validate_1.ValidateRaw(data.Text)) {
                 const payload = {
                     Repo: config.Repo,

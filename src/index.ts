@@ -135,7 +135,7 @@ const Main = async (): Promise<void> => {
     const manifest: ConfigManifestEntry[] = config.Manifest;
 
     LogDebug("Configuration data:");
-    LogDebug(JSON.stringify(config, null, 2));
+    LogDebug(JSON.stringify(config, null, 2).replace(config.Secret, "<redacted>"));
 
     if (manifest.length === 0)
         throw new Error("Manifest Error: No entry found");
@@ -174,7 +174,6 @@ const Main = async (): Promise<void> => {
         // ------------------------------------------------------------------------------------- //
 
         const entry: ConfigManifestEntry = manifest[i];
-        const link = entry.Link[0];
 
         // ------------------------------------------------------------------------------------- //
 
@@ -188,7 +187,7 @@ const Main = async (): Promise<void> => {
 
         } else {
 
-            const data: RequestResponse = await requester.Get(link);
+            const data: RequestResponse = await requester.Get(entry.Link);
 
             if (typeof data.Text === "string" && ValidateRaw(data.Text)) {
 
