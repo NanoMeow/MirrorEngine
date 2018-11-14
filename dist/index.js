@@ -61,6 +61,8 @@ const Main = async () => {
     log_1.LogMessage("Logging to '" + logs + "'");
     const config = await config_1.ConfigLoad(file);
     const manifest = config.Manifest;
+    log_1.LogDebug("Configuration data:");
+    log_1.LogDebug(JSON.stringify(config, null, 2));
     if (manifest.length === 0)
         throw new Error("Manifest Error: No entry found");
     const requester = new request_1.RequestEngine();

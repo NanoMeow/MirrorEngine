@@ -38,7 +38,7 @@ import * as path from "path";
 
 import { ConfigManifestEntry, ConfigData, ConfigTextToIterable, ConfigLoad } from "./config";
 import { GitHubUpdateFileRequest, GitHubUpdateFileResponse, GitHub } from "./github";
-import { LogSetFile, LogMessage, LogError, LogWarning } from "./log";
+import { LogSetFile, LogDebug, LogMessage, LogError, LogWarning } from "./log";
 import { ParserIncludeResolver } from "./parser";
 import { RequestHeadersCustomizable, RequestResponse, RequestEngine } from "./request";
 import { ValidateRaw } from "./validate";
@@ -133,6 +133,9 @@ const Main = async (): Promise<void> => {
 
     const config: ConfigData = await ConfigLoad(file);
     const manifest: ConfigManifestEntry[] = config.Manifest;
+
+    LogDebug("Configuration data:");
+    LogDebug(JSON.stringify(config, null, 2));
 
     if (manifest.length === 0)
         throw new Error("Manifest Error: No entry found");

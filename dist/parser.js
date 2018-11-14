@@ -27,7 +27,9 @@ class ParserIncludeResolver {
     }
     Resolve(entry, data) {
         ParserIncludeResolver.ValidateManifestEntry(entry);
-        const map = this.ParentToChildMap.get(entry.Name);
+        let map = this.ParentToChildMap.get(entry.Name);
+        if (typeof map === "undefined")
+            map = new Map();
         const out = [];
         for (const line of StringToIterable(data)) {
             if (!line.startsWith(INCLUDE_DIRECTIVE)) {

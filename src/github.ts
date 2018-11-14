@@ -252,7 +252,7 @@ export class GitHub {
                 return { Success: true };
             } else {
                 LogDebug("GitHub API returned unexpected response:");
-                LogDebug(JSON.stringify(parsed, null, 4));
+                LogDebug(JSON.stringify(parsed, null, 2));
                 return { Success: false };
             }
         } catch (err) {

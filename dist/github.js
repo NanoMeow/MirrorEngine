@@ -100,7 +100,7 @@ class GitHub {
             }
             else {
                 log_1.LogDebug("GitHub API returned unexpected response:");
-                log_1.LogDebug(JSON.stringify(parsed, null, 4));
+                log_1.LogDebug(JSON.stringify(parsed, null, 2));
                 return { Success: false };
             }
         }

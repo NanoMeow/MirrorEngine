@@ -94,7 +94,7 @@ export class ParserIncludeResolver {
     public Resolve(entry: ConfigManifestEntry, data: string): string {
         ParserIncludeResolver.ValidateManifestEntry(entry);
 
-        const map: StrToStr | undefined = <StrToStr>this.ParentToChildMap.get(<string>entry.Name);
+        let map: StrToStr | undefined = <StrToStr>this.ParentToChildMap.get(<string>entry.Name);
         if (typeof map === "undefined")
             map = new Map<string, string>();
 
