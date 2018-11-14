@@ -181,7 +181,7 @@ const Main = async (): Promise<void> => {
         // ------------------------------------------------------------------------------------- //
 
         const entry: ConfigManifestEntry = manifest[i];
-        const link = entry.Links[0];
+        const link = entry.Link[0];
 
         // ------------------------------------------------------------------------------------- //
 
