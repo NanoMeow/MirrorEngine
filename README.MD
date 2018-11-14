@@ -112,4 +112,4 @@ being sent out when too many files are locked.
 
 To prevent committing no change, the current data will be checked with GitCDN,
 which cache the files for 2 hours. So the manifest should have at least 9
-entries.
+entries that are not locked.
