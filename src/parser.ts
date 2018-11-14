@@ -67,7 +67,7 @@ export class ParserIncludeResolver {
 
     private static ValidateManifestEntry(entry: ConfigManifestEntry): void {
         if (entry.IsSubfilter)
-            assert(typeof entry.Parent !== "string" || typeof entry.Original !== "string");
+            assert(typeof entry.Parent === "string" || typeof entry.Original === "string");
     }
 
     // ----------------------------------------------------------------------------------------- //

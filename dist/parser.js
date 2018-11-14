@@ -11,7 +11,7 @@ const StringToIterable = function* (str) {
 class ParserIncludeResolver {
     static ValidateManifestEntry(entry) {
         if (entry.IsSubfilter)
-            assert(typeof entry.Parent !== "string" || typeof entry.Original !== "string");
+            assert(typeof entry.Parent === "string" || typeof entry.Original === "string");
     }
     constructor(manifest) {
         this.ParentToChildMap = new Map();
