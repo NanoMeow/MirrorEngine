@@ -60,7 +60,7 @@ interface IncludeJson {
 
 ### `lockfile.txt`
 
-Locked file will be skipped when updating.
+Locked files will be skipped when updating.
 
 One `Name` per line, including file extension. Empty lines and lines starting
 with `# ` (hashtag space) are ignored.
@@ -96,4 +96,9 @@ Run `node dist`.
 
 Logs will be written to `~/mirror-engine-logs/` directory.
 
-All requests are capped at `16 MiB`.
+All requests are capped at 16 MiB.
+
+One file will be mirrored every 15 minutes.
+
+Locking files is intended to be a temporary measure, and will pause mirroring
+for 5 minutes.
