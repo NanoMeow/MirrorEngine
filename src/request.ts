@@ -42,6 +42,10 @@ import { LogMessage, LogError } from "./log";
 
 // --------------------------------------------------------------------------------------------- //
 
+const RESPONSE_MAX_SIZE: number = 16 * 1024 * 1024;
+
+// --------------------------------------------------------------------------------------------- //
+
 interface RequestHeaders {
     [key: string]: string,
 }
@@ -102,18 +106,18 @@ export class RequestEngine {
 
     // TODO: Not used for now
 
-    private Pending: number = 0;
+    private PendingRequestsCount: number = 0;
 
     public GetPendingRequestsCount(): number {
-        return this.Pending;
+        return this.PendingRequestsCount;
     }
 
     // ----------------------------------------------------------------------------------------- //
 
-    private ExtraHeaders: RequestHeaders = {};
+    private HeadersCustom: RequestHeaders = {};
 
-    public SetExtraHeader(key: RequestHeadersCustomizable, val: string): void {
-        this.ExtraHeaders[key] = val;
+    public SetHeadersCustom(key: RequestHeadersCustomizable, val: string): void {
+        this.HeadersCustom[key] = val;
     }
 
     // ----------------------------------------------------------------------------------------- //
@@ -145,7 +149,11 @@ export class RequestEngine {
             // --------------------------------------------------------------------------------- //
 
             let s: stream.Readable;
-            const encoding: string = this.StreamToHeader(res, "content-encoding", "identity");
+            const encoding: string = RequestEngine.StreamToHeader(
+                res,
+                "content-encoding",
+                "identity",
+            );
 
             switch (encoding) {
                 case "identity":
@@ -178,7 +186,7 @@ export class RequestEngine {
                     return;
 
                 data += c;
-                if (data.length > 16 * 1024 * 1024) {
+                if (data.length > RESPONSE_MAX_SIZE) {
                     aborted = true;
                     reject(new Error("Request Error: Response payload too large"));
                 }
@@ -223,7 +231,7 @@ export class RequestEngine {
             // --------------------------------------------------------------------------------- //
 
             const option: http.RequestOptions = url.parse(link);
-            option.headers = Object.assign({}, RequestHeadersDefault, this.ExtraHeaders);
+            option.headers = Object.assign({}, RequestHeadersDefault, this.HeadersCustom);
             option.method = method;
 
             if (option.protocol !== "https:") {
@@ -263,8 +271,6 @@ export class RequestEngine {
         while (redirect-- > 0) {
 
             // --------------------------------------------------------------------------------- //
-
-            res = undefined;
 
             try {
                 res = await this.LinkToStream(link, method, opt);
@@ -329,9 +335,9 @@ export class RequestEngine {
     // ----------------------------------------------------------------------------------------- //
 
     public async Get(link: string, opt?: RequestRequest): Promise<RequestResponse> {
-        this.Pending++;
+        this.PendingRequestsCount++;
         const result: RequestResponse = await this.LinkToResponse(link, RequestMethods.GET, opt);
-        this.Pending--;
+        this.PendingRequestsCount--;
 
         return result;
     }
@@ -350,9 +356,9 @@ export class RequestEngine {
 
         opt.Payload = <string>payload;
 
-        this.Pending++;
+        this.PendingRequestsCount++;
         const result: RequestResponse = await this.LinkToResponse(link, RequestMethods.PUT, opt);
-        this.Pending--;
+        this.PendingRequestsCount--;
 
         return result;
 

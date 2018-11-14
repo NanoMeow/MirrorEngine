@@ -151,7 +151,7 @@ const Main = async (): Promise<void> => {
     // ----------------------------------------------------------------------------------------- //
 
     const requester: RequestEngine = new RequestEngine();
-    requester.SetExtraHeader(RequestHeadersCustomizable.UserAgent, config.User);
+    requester.SetHeadersCustom(RequestHeadersCustomizable.UserAgent, config.User);
 
     const github: GitHub = new GitHub(config.User, config.Secret);
 

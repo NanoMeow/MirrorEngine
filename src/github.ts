@@ -83,8 +83,8 @@ export class GitHub {
         this.Secret = secret;
 
         this.Requester = new RequestEngine();
-        this.Requester.SetExtraHeader(RequestHeadersCustomizable.Authorization, "Basic " + this.Secret);
-        this.Requester.SetExtraHeader(RequestHeadersCustomizable.UserAgent, this.User);
+        this.Requester.SetHeadersCustom(RequestHeadersCustomizable.Authorization, "Basic " + this.Secret);
+        this.Requester.SetHeadersCustom(RequestHeadersCustomizable.UserAgent, this.User);
     }
 
     // ----------------------------------------------------------------------------------------- //

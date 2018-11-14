@@ -4,6 +4,7 @@ const https = require("https");
 const url = require("url");
 const zlib = require("zlib");
 const log_1 = require("./log");
+const RESPONSE_MAX_SIZE = 16 * 1024 * 1024;
 var RequestHeadersCustomizable;
 (function (RequestHeadersCustomizable) {
     RequestHeadersCustomizable["Accept"] = "Accept";
@@ -30,14 +31,14 @@ const RequestRedirectSafeAbsoluteLink = /^https:\/\/(?:\w+\.)+\w+\//;
 const RequestRedirectSafeRelativeLink = /^\/\w/;
 class RequestEngine {
     constructor() {
-        this.Pending = 0;
-        this.ExtraHeaders = {};
+        this.PendingRequestsCount = 0;
+        this.HeadersCustom = {};
     }
     GetPendingRequestsCount() {
-        return this.Pending;
+        return this.PendingRequestsCount;
     }
-    SetExtraHeader(key, val) {
-        this.ExtraHeaders[key] = val;
+    SetHeadersCustom(key, val) {
+        this.HeadersCustom[key] = val;
     }
     static StreamToHeader(res, key, def = "") {
         const header = res.headers[key];
@@ -51,7 +52,7 @@ class RequestEngine {
     static StreamToText(res) {
         return new Promise((resolve, reject) => {
             let s;
-            const encoding = this.StreamToHeader(res, "content-encoding", "identity");
+            const encoding = RequestEngine.StreamToHeader(res, "content-encoding", "identity");
             switch (encoding) {
                 case "identity":
                     s = res;
@@ -73,7 +74,7 @@ class RequestEngine {
                 if (aborted)
                     return;
                 data += c;
-                if (data.length > 16 * 1024 * 1024) {
+                if (data.length > RESPONSE_MAX_SIZE) {
                     aborted = true;
                     reject(new Error("Request Error: Response payload too large"));
                 }
@@ -95,7 +96,7 @@ class RequestEngine {
         return new Promise((resolve, reject) => {
             log_1.LogMessage(method + " - " + link);
             const option = url.parse(link);
-            option.headers = Object.assign({}, RequestHeadersDefault, this.ExtraHeaders);
+            option.headers = Object.assign({}, RequestHeadersDefault, this.HeadersCustom);
             option.method = method;
             if (option.protocol !== "https:") {
                 return void reject(new Error("Request Error: Unknown protocol '" + option.protocol + "'"));
@@ -115,7 +116,6 @@ class RequestEngine {
         let res;
         let redirect = 5;
         while (redirect-- > 0) {
-            res = undefined;
             try {
                 res = await this.LinkToStream(link, method, opt);
             }
@@ -167,9 +167,9 @@ class RequestEngine {
         };
     }
     async Get(link, opt) {
-        this.Pending++;
+        this.PendingRequestsCount++;
         const result = await this.LinkToResponse(link, RequestMethods.GET, opt);
-        this.Pending--;
+        this.PendingRequestsCount--;
         return result;
     }
     async Put(link, payload, opt) {
@@ -178,9 +178,9 @@ class RequestEngine {
         if (typeof opt === "undefined")
             opt = {};
         opt.Payload = payload;
-        this.Pending++;
+        this.PendingRequestsCount++;
         const result = await this.LinkToResponse(link, RequestMethods.PUT, opt);
-        this.Pending--;
+        this.PendingRequestsCount--;
         return result;
     }
 }
