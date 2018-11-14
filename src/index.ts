@@ -104,8 +104,10 @@ const SleepWhileRunning = async (seconds: number): Promise<void> => {
 const LockfileParse = (data: string): Set<string> => {
     const out: Set<string> = new Set();
 
-    for (const line of ConfigTextToIterable(data))
+    for (const line of ConfigTextToIterable(data)) {
         out.add(line);
+        LogDebug("File locked: '" + line + "'");
+    }
 
     return out;
 };

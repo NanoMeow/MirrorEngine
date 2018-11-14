@@ -14,13 +14,14 @@ class GitHub {
         this.Requester = new request_1.RequestEngine();
         this.Requester.SetHeadersCustom(request_1.RequestHeadersCustomizable.UserAgent, this.User);
         this.Requester.SetHeadersCustom(request_1.RequestHeadersCustomizable.Authorization, "Basic " + this.Secret);
+        this.RequesterAnonymous = new request_1.RequestEngine();
     }
     static ValidateOptions(opt) {
         assert(!opt.Path.startsWith("/"));
     }
     async FileContent(opt) {
         GitHub.ValidateOptions(opt);
-        return await this.Requester.Get("https://gitcdn.xyz/repo/" + this.User + "/" + opt.Repo + "/master/" + opt.Path);
+        return await this.RequesterAnonymous.Get("https://gitcdn.xyz/repo/" + this.User + "/" + opt.Repo + "/master/" + opt.Path);
     }
     async BlobSha(opt) {
         GitHub.ValidateOptions(opt);

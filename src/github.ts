@@ -95,6 +95,7 @@ export class GitHub {
     private Secret: string;
 
     private Requester: RequestEngine;
+    private RequesterAnonymous: RequestEngine;
 
     // ----------------------------------------------------------------------------------------- //
 
@@ -108,6 +109,8 @@ export class GitHub {
             RequestHeadersCustomizable.Authorization,
             "Basic " + this.Secret,
         );
+
+        this.RequesterAnonymous = new RequestEngine();
     }
 
     // ----------------------------------------------------------------------------------------- //
@@ -120,7 +123,7 @@ export class GitHub {
 
     public async FileContent(opt: GitHubFileContentRequest): Promise<GitHubFileContentResponse> {
         GitHub.ValidateOptions(opt);
-        return await this.Requester.Get(
+        return await this.RequesterAnonymous.Get(
             "https://gitcdn.xyz/repo/" + this.User + "/" + opt.Repo + "/master/" + opt.Path,
         );
     }

@@ -47,8 +47,10 @@ const SleepWhileRunning = async (seconds) => {
 };
 const LockfileParse = (data) => {
     const out = new Set();
-    for (const line of config_1.ConfigTextToIterable(data))
+    for (const line of config_1.ConfigTextToIterable(data)) {
         out.add(line);
+        log_1.LogDebug("File locked: '" + line + "'");
+    }
     return out;
 };
 const Main = async () => {
