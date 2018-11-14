@@ -44,27 +44,9 @@ export interface ConfigManifestEntry {
     Links: string[],
 }
 
-const ConfigManifestNameOverride: Map<string, string> = new Map<string, string>([
-    ["public_suffix_list.dat", "public-suffix-list.txt"],
-    ["awrl-0", "adblock-warning-removal-list.txt"],
-    ["spam404-0", "spam404.txt"],
-    ["fanboy-thirdparty_social", "fanboy-thirdparty-social.txt"],
+const ConfigManifestNameOverride: Map<string, string> = new Map<string, string>([]);
 
-    ["ara-0", "ARA-0.txt"],
-    ["spa-0", "SPA-0.txt"],
-    ["spa-1", "SPA-1.txt"],
-]);
-
-const ConfigManifestLinkBlacklist: Set<string> = new Set<string>([
-
-    "https://gitcdn.xyz/repo/NanoMeow/MDLMirror/master/hosts.txt",
-    "https://raw.githubusercontent.com/NanoMeow/MDLMirror/master/hosts.txt",
-    "https://gitcdn.xyz/repo/NanoMeow/MDLMirror/master/filter.txt",
-    "https://raw.githubusercontent.com/NanoMeow/MDLMirror/master/filter.txt",
-
-    "https://road.adblock.ro/lista.txt",
-
-]);
+const ConfigManifestLinkBlacklist: Set<string> = new Set<string>([]);
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -74,8 +56,12 @@ interface ConfigFile {
 
     Secret: string, // Base 64 encoded "user:token"
 
-    Data: string, // Link to "assets.json"
-    Lock: string, // Link to "lockfile"
+    BaseManifest: string,
+    IncludeManifest: string,
+
+    Lockfile: string,
+    NameOverride: string,
+    LinkBlacklist: string,
 }
 
 export interface ConfigData extends ConfigFile {
@@ -106,8 +92,8 @@ const ConfigParse = (data: string): ConfigData => {
         User: parsed.User,
         Repo: parsed.Repo,
         Secret: parsed.Secret,
-        Data: parsed.Data,
-        Lock: parsed.Lock,
+        BaseManifest: parsed.Data,
+        Lockfile: parsed.Lock,
         Manifest: [],
     };
 };
@@ -181,7 +167,7 @@ export const ConfigLoad = async (file: string): Promise<ConfigData> => {
     const config: ConfigData = ConfigParse(await fs.readFile(file, "utf8"));
 
     const requester: RequestEngine = new RequestEngine();
-    const response: RequestResponse = await requester.Get(config.Data)
+    const response: RequestResponse = await requester.Get(config.BaseManifest)
     config.Manifest = ConfigManifestParse(response.Text);
 
     return config;

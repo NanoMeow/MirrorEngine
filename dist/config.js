@@ -3,22 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs-extra");
 const log_1 = require("./log");
 const request_1 = require("./request");
-const ConfigManifestNameOverride = new Map([
-    ["public_suffix_list.dat", "public-suffix-list.txt"],
-    ["awrl-0", "adblock-warning-removal-list.txt"],
-    ["spam404-0", "spam404.txt"],
-    ["fanboy-thirdparty_social", "fanboy-thirdparty-social.txt"],
-    ["ara-0", "ARA-0.txt"],
-    ["spa-0", "SPA-0.txt"],
-    ["spa-1", "SPA-1.txt"],
-]);
-const ConfigManifestLinkBlacklist = new Set([
-    "https://gitcdn.xyz/repo/NanoMeow/MDLMirror/master/hosts.txt",
-    "https://raw.githubusercontent.com/NanoMeow/MDLMirror/master/hosts.txt",
-    "https://gitcdn.xyz/repo/NanoMeow/MDLMirror/master/filter.txt",
-    "https://raw.githubusercontent.com/NanoMeow/MDLMirror/master/filter.txt",
-    "https://road.adblock.ro/lista.txt",
-]);
+const ConfigManifestNameOverride = new Map([]);
+const ConfigManifestLinkBlacklist = new Set([]);
 const ConfigParse = (data) => {
     const parsed = JSON.parse(data);
     if (parsed instanceof Object === false)
