@@ -165,7 +165,7 @@ const Main = async (): Promise<void> => {
 
         if (typeof lockfile.Text !== "string") {
             LogError("Lockfile Error: Network error");
-            await SleepWhileRunning(30 * 60);
+            await SleepWhileRunning(60 * 60);
             continue;
         }
 

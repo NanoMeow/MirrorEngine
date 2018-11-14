@@ -76,7 +76,7 @@ const Main = async () => {
         const lockfile = await requester.Get(config.Lockfile);
         if (typeof lockfile.Text !== "string") {
             log_1.LogError("Lockfile Error: Network error");
-            await SleepWhileRunning(30 * 60);
+            await SleepWhileRunning(60 * 60);
             continue;
         }
         const lock = LockfileParse(lockfile.Text);
