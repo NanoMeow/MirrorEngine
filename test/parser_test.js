@@ -34,7 +34,7 @@
 
 const assert = require("assert");
 
-const { ParserIncludeResolver } = require("../dist/parser");
+const { ParserValidateRaw, ParserIncludeResolver } = require("../dist/parser");
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -51,6 +51,22 @@ const Log = (msg) => {
 // --------------------------------------------------------------------------------------------- //
 
 const TestMain = () => {
+
+    // ----------------------------------------------------------------------------------------- //
+
+    Log("Test 0: Validator basic");
+    assert(ParserValidateRaw("example.com") === true);
+    Log("Test 0: Passed");
+
+    Log("");
+
+    // ----------------------------------------------------------------------------------------- //
+
+    Log("Test 1: Validator unexpected HTML");
+    assert(ParserValidateRaw("<!DOCTYPE>") === false);
+    Log("Test 1: Passed");
+
+    Log("");
 
     // ----------------------------------------------------------------------------------------- //
 
@@ -92,7 +108,7 @@ const TestMain = () => {
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 0: Normalizing line ending");
+    Log("Test 2: Resolver normalizing line ending");
     {
         const arr = [
             "text0",
@@ -104,13 +120,13 @@ const TestMain = () => {
         arr.push(""); // Final new line added if the original text does not have one
         assert(data === arr.join("\n")); // Line ending normalized
     }
-    Log("Test 0: Passed");
+    Log("Test 2: Passed");
 
     Log("");
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 1: Resolve 1 subfilter");
+    Log("Test 3: Resolver resolve 1 subfilter");
     {
         const arr = [
             "text0",
@@ -124,13 +140,13 @@ const TestMain = () => {
         arr[2] = "!#include include/subfilter-0.txt";
         assert(data === arr.join("\n"));
     }
-    Log("Test 1: Passed");
+    Log("Test 3: Passed");
 
     Log("");
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 2: Resolve 2 subfilters");
+    Log("Test 4: Resolver resolve 2 subfilters");
     {
         const arr = [
             "text0",
@@ -146,13 +162,13 @@ const TestMain = () => {
         arr[3] = "!#include include/subfilter-1.txt";
         assert(data === arr.join("\n"));
     }
-    Log("Test 2: Passed");
+    Log("Test 4: Passed");
 
     Log("");
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 3: Strip include directive for unknown subfilters");
+    Log("Test 5: Resolver strip include directive for unknown subfilters");
     {
         const arr = [
             "text0",
@@ -166,7 +182,7 @@ const TestMain = () => {
         arr.splice(1, 1);
         assert(data === arr.join("\n"));
     }
-    Log("Test 3: Passed, a warning should be logged");
+    Log("Test 5: Passed, a warning should be logged");
 
     // ----------------------------------------------------------------------------------------- //
 
