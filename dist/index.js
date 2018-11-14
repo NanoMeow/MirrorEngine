@@ -98,7 +98,7 @@ const Main = async () => {
                     Content: resolver.Resolve(entry, data.Text),
                     Message: "Automatic mirror update",
                 };
-                const response = await github.UpdateFile(payload);
+                const response = await github.FileUpdate(payload);
                 if (response.Success)
                     log_1.LogMessage("Updated '" + entry.Name + "' successfully");
                 else

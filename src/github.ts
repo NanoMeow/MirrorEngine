@@ -62,18 +62,18 @@ export interface GitHubBlobShaResponse {
 
 // --------------------------------------------------------------------------------------------- //
 
-export interface GitHubUpdateFileRequest extends GitHubBasicRequest {
+export interface GitHubFileUpdateRequest extends GitHubBasicRequest {
     Content: string,
     Message: string, // Commit message
 }
 
-export interface GitHubUpdateFileResponse {
+export interface GitHubFileUpdateResponse {
     Success: boolean,
 }
 
 // --------------------------------------------------------------------------------------------- //
 
-interface GitHubApiUpdateFilePayload {
+interface GitHubApiFileUpdatePayload {
     path: string,
     message: string,
     content: string,
@@ -198,7 +198,7 @@ export class GitHub {
 
     // ----------------------------------------------------------------------------------------- //
 
-    public async UpdateFile(opt: GitHubUpdateFileRequest): Promise<GitHubUpdateFileResponse> {
+    public async FileUpdate(opt: GitHubFileUpdateRequest): Promise<GitHubFileUpdateResponse> {
 
         // ------------------------------------------------------------------------------------- //
 
@@ -228,7 +228,7 @@ export class GitHub {
 
         // ------------------------------------------------------------------------------------- //
 
-        const payload: GitHubApiUpdateFilePayload = {
+        const payload: GitHubApiFileUpdatePayload = {
             path: opt.Path,
             message: opt.Message,
             content: Base64Encode(opt.Content),

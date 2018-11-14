@@ -37,7 +37,7 @@ import * as os from "os";
 import * as path from "path";
 
 import { ConfigManifestEntry, ConfigData, ConfigTextToIterable, ConfigLoad } from "./config";
-import { GitHubUpdateFileRequest, GitHubUpdateFileResponse, GitHub } from "./github";
+import { GitHubFileUpdateRequest, GitHubFileUpdateResponse, GitHub } from "./github";
 import { LogSetFile, LogDebug, LogMessage, LogError, LogWarning } from "./log";
 import { ParserIncludeResolver } from "./parser";
 import { RequestHeadersCustomizable, RequestResponse, RequestEngine } from "./request";
@@ -193,14 +193,14 @@ const Main = async (): Promise<void> => {
 
             if (typeof data.Text === "string" && ValidateRaw(data.Text)) {
 
-                const payload: GitHubUpdateFileRequest = {
+                const payload: GitHubFileUpdateRequest = {
                     Repo: config.Repo,
                     Path: "raw/" + entry.Name,
                     Content: resolver.Resolve(entry, data.Text),
                     Message: "Automatic mirror update",
                 };
 
-                const response: GitHubUpdateFileResponse = await github.UpdateFile(payload);
+                const response: GitHubFileUpdateResponse = await github.FileUpdate(payload);
 
                 if (response.Success)
                     LogMessage("Updated '" + entry.Name + "' successfully");

@@ -65,7 +65,7 @@ class GitHub {
             return {};
         }
     }
-    async UpdateFile(opt) {
+    async FileUpdate(opt) {
         GitHub.ValidateOptions(opt);
         const current = await this.FileContent({
             Repo: opt.Repo,
