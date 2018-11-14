@@ -95,4 +95,4 @@ Run `node dist`.
 
 Logs will be written to `~/mirror-engine-logs/` directory.
 
-All requests are capped at `25 MiB`.
+All requests are capped at `16 MiB`.

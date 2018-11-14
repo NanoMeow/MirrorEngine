@@ -178,7 +178,7 @@ export class RequestEngine {
                     return;
 
                 data += c;
-                if (data.length > 25 * 1024 * 1024) {
+                if (data.length > 16 * 1024 * 1024) {
                     aborted = true;
                     reject(new Error("Request Error: Response payload too large"));
                 }
