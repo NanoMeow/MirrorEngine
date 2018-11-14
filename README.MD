@@ -102,4 +102,5 @@ All requests are capped at 16 MiB.
 One file will be mirrored every 15 minutes.
 
 Locking files is intended to be a temporary measure, and will pause mirroring
-for 5 minutes.
+for 5 minutes. This is designed this way to prevent too many network requests
+being sent out when too many files are locked.
