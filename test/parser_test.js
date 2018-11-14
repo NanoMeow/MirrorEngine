@@ -34,7 +34,7 @@
 
 const assert = require("assert");
 
-const { ParserValidateRaw, ParserIncludeResolver } = require("../dist/parser");
+const { ParserValidateRaw, ParserResolveInclude } = require("../dist/parser");
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -104,7 +104,7 @@ const TestMain = () => {
         },
     ];
 
-    const resolver = new ParserIncludeResolver(manifest);
+    const resolver = new ParserResolveInclude(manifest);
 
     // ----------------------------------------------------------------------------------------- //
 
