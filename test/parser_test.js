@@ -96,13 +96,13 @@ const TestMain = () => {
     {
         const arr = [
             "text0",
-            "text1",
+            "text1    ", // Space should be conserved
             "text2",
         ];
         const data = resolver.Resolve(manifest[2], arr.join("\r\n"));
 
-        arr.push("");
-        assert(data === arr.join("\n"));
+        arr.push(""); // Final new line added if the original text does not have one
+        assert(data === arr.join("\n")); // Line ending normalized
     }
     Log("Test 0: Passed");
 
