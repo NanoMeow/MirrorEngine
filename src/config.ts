@@ -124,7 +124,7 @@ const ConfigValidLink = (data: any): boolean => {
 const ConfigParse = (data: string): ConfigData => {
     const parsed: any = JSON.parse(data);
 
-    if (typeof data !== "object")
+    if (typeof parsed !== "object")
         throw new Error("Configuration Error: Object expected");
 
     if (
@@ -260,7 +260,7 @@ const ConfigManifestParseBase = function* (
 
     for (const key in parsed) {
         const name: string = ConfigManifestResolveName(key, config);
-        const links: string[] = ConfigManifestResolveLinks(parsed.contentURL, config);
+        const links: string[] = ConfigManifestResolveLinks(parsed[key].contentURL, config);
 
         if (links.length > 0) {
             yield {

@@ -34,14 +34,18 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-const OWNER = "NanoMeow";
-const REPO = "TestRepo";
-const PATH = "GitHubApiTestFile.txt";
-const SHA = "";
+const assert = require("assert");
+const os = require("os");
+const path = require("path");
+
+const { GitHub } = require("../dist/github");
+const { ConfigLoad } = require("../dist/config");
 
 // --------------------------------------------------------------------------------------------- //
 
-const { GitHub } = require("../dist/github");
+const REPO = "TestRepo";
+const PATH = "GitHubApiTestFile.txt";
+const SHA = "acbe86c7c89586e0912a0a851bacf309c595c308";
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -61,17 +65,19 @@ const TestMain = async () => {
 
     // ----------------------------------------------------------------------------------------- //
 
-    const github = new GitHub(OWNER, "");
+    const config = await ConfigLoad(path.resolve(os.homedir(), "mirror-engine-config.json"));
+    const github = new GitHub(config.User, config.Secret);
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 0");
+    Log("Test 0: Find sha of a file");
     const data = await github.FindSha({
         Repo: REPO,
         Path: PATH,
     });
-    console.log(data);
-    
+    assert(typeof data.Sha === "string" && data.Sha === SHA);
+    Log("Test 0: Passed");
+
     // ----------------------------------------------------------------------------------------- //
 
 };
