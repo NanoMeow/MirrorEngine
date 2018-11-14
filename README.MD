@@ -49,12 +49,17 @@ explicitly listed, `!#include` directive will not be honored. This is designed
 this way to avoid surprises.
 
 ```TypeScript
-interface IncludeJson {
-    Parent: string,   // Name of parent filter, including file extension
-    Original: string, // Original name of this subfilter
+interface IncludeJsonEntry {
     Name: string,     // Name of this subfilter, should be prefixed with
                       // "include/"
     Link: string,     // Link of this subfilter
+
+    Parent: string,   // Name of parent filter, including file extension
+    Original: string, // Original name of this subfilter
+}
+
+interface IncludeJson {
+    [index: number]: IncludeJsonEntry,
 }
 ```
 

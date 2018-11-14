@@ -42,11 +42,11 @@ import { RequestResponse, RequestEngine } from "./request";
 export interface ConfigManifestEntry {
     Name: string,
     Links: string,
+
+    // Only for subfilters
+    Parent?: string,
+    Original?: string,
 }
-
-const ConfigManifestNameOverride: Map<string, string> = new Map<string, string>([]);
-
-const ConfigManifestLinkBlacklist: Set<string> = new Set<string>([]);
 
 // --------------------------------------------------------------------------------------------- //
 
