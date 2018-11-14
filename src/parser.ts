@@ -117,7 +117,7 @@ export class ParserIncludeResolver {
             out.push(INCLUDE_DIRECTIVE + map.get(original));
         }
 
-        if (out.length === 0 || out[out.length - 1].length !== 0)
+        if (out.length === 0 || out[out.length - 1].length > 0)
             out.push(""); // Ensure file ends with new line
 
         return out.join("\n");

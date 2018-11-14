@@ -39,7 +39,7 @@ import * as stream from "stream";
 import * as url from "url";
 import * as zlib from "zlib";
 
-import { LogMessage, LogError } from "./log";
+import { LogMessage, LogError, LogDebug } from "./log";
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -228,6 +228,10 @@ export class RequestEngine {
             // --------------------------------------------------------------------------------- //
 
             LogMessage(method + " - " + link);
+
+            const headers: string[] = Object.keys(this.HeadersCustom);
+            if (headers.length > 0)
+                LogDebug("Sending custom headers: '" + headers.join("', '") + "'");
 
             // --------------------------------------------------------------------------------- //
 

@@ -96,6 +96,9 @@ class RequestEngine {
     LinkToStream(link, method, opt) {
         return new Promise((resolve, reject) => {
             log_1.LogMessage(method + " - " + link);
+            const headers = Object.keys(this.HeadersCustom);
+            if (headers.length > 0)
+                log_1.LogDebug("Sending custom headers: '" + headers.join("', '") + "'");
             const option = url.parse(link);
             option.headers = Object.assign({}, RequestHeadersDefault, this.HeadersCustom);
             option.method = method;

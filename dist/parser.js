@@ -43,7 +43,7 @@ class ParserIncludeResolver {
             }
             out.push(INCLUDE_DIRECTIVE + map.get(original));
         }
-        if (out.length === 0 || out[out.length - 1].length !== 0)
+        if (out.length === 0 || out[out.length - 1].length > 0)
             out.push("");
         return out.join("\n");
     }
