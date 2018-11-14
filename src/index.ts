@@ -36,10 +36,10 @@ import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
 
-import { ConfigManifestEntry, ConfigData, ConfigLoad } from "./config";
+import { ConfigManifestEntry, ConfigData, ConfigTextToIterable, ConfigLoad } from "./config";
 import { GitHubUpdateFileRequest, GitHubUpdateFileResponse, GitHub } from "./github";
 import { LogSetFile, LogMessage, LogError, LogWarning } from "./log";
-import { RequestHeadersCustomizable, RequestEngine } from "./request";
+import { RequestHeadersCustomizable, RequestResponse, RequestEngine } from "./request";
 import { ValidateRaw } from "./validate";
 
 // --------------------------------------------------------------------------------------------- //
@@ -100,26 +100,10 @@ const SleepWhileRunning = async (seconds: number): Promise<void> => {
 
 // --------------------------------------------------------------------------------------------- //
 
-const StringToIterable = function* (str: string): Iterable<string> {
-    const lines = str.split("\n");
-
-    for (let line of lines) {
-        line = line.trim();
-        if (line.length === 0)
-            continue;
-
-        yield line;
-    }
-};
-
 const LockfileParse = (data: string): Set<string> => {
     const out: Set<string> = new Set();
 
-    data = data.trim();
-    if (data.length === 0)
-        return out;
-
-    for (const line of StringToIterable(data))
+    for (const line of ConfigTextToIterable(data))
         out.add(line);
 
     return out;
@@ -141,12 +125,16 @@ const Main = async (): Promise<void> => {
 
     logs = path.resolve(logs, Date.now() + ".txt");
     LogSetFile(logs);
+
     LogMessage("Logging to '" + logs + "'");
 
     // ----------------------------------------------------------------------------------------- //
 
     const config: ConfigData = await ConfigLoad(file);
     const manifest: ConfigManifestEntry[] = config.Manifest;
+
+    if (manifest.length === 0)
+        throw new Error("Manifest Error: No entry found");
 
     // ----------------------------------------------------------------------------------------- //
 
@@ -168,15 +156,15 @@ const Main = async (): Promise<void> => {
 
         // ------------------------------------------------------------------------------------- //
 
-        const lockfile: null | string = await requester.Get(config.Lockfile);
+        const lockfile: RequestResponse = await requester.Get(config.Lockfile);
 
-        if (lockfile === null) {
+        if (typeof lockfile.Text !== "string") {
             LogError("Lockfile Error: Network error");
             await SleepWhileRunning(30 * 60);
             continue;
         }
 
-        const lock: Set<string> = LockfileParse(lockfile);
+        const lock: Set<string> = LockfileParse(lockfile.Text);
 
         // ------------------------------------------------------------------------------------- //
 
@@ -195,17 +183,19 @@ const Main = async (): Promise<void> => {
 
         } else {
 
-            const data: null | string = await requester.Get(link);
+            const data: RequestResponse = await requester.Get(link);
 
-            if (typeof data === "string" && ValidateRaw(data)) {
+            if (typeof data.Text === "string" && ValidateRaw(data.Text)) {
 
                 const payload: GitHubUpdateFileRequest = {
                     Repo: config.Repo,
                     Path: "raw/" + entry.Name,
-                    Content: data,
+                    Content: data.Text,
                     Message: "Automatic mirror update",
                 };
+
                 const response: GitHubUpdateFileResponse = await github.UpdateFile(payload);
+
                 if (response.Success)
                     LogMessage("Updated '" + entry.Name + "' successfully");
                 else
