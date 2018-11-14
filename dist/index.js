@@ -105,7 +105,7 @@ const Main = async () => {
                     log_1.LogError("Update Error: Could not update '" + entry.Name + "'");
             }
             else {
-                log_1.LogError("Update Error: Could not update '" + entry.Name + "'");
+                log_1.LogError("Update Error: Could not download '" + entry.Name + "'");
             }
         }
         i++;

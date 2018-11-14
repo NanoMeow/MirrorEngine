@@ -311,6 +311,7 @@ const ConfigManifestResolve = (
     data: ConfigFileRemote,
     config: ConfigFileRemoteResolved,
 ): ConfigManifestEntry[] => {
+
     const out: ConfigManifestEntry[] = [];
 
     for (const elem of ConfigManifestParseBase(data.BaseManifest, config))
@@ -320,6 +321,7 @@ const ConfigManifestResolve = (
         out.push(elem);
 
     return out;
+
 };
 
 // --------------------------------------------------------------------------------------------- //

@@ -212,7 +212,7 @@ const Main = async (): Promise<void> => {
 
             } else {
 
-                LogError("Update Error: Could not update '" + entry.Name + "'");
+                LogError("Update Error: Could not download '" + entry.Name + "'");
 
             }
 
