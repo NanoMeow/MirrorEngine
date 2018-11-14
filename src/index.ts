@@ -39,6 +39,7 @@ import * as path from "path";
 import { ConfigManifestEntry, ConfigData, ConfigTextToIterable, ConfigLoad } from "./config";
 import { GitHubUpdateFileRequest, GitHubUpdateFileResponse, GitHub } from "./github";
 import { LogSetFile, LogMessage, LogError, LogWarning } from "./log";
+import { ParserIncludeResolver } from "./parser";
 import { RequestHeadersCustomizable, RequestResponse, RequestEngine } from "./request";
 import { ValidateRaw } from "./validate";
 
@@ -141,6 +142,7 @@ const Main = async (): Promise<void> => {
     const requester: RequestEngine = new RequestEngine();
     requester.SetHeadersCustom(RequestHeadersCustomizable.UserAgent, config.User);
 
+    const resolver: ParserIncludeResolver = new ParserIncludeResolver(manifest);
     const github: GitHub = new GitHub(config.User, config.Secret);
 
     // ----------------------------------------------------------------------------------------- //
@@ -190,7 +192,7 @@ const Main = async (): Promise<void> => {
                 const payload: GitHubUpdateFileRequest = {
                     Repo: config.Repo,
                     Path: "raw/" + entry.Name,
-                    Content: data.Text,
+                    Content: resolver.Resolve(entry, data.Text),
                     Message: "Automatic mirror update",
                 };
 

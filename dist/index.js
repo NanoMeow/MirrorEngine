@@ -6,6 +6,7 @@ const path = require("path");
 const config_1 = require("./config");
 const github_1 = require("./github");
 const log_1 = require("./log");
+const parser_1 = require("./parser");
 const request_1 = require("./request");
 const validate_1 = require("./validate");
 const CONFIG_FILE_NAME = "mirror-engine-config.json";
@@ -64,6 +65,7 @@ const Main = async () => {
         throw new Error("Manifest Error: No entry found");
     const requester = new request_1.RequestEngine();
     requester.SetHeadersCustom(request_1.RequestHeadersCustomizable.UserAgent, config.User);
+    const resolver = new parser_1.ParserIncludeResolver(manifest);
     const github = new github_1.GitHub(config.User, config.Secret);
     let i = 0;
     while (Running) {
@@ -90,7 +92,7 @@ const Main = async () => {
                 const payload = {
                     Repo: config.Repo,
                     Path: "raw/" + entry.Name,
-                    Content: data.Text,
+                    Content: resolver.Resolve(entry, data.Text),
                     Message: "Automatic mirror update",
                 };
                 const response = await github.UpdateFile(payload);
