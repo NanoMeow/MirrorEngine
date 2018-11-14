@@ -38,7 +38,7 @@ interface AssetsJsonEntry {
 }
 
 interface AssetsJson {
-    [key: string]: AssetsManifestEntry,
+    [key: string]: AssetsJsonEntry,
 }
 ```
 
