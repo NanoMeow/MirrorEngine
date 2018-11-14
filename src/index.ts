@@ -87,6 +87,9 @@ process.on("SIGINT", Shutdown);
 
 // --------------------------------------------------------------------------------------------- //
 
+// TODO: How about attaching an event handler for shutdown, and when the event is dispatched,
+// clear timeout then resolve early?
+
 const Sleep = (milliseconds: number): Promise<void> => {
     return new Promise((resolve) => {
         setTimeout(resolve, milliseconds);
