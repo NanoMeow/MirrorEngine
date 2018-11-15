@@ -87,6 +87,10 @@ const Base64Encode = (data: string): string => {
     return buf.toString("base64");
 };
 
+const IsObject = (data: any): boolean => {
+    return typeof data === "object" && data !== null;
+}
+
 // --------------------------------------------------------------------------------------------- //
 
 export class GitHub {
@@ -174,10 +178,10 @@ export class GitHub {
             const parsed: any = JSON.parse(res.Text);
 
             if (
-                typeof parsed === "object" &&
-                typeof parsed.data === "object" &&
-                typeof parsed.data.repository === "object" &&
-                typeof parsed.data.repository.object === "object" &&
+                IsObject(parsed) &&
+                IsObject(parsed.data) &&
+                IsObject(parsed.data.repository) &&
+                IsObject(parsed.data.repository.object) &&
                 typeof parsed.data.repository.object.oid === "string" &&
                 parsed.data.repository.object.oid.length > 0
             ) {
@@ -250,8 +254,8 @@ export class GitHub {
             const parsed: any = JSON.parse(res.Text);
 
             if (
-                typeof parsed === "object" &&
-                typeof parsed.commit === "object" &&
+                IsObject(parsed) &&
+                IsObject(parsed.commit) &&
                 typeof parsed.commit.sha === "string" &&
                 parsed.commit.sha.length > 0
             ) {

@@ -177,7 +177,7 @@ class RequestEngine {
         return result;
     }
     static BindPayload(payload, opt) {
-        if (typeof payload === "object")
+        if (typeof payload !== "string")
             payload = JSON.stringify(payload);
         if (typeof opt === "undefined")
             opt = {};

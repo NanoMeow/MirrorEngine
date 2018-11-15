@@ -350,7 +350,7 @@ export class RequestEngine {
     // ----------------------------------------------------------------------------------------- //
 
     private static BindPayload(payload: string | Object, opt?: RequestRequest): RequestRequest {
-        if (typeof payload === "object")
+        if (typeof payload !== "string")
             payload = JSON.stringify(payload);
 
         if (typeof opt === "undefined")

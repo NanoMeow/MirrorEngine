@@ -28,7 +28,7 @@ const ConfigValidLink = (data) => {
 };
 const ConfigParse = (data) => {
     const parsed = JSON.parse(data);
-    if (typeof parsed !== "object")
+    if (typeof parsed !== "object" || parsed === null)
         throw new Error("Configuration Error: Object expected");
     if (!ConfigNonEmptyString(parsed.User) ||
         !ConfigNonEmptyString(parsed.Repo) ||
@@ -118,7 +118,7 @@ const ConfigManifestResolveLinks = (links, config) => {
 };
 const ConfigManifestParseBase = function* (data, config) {
     const parsed = JSON.parse(data);
-    if (typeof parsed !== "object")
+    if (typeof parsed !== "object" || parsed === null)
         throw new Error("Manifest Error: Object expected");
     for (const key in parsed) {
         const name = ConfigManifestResolveName(key, config);

@@ -124,7 +124,7 @@ const ConfigValidLink = (data: any): boolean => {
 const ConfigParse = (data: string): ConfigData => {
     const parsed: any = JSON.parse(data);
 
-    if (typeof parsed !== "object")
+    if (typeof parsed !== "object" || parsed === null)
         throw new Error("Configuration Error: Object expected");
 
     if (
@@ -255,7 +255,7 @@ const ConfigManifestParseBase = function* (
 
     const parsed = JSON.parse(data);
 
-    if (typeof parsed !== "object")
+    if (typeof parsed !== "object" || parsed === null)
         throw new Error("Manifest Error: Object expected");
 
     for (const key in parsed) {

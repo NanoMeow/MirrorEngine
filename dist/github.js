@@ -7,6 +7,9 @@ const Base64Encode = (data) => {
     const buf = Buffer.from(data);
     return buf.toString("base64");
 };
+const IsObject = (data) => {
+    return typeof data === "object" && data !== null;
+};
 class GitHub {
     constructor(user, secret) {
         this.User = user;
@@ -46,10 +49,10 @@ class GitHub {
             return {};
         try {
             const parsed = JSON.parse(res.Text);
-            if (typeof parsed === "object" &&
-                typeof parsed.data === "object" &&
-                typeof parsed.data.repository === "object" &&
-                typeof parsed.data.repository.object === "object" &&
+            if (IsObject(parsed) &&
+                IsObject(parsed.data) &&
+                IsObject(parsed.data.repository) &&
+                IsObject(parsed.data.repository.object) &&
                 typeof parsed.data.repository.object.oid === "string" &&
                 parsed.data.repository.object.oid.length > 0) {
                 return { Sha: parsed.data.repository.object.oid };
@@ -94,8 +97,8 @@ class GitHub {
             return { Success: false };
         try {
             const parsed = JSON.parse(res.Text);
-            if (typeof parsed === "object" &&
-                typeof parsed.commit === "object" &&
+            if (IsObject(parsed) &&
+                IsObject(parsed.commit) &&
                 typeof parsed.commit.sha === "string" &&
                 parsed.commit.sha.length > 0) {
                 return { Success: true };
