@@ -102,6 +102,8 @@ Run `node dist`.
 
 Logs will be written to `~/mirror-engine-logs/` directory.
 
+`Link` must be properly URL encoded.
+
 Incoming requests are capped at 16 MiB.
 
 One file will be mirrored every 15 minutes.
