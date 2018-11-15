@@ -112,6 +112,6 @@ Locking files is intended to be a temporary measure, and will pause mirroring
 for 5 minutes. This is designed this way to prevent too many network requests
 being sent when many files are locked.
 
-To prevent committing no change, the current data will be checked with GitCDN,
-which caches the files for 2 hours. So the manifest should have at least 9
-entries that are not locked.
+To prevent committing `0 changed files`, the current data will be checked with
+GitCDN, which caches the files for 2 hours. So the manifest should have at
+least 9 entries that are not locked.
