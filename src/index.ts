@@ -168,7 +168,7 @@ const Main = async (): Promise<void> => {
 
         const lockfile: RequestResponse = await requester.Get(config.Lockfile);
 
-        if (typeof lockfile.Text !== "string") {
+        if (typeof lockfile.Text === "undefined") {
             LogError("Lockfile Error: Network error");
             await SleepWhileRunning(60 * 60);
             continue;

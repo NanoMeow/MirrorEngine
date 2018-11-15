@@ -45,7 +45,7 @@ class GitHub {
         }, {
             Stubborn: true,
         });
-        if (typeof res.Text !== "string")
+        if (typeof res.Text === "undefined")
             return {};
         try {
             const parsed = JSON.parse(res.Text);
@@ -82,7 +82,7 @@ class GitHub {
             Repo: opt.Repo,
             Path: opt.Path,
         });
-        if (typeof sha.Sha !== "string")
+        if (typeof sha.Sha === "undefined")
             sha.Sha = "";
         const payload = {
             path: opt.Path,
@@ -93,7 +93,7 @@ class GitHub {
         const res = await this.Requester.Put("https://api.github.com/repos/" + this.User + "/" + opt.Repo + "/contents/" + opt.Path, payload, {
             Stubborn: true,
         });
-        if (typeof res.Text !== "string")
+        if (typeof res.Text === "undefined")
             return { Success: false };
         try {
             const parsed = JSON.parse(res.Text);

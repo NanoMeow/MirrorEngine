@@ -89,7 +89,7 @@ const Base64Encode = (data: string): string => {
 
 const IsObject = (data: any): boolean => {
     return typeof data === "object" && data !== null;
-}
+};
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -171,7 +171,7 @@ export class GitHub {
 
         // ------------------------------------------------------------------------------------- //
 
-        if (typeof res.Text !== "string")
+        if (typeof res.Text === "undefined")
             return {};
 
         try {
@@ -227,7 +227,7 @@ export class GitHub {
             Path: opt.Path,
         });
 
-        if (typeof sha.Sha !== "string")
+        if (typeof sha.Sha === "undefined")
             sha.Sha = "";
 
         // ------------------------------------------------------------------------------------- //
@@ -247,7 +247,7 @@ export class GitHub {
             },
         );
 
-        if (typeof res.Text !== "string")
+        if (typeof res.Text === "undefined")
             return { Success: false };
 
         try {

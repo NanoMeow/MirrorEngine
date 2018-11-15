@@ -76,7 +76,7 @@ const Main = async () => {
         if (i == manifest.length)
             i = 0;
         const lockfile = await requester.Get(config.Lockfile);
-        if (typeof lockfile.Text !== "string") {
+        if (typeof lockfile.Text === "undefined") {
             log_1.LogError("Lockfile Error: Network error");
             await SleepWhileRunning(60 * 60);
             continue;
