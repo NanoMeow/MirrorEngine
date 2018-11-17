@@ -34,6 +34,7 @@
 
 import * as assert from "assert";
 
+import { ComparatorSimple } from "./comparator";
 import { ConfigManifestEntry } from "./config";
 import { LogWarning, LogError } from "./log";
 
