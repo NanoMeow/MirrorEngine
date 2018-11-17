@@ -39,8 +39,9 @@ import * as path from "path";
 import { ConfigManifestEntry, ConfigData, ConfigTextToIterable, ConfigLoad } from "./config";
 import { GitHubFileUpdateRequest, GitHubFileUpdateResponse, GitHub } from "./github";
 import { LogSetFile, LogDebug, LogMessage, LogError, LogWarning } from "./log";
-import { ParserValidateRaw, ParserResolveInclude } from "./parser";
+import { ParserValidateRaw, ParserComparatorRaw, ParserResolveInclude } from "./parser";
 import { RequestHeadersCustomizable, RequestResponse, RequestEngine } from "./request";
+import { ComparatorSimple } from "./comparator";
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -150,8 +151,10 @@ const Main = async (): Promise<void> => {
     const requester: RequestEngine = new RequestEngine();
     requester.SetHeadersCustom(RequestHeadersCustomizable.UserAgent, config.User);
 
+    const comparator: ComparatorSimple<string> = new ParserComparatorRaw();
     const resolver: ParserResolveInclude = new ParserResolveInclude(manifest);
-    const github: GitHub = new GitHub(config.User, config.Secret);
+
+    const github: GitHub = new GitHub(config.User, config.Secret, comparator);
 
     // ----------------------------------------------------------------------------------------- //
 

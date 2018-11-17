@@ -69,8 +69,9 @@ const Main = async () => {
         throw new Error("Manifest Error: No entry found");
     const requester = new request_1.RequestEngine();
     requester.SetHeadersCustom(request_1.RequestHeadersCustomizable.UserAgent, config.User);
+    const comparator = new parser_1.ParserComparatorRaw();
     const resolver = new parser_1.ParserResolveInclude(manifest);
-    const github = new github_1.GitHub(config.User, config.Secret);
+    const github = new github_1.GitHub(config.User, config.Secret, comparator);
     let i = 0;
     while (Running) {
         if (i == manifest.length)

@@ -10,10 +10,19 @@ const Base64Encode = (data) => {
 const IsObject = (data) => {
     return typeof data === "object" && data !== null;
 };
+class GitHubComparatorDefault {
+    AreEqual(a, b) {
+        return a === b;
+    }
+}
 class GitHub {
-    constructor(user, secret) {
+    constructor(user, secret, comparator) {
         this.User = user;
         this.Secret = secret;
+        if (typeof comparator === "undefined")
+            this.Comparator = new GitHubComparatorDefault();
+        else
+            this.Comparator = comparator;
         this.Requester = new request_1.RequestEngine();
         this.Requester.SetHeadersCustom(request_1.RequestHeadersCustomizable.UserAgent, this.User);
         this.Requester.SetHeadersCustom(request_1.RequestHeadersCustomizable.Authorization, "Basic " + this.Secret);
@@ -74,7 +83,8 @@ class GitHub {
             Repo: opt.Repo,
             Path: opt.Path,
         });
-        if (typeof current.Text === "string" && current.Text === opt.Content) {
+        if (typeof current.Text === "string" &&
+            this.Comparator.AreEqual(opt.Content, current.Text)) {
             log_1.LogMessage("File not changed");
             return { Success: true };
         }

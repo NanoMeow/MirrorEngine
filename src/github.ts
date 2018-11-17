@@ -34,6 +34,7 @@
 
 import * as assert from "assert";
 
+import { ComparatorSimple } from "./comparator";
 import { LogDebug, LogMessage, LogError } from "./log";
 import { RequestHeadersCustomizable, RequestResponse, RequestEngine } from "./request";
 
@@ -93,6 +94,14 @@ const IsObject = (data: any): boolean => {
 
 // --------------------------------------------------------------------------------------------- //
 
+class GitHubComparatorDefault implements ComparatorSimple<string> {
+    public AreEqual(a: string, b: string): boolean {
+        return a === b;
+    }
+}
+
+// --------------------------------------------------------------------------------------------- //
+
 export class GitHub {
 
     // ----------------------------------------------------------------------------------------- //
@@ -100,14 +109,21 @@ export class GitHub {
     private User: string;
     private Secret: string;
 
+    private Comparator: ComparatorSimple<string>;
+
     private Requester: RequestEngine;
     private RequesterAnonymous: RequestEngine;
 
     // ----------------------------------------------------------------------------------------- //
 
-    constructor(user: string, secret: string) {
+    constructor(user: string, secret: string, comparator?: ComparatorSimple<string>) {
         this.User = user;
         this.Secret = secret;
+
+        if (typeof comparator === "undefined")
+            this.Comparator = new GitHubComparatorDefault();
+        else
+            this.Comparator = comparator;
 
         this.Requester = new RequestEngine();
         this.Requester.SetHeadersCustom(RequestHeadersCustomizable.UserAgent, this.User);
@@ -215,7 +231,10 @@ export class GitHub {
             Path: opt.Path,
         });
 
-        if (typeof current.Text === "string" && current.Text === opt.Content) {
+        if (
+            typeof current.Text === "string" &&
+            this.Comparator.AreEqual(opt.Content, current.Text)
+        ) {
             LogMessage("File not changed");
             return { Success: true };
         }

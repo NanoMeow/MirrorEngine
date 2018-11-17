@@ -5,7 +5,7 @@ const log_1 = require("./log");
 const INCLUDE_DIRECTIVE = "!#include ";
 const StringToIterable = function* (str) {
     const lines = str.split(/\r?\n/);
-    for (let line of lines)
+    for (const line of lines)
         yield line;
 };
 exports.ParserValidateRaw = (data) => {
@@ -16,6 +16,26 @@ exports.ParserValidateRaw = (data) => {
     }
     return true;
 };
+class ParserComparatorRaw {
+    static Normalize(data) {
+        const out = [];
+        for (let line of StringToIterable(data)) {
+            line = line.trim();
+            if (line.length === 0)
+                continue;
+            if (line.startsWith("!") && !line.startsWith("!#"))
+                continue;
+            if (line === "#" || line.startsWith("# "))
+                continue;
+            out.push(line);
+        }
+        return out.join("\n");
+    }
+    AreEqual(a, b) {
+        return ParserComparatorRaw.Normalize(a) === ParserComparatorRaw.Normalize(b);
+    }
+}
+exports.ParserComparatorRaw = ParserComparatorRaw;
 class ParserResolveInclude {
     static ValidateManifestEntry(entry) {
         if (entry.IsSubfilter)

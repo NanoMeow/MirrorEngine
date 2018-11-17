@@ -51,7 +51,7 @@ type StrToStr = Map<string, string>;
 const StringToIterable = function* (str: string): Iterable<string> {
     const lines: string[] = str.split(/\r?\n/);
 
-    for (let line of lines)
+    for (const line of lines)
         yield line;
 };
 
@@ -67,6 +67,37 @@ export const ParserValidateRaw = (data: string): boolean => {
 
     return true;
 };
+
+// --------------------------------------------------------------------------------------------- //
+
+export class ParserComparatorRaw implements ComparatorSimple<string> {
+
+    private static Normalize(data: string): string {
+        const out: string[] = [];
+
+        for (let line of StringToIterable(data)) {
+            line = line.trim();
+
+            if (line.length === 0)
+                continue;
+
+            if (line.startsWith("!") && !line.startsWith("!#"))
+                continue;
+
+            if (line === "#" || line.startsWith("# "))
+                continue;
+
+            out.push(line);
+        }
+
+        return out.join("\n");
+    }
+
+    public AreEqual(a: string, b: string): boolean {
+        return ParserComparatorRaw.Normalize(a) === ParserComparatorRaw.Normalize(b);
+    }
+
+}
 
 // --------------------------------------------------------------------------------------------- //
 
