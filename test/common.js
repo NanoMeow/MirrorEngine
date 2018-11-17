@@ -24,9 +24,7 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-// GitHub API utility test
-//
-// Put this content to a file on GitHub: "abcd\n"
+// Test engine
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -34,42 +32,27 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-const os = require("os");
-const path = require("path");
-
-const { Assert, Log } = require("./common");
-const { ConfigLoad } = require("../dist/config");
-const { GitHub } = require("../dist/github");
+const assert = require("assert");
 
 // --------------------------------------------------------------------------------------------- //
 
-const REPO = "TestRepo";
-const PATH = "GitHubApiTestFile.txt";
-const SHA_EXPECTED = "acbe86c7c89586e0912a0a851bacf309c595c308";
+process.on("unhandledRejection", (err) => {
+    throw err;
+});
 
 // --------------------------------------------------------------------------------------------- //
 
-const TestMain = async () => {
-
-    // ----------------------------------------------------------------------------------------- //
-
-    const config = await ConfigLoad(path.resolve(os.homedir(), "mirror-engine-config.json"));
-    const github = new GitHub(config.User, config.Secret);
-
-    // ----------------------------------------------------------------------------------------- //
-
-    Log("Test finding sha of a file");
-    const data = await github.BlobSha({
-        Repo: REPO,
-        Path: PATH,
-    });
-    Assert(typeof data.Sha === "string" && data.Sha === SHA_EXPECTED);
-    Log("Test passed");
-
-    // ----------------------------------------------------------------------------------------- //
-
+const Assert = (condition, message) => {
+    assert(condition, message);
 };
 
-TestMain();
+const Log = (msg) => {
+    console.log(msg);
+};
+
+// --------------------------------------------------------------------------------------------- //
+
+exports.Assert = Assert;
+exports.Log = Log;
 
 // --------------------------------------------------------------------------------------------- //

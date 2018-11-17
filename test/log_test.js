@@ -35,19 +35,8 @@
 const os = require("os");
 const path = require("path");
 
+const { Log } = require("./common");
 const { LogSetFile, LogDebug, LogMessage, LogWarning, LogError } = require("../dist/log");
-
-// --------------------------------------------------------------------------------------------- //
-
-process.on("unhandledRejection", (err) => {
-    throw err;
-});
-
-// --------------------------------------------------------------------------------------------- //
-
-const Log = (msg) => {
-    console.log(msg);
-};
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -69,28 +58,28 @@ const TestMain = () => {
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 0: Empty message");
+    Log("Test logging empty messages");
     TestAll("");
-    Log("Test 0: Ended, no message should be logged");
+    Log("Test ended, no message should be logged");
 
     Log("");
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 1: Single-line message");
+    Log("Test logging single-line messages");
     TestAll("Test");
-    Log("Test 1: Ended, three single-line messages should be logged");
+    Log("Test ended, three single-line messages should be logged");
 
     Log("");
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 2: Multi-line message");
+    Log("Test logging multi-line messages");
     TestAll([
         "Test",
         "    Test",
     ].join("\n"));
-    Log("Test 2: Ended, three multi-line messages should be logged, spaces should be conserved");
+    Log("Test ended, three multi-line messages should be logged, spaces should be conserved");
 
     Log("");
 
@@ -100,17 +89,17 @@ const TestMain = () => {
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 3: Set log path");
+    Log("Test setting log path");
     LogSetFile(file);
-    Log("Test 3: Ended, log path set to '" + file + "'");
+    Log("Test ended, log path set to '" + file + "'");
 
     Log("");
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 4: Write log to file");
+    Log("Test writing logs to file");
     TestAll("Test");
-    Log("Test 4: Ended, three single-line messages should be logged into the temporary file");
+    Log("Test ended, three single-line messages should be logged into the temporary file");
 
     // ----------------------------------------------------------------------------------------- //
 

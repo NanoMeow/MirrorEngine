@@ -32,21 +32,8 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-const assert = require("assert");
-
+const { Assert, Log } = require("./common");
 const { ParserValidateRaw, ParserResolveInclude } = require("../dist/parser");
-
-// --------------------------------------------------------------------------------------------- //
-
-process.on("unhandledRejection", (err) => {
-    throw err;
-});
-
-// --------------------------------------------------------------------------------------------- //
-
-const Log = (msg) => {
-    console.log(msg);
-};
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -54,17 +41,20 @@ const TestMain = () => {
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 0: Validator basic");
-    assert(ParserValidateRaw("example.com") === true);
-    Log("Test 0: Passed");
+    Log("Test validator basic");
+    Assert(ParserValidateRaw([
+        "example.com",
+        "www.example.com",
+    ].join("\n")) === true);
+    Log("Test passed");
 
     Log("");
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 1: Validator unexpected HTML");
-    assert(ParserValidateRaw("<!DOCTYPE>") === false);
-    Log("Test 1: Passed");
+    Log("Test validator rejects unexpected HTML");
+    Assert(ParserValidateRaw("<!DOCTYPE>") === false);
+    Log("Test passed");
 
     Log("");
 
@@ -108,7 +98,7 @@ const TestMain = () => {
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 2: Resolver normalize line endings");
+    Log("Test resolver normalizes line endings");
     {
         const arr = [
             "text0",
@@ -118,15 +108,15 @@ const TestMain = () => {
         const data = resolver.Resolve(manifest[2], arr.join("\r\n"));
 
         arr.push(""); // Final new line added if the original text does not have one
-        assert(data === arr.join("\n")); // Line ending normalized
+        Assert(data === arr.join("\n")); // Line ending normalized
     }
-    Log("Test 2: Passed");
+    Log("Test passed");
 
     Log("");
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 3: Resolver resolve 1 subfilter");
+    Log("Test resolver resolves 1 subfilter");
     {
         const arr = [
             "text0",
@@ -138,15 +128,15 @@ const TestMain = () => {
         const data = resolver.Resolve(manifest[0], arr.join("\n"));
 
         arr[2] = "!#include include/subfilter-0.txt";
-        assert(data === arr.join("\n"));
+        Assert(data === arr.join("\n"));
     }
-    Log("Test 3: Passed");
+    Log("Test passed");
 
     Log("");
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 4: Resolver resolve 2 subfilters");
+    Log("Test resolver resolve 2 subfilters");
     {
         const arr = [
             "text0",
@@ -160,15 +150,15 @@ const TestMain = () => {
 
         arr[1] = "!#include include/subfilter-2.txt";
         arr[3] = "!#include include/subfilter-1.txt";
-        assert(data === arr.join("\n"));
+        Assert(data === arr.join("\n"));
     }
-    Log("Test 4: Passed");
+    Log("Test passed");
 
     Log("");
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 5: Resolver strip include directive for unknown subresource");
+    Log("Test resolver strips include directive for unknown subresource");
     {
         const arr = [
             "text0",
@@ -180,12 +170,9 @@ const TestMain = () => {
         const data = resolver.Resolve(manifest[0], arr.join("\n"));
 
         arr.splice(1, 1);
-        assert(data === arr.join("\n"));
+        Assert(data === arr.join("\n"));
     }
-    Log(
-        "Test 5: Passed, 2 warnings (unknown subresource and missing subresource) should be " +
-        "logged",
-    );
+    Log("Test passed, 2 warnings (unknown subresource and missing subresource) should be logged");
 
     // ----------------------------------------------------------------------------------------- //
 

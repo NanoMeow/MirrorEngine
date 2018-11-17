@@ -32,21 +32,8 @@
 
 // --------------------------------------------------------------------------------------------- //
 
-const assert = require("assert");
-
+const { Assert, Log } = require("./common");
 const { RequestEngine } = require("../dist/request");
-
-// --------------------------------------------------------------------------------------------- //
-
-process.on("unhandledRejection", (err) => {
-    throw err;
-});
-
-// --------------------------------------------------------------------------------------------- //
-
-const Log = (msg) => {
-    console.log(msg);
-};
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -58,61 +45,61 @@ const TestMain = async () => {
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 0: GET https://httpbin.org/get");
+    Log("Test GET https://httpbin.org/get");
     {
         const data = await requester.Get("https://httpbin.org/get");
-        assert(
+        Assert(
             typeof data.Text === "string" &&
             data.Text.length > 200 &&
             data.Text.startsWith("{")
         );
     }
-    Log("Test 0: Passed");
+    Log("Test passed");
 
     Log("");
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 1: GET https://httpbin.org/absolute-redirect/2");
+    Log("Test GET https://httpbin.org/absolute-redirect/2");
     {
         const data = await requester.Get("https://httpbin.org/absolute-redirect/2");
-        assert(
+        Assert(
             typeof data.Text === "string" &&
             data.Text.length > 200 &&
             data.Text.startsWith("{")
         );
     }
-    Log("Test 1: Passed");
+    Log("Test passed");
 
     Log("");
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 2: GET https://httpbin.org/relative-redirect/2");
+    Log("Test GET https://httpbin.org/relative-redirect/2");
     {
         const data = await requester.Get("https://httpbin.org/relative-redirect/2");
-        assert(
+        Assert(
             typeof data.Text === "string" &&
             data.Text.length > 200 &&
             data.Text.startsWith("{")
         );
     }
-    Log("Test 2: Passed");
+    Log("Test passed");
 
     Log("");
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 3: GET https://httpbin.org/absolute-redirect/10");
+    Log("Test GET https://httpbin.org/absolute-redirect/10");
     {
         const data = await requester.Get("https://httpbin.org/absolute-redirect/10");
-        assert(
+        Assert(
             typeof data.RedirectRefused === "boolean" &&
             data.RedirectRefused === true &&
             typeof data.Text === "undefined"
         );
     }
-    Log("Test 3: Passed");
+    Log("Test passed");
 
     // ----------------------------------------------------------------------------------------- //
 
