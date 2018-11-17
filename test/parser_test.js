@@ -41,7 +41,7 @@ const TestMain = () => {
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test validator basic");
+    Log("Test validating basic filter");
     Assert(ParserValidateRaw([
         "example.com",
         "www.example.com",
@@ -52,7 +52,7 @@ const TestMain = () => {
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test validator rejects unexpected HTML");
+    Log("Test validating unexpected HTML");
     Assert(ParserValidateRaw("<!DOCTYPE>") === false);
     Log("Test passed");
 
@@ -136,7 +136,7 @@ const TestMain = () => {
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test resolver resolve 2 subfilters");
+    Log("Test resolver resolves 2 subfilters");
     {
         const arr = [
             "text0",
@@ -158,7 +158,7 @@ const TestMain = () => {
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test resolver strips include directive for unknown subresource");
+    Log("Test resolver strips include directives of unknown subresource");
     {
         const arr = [
             "text0",

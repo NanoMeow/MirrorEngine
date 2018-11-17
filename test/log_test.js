@@ -60,7 +60,7 @@ const TestMain = () => {
 
     Log("Test logging empty messages");
     TestAll("");
-    Log("Test ended, no message should be logged");
+    Log("Test ended, no messages should be logged");
 
     Log("");
 
@@ -68,7 +68,7 @@ const TestMain = () => {
 
     Log("Test logging single-line messages");
     TestAll("Test");
-    Log("Test ended, three single-line messages should be logged");
+    Log("Test ended, 4 single-line messages should be logged");
 
     Log("");
 
@@ -79,7 +79,7 @@ const TestMain = () => {
         "Test",
         "    Test",
     ].join("\n"));
-    Log("Test ended, three multi-line messages should be logged, spaces should be conserved");
+    Log("Test ended, 4 multi-line messages should be logged, spaces should be conserved");
 
     Log("");
 
@@ -99,7 +99,7 @@ const TestMain = () => {
 
     Log("Test writing logs to file");
     TestAll("Test");
-    Log("Test ended, three single-line messages should be logged into the temporary file");
+    Log("Test ended, 4 single-line messages should be logged into the temporary file");
 
     // ----------------------------------------------------------------------------------------- //
 
