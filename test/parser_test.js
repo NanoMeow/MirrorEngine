@@ -33,7 +33,7 @@
 // --------------------------------------------------------------------------------------------- //
 
 const { Assert, Log } = require("./common");
-const { ParserValidateRaw, ParserResolveInclude } = require("../dist/parser");
+const { ParserValidateRaw, ParserComparatorRaw, ParserResolveInclude } = require("../dist/parser");
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -54,6 +54,111 @@ const TestMain = () => {
 
     Log("Test validating unexpected HTML");
     Assert(ParserValidateRaw("<!DOCTYPE>") === false);
+    Log("Test passed");
+
+    Log("");
+
+    // ----------------------------------------------------------------------------------------- //
+
+    const comparator = new ParserComparatorRaw();
+
+    // ----------------------------------------------------------------------------------------- //
+
+    Log("Test comparing filters with different line ending");
+    {
+        const a = [
+            "example.com",
+            "www.example.com",
+        ].join("\n");
+        const b = [
+            "example.com",
+            "",
+            "www.example.com",
+            "",
+        ].join("\r\n");
+        Assert(comparator.AreEqual(a, b) === true);
+    }
+    Log("Test passed");
+
+    Log("");
+
+    // ----------------------------------------------------------------------------------------- //
+
+    Log("Test comparing filters with different comments");
+    {
+        const a = [
+            "! Comment a1",
+            "example.com",
+            "#",
+            "www.example.com",
+            "# Comment a2",
+        ].join("\n");
+        const b = [
+            "! Comment b1",
+            "example.com",
+            "www.example.com",
+            "# Comment b2",
+        ].join("\n");
+        Assert(comparator.AreEqual(a, b) === true);
+    }
+    Log("Test passed");
+
+    Log("");
+
+    // ----------------------------------------------------------------------------------------- //
+
+    Log("Test comparing filters with different network rules");
+    {
+        const a = [
+            "example.com",
+            "www1.example.com",
+        ].join("\n");
+        const b = [
+            "example.com",
+            "www2.example.com",
+        ].join("\n");
+        Assert(comparator.AreEqual(a, b) === false);
+    }
+    Log("Test passed");
+
+    Log("");
+
+    // ----------------------------------------------------------------------------------------- //
+
+    Log("Test comparing filters with different cosmetic rules");
+    {
+        const a = [
+            "##.rule1",
+            "example.com",
+            "www.example.com",
+        ].join("\n");
+        const b = [
+            "##.rule2",
+            "example.com",
+            "www.example.com",
+        ].join("\n");
+        Assert(comparator.AreEqual(a, b) === false);
+    }
+    Log("Test passed");
+
+    Log("");
+
+    // ----------------------------------------------------------------------------------------- //
+
+    Log("Test comparing filters with different directives");
+    {
+        const a = [
+            "!#include a.txt",
+            "example.com",
+            "www.example.com",
+        ].join("\n");
+        const b = [
+            "!#include b.txt",
+            "example.com",
+            "www.example.com",
+        ].join("\n");
+        Assert(comparator.AreEqual(a, b) === false);
+    }
     Log("Test passed");
 
     Log("");
