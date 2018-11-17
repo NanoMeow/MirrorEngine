@@ -39,6 +39,7 @@ class ParserResolveInclude {
         if (typeof map === "undefined")
             map = new Map();
         const out = [];
+        const matched = new Set();
         for (const line of StringToIterable(data)) {
             if (!line.startsWith(INCLUDE_DIRECTIVE)) {
                 out.push(line);
@@ -46,13 +47,18 @@ class ParserResolveInclude {
             }
             const original = line.substring(INCLUDE_DIRECTIVE.length).trim();
             if (!map.has(original)) {
-                log_1.LogWarning("Could not process include directive '" + line + "'");
+                log_1.LogWarning("Subresource '" + original + "' of '" + entry.Name + "' is not recognized");
                 continue;
             }
             out.push(INCLUDE_DIRECTIVE + map.get(original));
+            matched.add(original);
         }
         if (out.length === 0 || out[out.length - 1].length > 0)
             out.push("");
+        for (const [key] of map) {
+            if (!matched.has(key))
+                log_1.LogWarning("Subresource '" + key + "' of '" + entry.Name + "' does not exist");
+        }
         return out.join("\n");
     }
 }

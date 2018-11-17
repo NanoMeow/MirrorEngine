@@ -112,6 +112,7 @@ export class ParserResolveInclude {
             map = new Map<string, string>();
 
         const out: string[] = [];
+        const matched: Set<string> = new Set<string>();
 
         for (const line of StringToIterable(data)) {
             if (!line.startsWith(INCLUDE_DIRECTIVE)) {
@@ -122,16 +123,25 @@ export class ParserResolveInclude {
             const original: string = line.substring(INCLUDE_DIRECTIVE.length).trim();
 
             if (!map.has(original)) {
-                LogWarning("Could not process include directive '" + line + "'");
+                LogWarning(
+                    "Subresource '" + original + "' of '" + entry.Name + "' is not recognized",
+                );
+
                 // Do not push the line, all include directives must be explicitly whitelisted
                 continue;
             }
 
             out.push(INCLUDE_DIRECTIVE + map.get(original));
+            matched.add(original);
         }
 
         if (out.length === 0 || out[out.length - 1].length > 0)
             out.push(""); // Ensure file ends with new line
+
+        for (const [key] of map) {
+            if (!matched.has(key))
+                LogWarning("Subresource '" + key + "' of '" + entry.Name + "' does not exist");
+        }
 
         return out.join("\n");
     }

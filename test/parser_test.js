@@ -108,7 +108,7 @@ const TestMain = () => {
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 2: Resolver normalizing line ending");
+    Log("Test 2: Resolver normalize line endings");
     {
         const arr = [
             "text0",
@@ -168,7 +168,7 @@ const TestMain = () => {
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test 5: Resolver strip include directive for unknown subfilters");
+    Log("Test 5: Resolver strip include directive for unknown subresource");
     {
         const arr = [
             "text0",
@@ -182,7 +182,10 @@ const TestMain = () => {
         arr.splice(1, 1);
         assert(data === arr.join("\n"));
     }
-    Log("Test 5: Passed, a warning should be logged");
+    Log(
+        "Test 5: Passed, 2 warnings (unknown subresource and missing subresource) should be " +
+        "logged",
+    );
 
     // ----------------------------------------------------------------------------------------- //
 
