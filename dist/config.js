@@ -3,6 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs = require("fs-extra");
 const log_1 = require("./log");
 const request_1 = require("./request");
+const IsObject = (data) => {
+    return typeof data === "object" && data !== null;
+};
 exports.ConfigTextToIterable = function* (str) {
     const lines = str.split("\n");
     for (let line of lines) {
@@ -28,7 +31,7 @@ const ConfigValidLink = (data) => {
 };
 const ConfigParse = (data) => {
     const parsed = JSON.parse(data);
-    if (typeof parsed !== "object" || parsed === null)
+    if (!IsObject(parsed))
         throw new Error("Configuration Error: Object expected");
     if (!ConfigNonEmptyString(parsed.User) ||
         !ConfigNonEmptyString(parsed.Repo) ||
@@ -118,7 +121,7 @@ const ConfigManifestResolveLinks = (links, config) => {
 };
 const ConfigManifestParseBase = function* (data, config) {
     const parsed = JSON.parse(data);
-    if (typeof parsed !== "object" || parsed === null)
+    if (!IsObject(parsed))
         throw new Error("Manifest Error: Object expected");
     for (const key in parsed) {
         const name = ConfigManifestResolveName(key, config);

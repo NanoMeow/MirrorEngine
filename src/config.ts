@@ -84,6 +84,12 @@ interface ConfigFileRemoteResolved {
 
 // --------------------------------------------------------------------------------------------- //
 
+const IsObject = (data: any): boolean => {
+    return typeof data === "object" && data !== null;
+};
+
+// --------------------------------------------------------------------------------------------- //
+
 export const ConfigTextToIterable = function* (str: string): Iterable<string> {
     const lines: string[] = str.split("\n");
 
@@ -124,7 +130,7 @@ const ConfigValidLink = (data: any): boolean => {
 const ConfigParse = (data: string): ConfigData => {
     const parsed: any = JSON.parse(data);
 
-    if (typeof parsed !== "object" || parsed === null)
+    if (!IsObject(parsed))
         throw new Error("Configuration Error: Object expected");
 
     if (
@@ -255,7 +261,7 @@ const ConfigManifestParseBase = function* (
 
     const parsed = JSON.parse(data);
 
-    if (typeof parsed !== "object" || parsed === null)
+    if (!IsObject(parsed))
         throw new Error("Manifest Error: Object expected");
 
     for (const key in parsed) {
