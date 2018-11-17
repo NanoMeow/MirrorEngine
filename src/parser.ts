@@ -74,7 +74,7 @@ export class ParserResolveInclude {
     // ----------------------------------------------------------------------------------------- //
 
     // Parent to a map, then child original name to override name
-    private ParentToChildMap: Map<string, StrToStr>;
+    private ParentToChild: Map<string, StrToStr>;
 
     // ----------------------------------------------------------------------------------------- //
 
@@ -86,7 +86,7 @@ export class ParserResolveInclude {
     // ----------------------------------------------------------------------------------------- //
 
     constructor(manifest: ConfigManifestEntry[]) {
-        this.ParentToChildMap = new Map<string, StrToStr>();
+        this.ParentToChild = new Map<string, StrToStr>();
 
         for (const entry of manifest) {
             if (!entry.IsSubfilter)
@@ -94,10 +94,10 @@ export class ParserResolveInclude {
 
             ParserResolveInclude.ValidateManifestEntry(entry);
 
-            if (!this.ParentToChildMap.has(<string>entry.Parent))
-                this.ParentToChildMap.set(<string>entry.Parent, new Map<string, string>());
+            if (!this.ParentToChild.has(<string>entry.Parent))
+                this.ParentToChild.set(<string>entry.Parent, new Map<string, string>());
 
-            const map: StrToStr = <StrToStr>this.ParentToChildMap.get(<string>entry.Parent);
+            const map: StrToStr = <StrToStr>this.ParentToChild.get(<string>entry.Parent);
             map.set(<string>entry.Original, entry.Name);
         }
     }
@@ -107,7 +107,7 @@ export class ParserResolveInclude {
     public Resolve(entry: ConfigManifestEntry, data: string): string {
         ParserResolveInclude.ValidateManifestEntry(entry);
 
-        let map: StrToStr | undefined = <StrToStr>this.ParentToChildMap.get(<string>entry.Name);
+        let map: StrToStr | undefined = <StrToStr>this.ParentToChild.get(<string>entry.Name);
         if (typeof map === "undefined")
             map = new Map<string, string>();
 

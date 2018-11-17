@@ -22,20 +22,20 @@ class ParserResolveInclude {
             assert(typeof entry.Parent === "string" || typeof entry.Original === "string");
     }
     constructor(manifest) {
-        this.ParentToChildMap = new Map();
+        this.ParentToChild = new Map();
         for (const entry of manifest) {
             if (!entry.IsSubfilter)
                 continue;
             ParserResolveInclude.ValidateManifestEntry(entry);
-            if (!this.ParentToChildMap.has(entry.Parent))
-                this.ParentToChildMap.set(entry.Parent, new Map());
-            const map = this.ParentToChildMap.get(entry.Parent);
+            if (!this.ParentToChild.has(entry.Parent))
+                this.ParentToChild.set(entry.Parent, new Map());
+            const map = this.ParentToChild.get(entry.Parent);
             map.set(entry.Original, entry.Name);
         }
     }
     Resolve(entry, data) {
         ParserResolveInclude.ValidateManifestEntry(entry);
-        let map = this.ParentToChildMap.get(entry.Name);
+        let map = this.ParentToChild.get(entry.Name);
         if (typeof map === "undefined")
             map = new Map();
         const out = [];
