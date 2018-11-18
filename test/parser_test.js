@@ -168,12 +168,12 @@ const TestMain = () => {
     Log("Test comparing filters with different expires headers");
     {
         const a = [
-            "! EXPIRES: 3 days",
+            "# EXPIRES: 3 days",
             "example.com",
             "www.example.com",
         ].join("\n");
         const b = [
-            "! EXPIRES: 4 days",
+            "# EXPIRES: 4 days",
             "example.com",
             "www.example.com",
         ].join("\n");
