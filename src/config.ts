@@ -45,7 +45,7 @@ export interface ConfigManifestEntry {
 
     IsSubfilter: boolean,
     Parent?: string,
-    Original?: string,
+    Original?: string, // Subresource original name
 }
 
 // --------------------------------------------------------------------------------------------- //
