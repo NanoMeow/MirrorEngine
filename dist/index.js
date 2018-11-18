@@ -8,6 +8,7 @@ const github_1 = require("./github");
 const log_1 = require("./log");
 const parser_1 = require("./parser");
 const request_1 = require("./request");
+const VERSION = "1.0.0";
 const CONFIG_FILE_NAME = "mirror-engine-config.json";
 const LOG_DIRECTORY_NAME = "mirror-engine-logs";
 const SLEEP_RESOLUTION = 4;
@@ -97,7 +98,7 @@ const Main = async () => {
                     Repo: config.Repo,
                     Path: "raw/" + entry.Name,
                     Content: resolver.Resolve(entry, data.Text),
-                    Message: "Automatic mirror update",
+                    Message: "Automatic mirror update - Mirror Engine v" + VERSION,
                 };
                 const response = await github.FileUpdate(payload);
                 if (response.Success)

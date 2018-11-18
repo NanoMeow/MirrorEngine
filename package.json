@@ -9,7 +9,7 @@
   "description": "Mirror everything",
   "devDependencies": {
     "@types/fs-extra": "~5.0.4",
-    "@types/node": "~10.12.5",
+    "@types/node": "^10.12.9",
     "typescript": "~3.1.6"
   },
   "engines": {
@@ -19,6 +19,5 @@
   "license": "MIT",
   "name": "mirror-engine",
   "private": true,
-  "repository": "https://github.com/NanoMeow/MirrorEngine",
-  "version": "1.0.0"
+  "repository": "https://github.com/NanoMeow/MirrorEngine"
 }

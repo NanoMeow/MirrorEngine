@@ -45,6 +45,8 @@ import { ComparatorSimple } from "./comparator";
 
 // --------------------------------------------------------------------------------------------- //
 
+const VERSION: string = "1.0.0";
+
 const CONFIG_FILE_NAME: string = "mirror-engine-config.json";
 const LOG_DIRECTORY_NAME: string = "mirror-engine-logs";
 
@@ -203,7 +205,7 @@ const Main = async (): Promise<void> => {
                     Repo: config.Repo,
                     Path: "raw/" + entry.Name,
                     Content: resolver.Resolve(entry, data.Text),
-                    Message: "Automatic mirror update",
+                    Message: "Automatic mirror update - Mirror Engine v" + VERSION,
                 };
 
                 const response: GitHubFileUpdateResponse = await github.FileUpdate(payload);
