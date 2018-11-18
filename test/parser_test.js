@@ -41,7 +41,7 @@ const TestMain = () => {
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test validating basic filter");
+    Log("Test validating basic text");
     Assert(ParserValidateRaw([
         "example.com",
         "www.example.com",
@@ -64,7 +64,7 @@ const TestMain = () => {
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test comparing filters with different line ending");
+    Log("Test comparing filters with different line endings");
     {
         const a = [
             "example.com",
