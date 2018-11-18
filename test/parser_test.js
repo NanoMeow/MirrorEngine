@@ -33,7 +33,11 @@
 // --------------------------------------------------------------------------------------------- //
 
 const { Assert, Log } = require("./common");
-const { ParserValidateRaw, ParserComparatorRaw, ParserResolveInclude } = require("../dist/parser");
+const {
+    ParserValidateRaw,
+    ParserComparatorRaw,
+    ParserResolveInclude,
+} = require("../dist/parser");
 
 // --------------------------------------------------------------------------------------------- //
 
