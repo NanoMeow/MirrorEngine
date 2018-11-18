@@ -235,7 +235,7 @@ export class GitHub {
             typeof current.Text === "string" &&
             this.Comparator.AreEqual(opt.Content, current.Text)
         ) {
-            LogMessage("File not changed");
+            LogMessage("File has no meaningful changes");
             return { Success: true };
         }
 

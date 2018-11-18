@@ -85,7 +85,7 @@ class GitHub {
         });
         if (typeof current.Text === "string" &&
             this.Comparator.AreEqual(opt.Content, current.Text)) {
-            log_1.LogMessage("File not changed");
+            log_1.LogMessage("File has no meaningful changes");
             return { Success: true };
         }
         const sha = await this.BlobSha({

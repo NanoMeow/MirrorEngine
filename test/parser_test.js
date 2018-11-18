@@ -145,6 +145,26 @@ const TestMain = () => {
 
     // ----------------------------------------------------------------------------------------- //
 
+    Log("Test comparing filters with different headers");
+    {
+        const a = [
+            "! Title: Filter a",
+            "example.com",
+            "www.example.com",
+        ].join("\n");
+        const b = [
+            "! Title: Filter b",
+            "example.com",
+            "www.example.com",
+        ].join("\n");
+        Assert(comparator.AreEqual(a, b) === false);
+    }
+    Log("Test passed");
+
+    Log("");
+
+    // ----------------------------------------------------------------------------------------- //
+
     Log("Test comparing filters with different directives");
     {
         const a = [

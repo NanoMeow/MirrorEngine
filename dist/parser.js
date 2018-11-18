@@ -23,7 +23,13 @@ class ParserComparatorRaw {
             line = line.trim();
             if (line.length === 0)
                 continue;
-            if (line.startsWith("!") && !line.startsWith("!#"))
+            if (/^(?:!|# )[\t ]*Title[\t ]*:/i.test(line) ||
+                /^(?:!|# )[\t ]*Expires[\t ]*:/i.test(line) ||
+                line.startsWith("!#")) {
+                out.push(line);
+                continue;
+            }
+            if (line.startsWith("!"))
                 continue;
             if (line === "#" || line.startsWith("# "))
                 continue;
