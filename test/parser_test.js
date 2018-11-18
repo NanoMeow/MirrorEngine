@@ -145,7 +145,7 @@ const TestMain = () => {
 
     // ----------------------------------------------------------------------------------------- //
 
-    Log("Test comparing filters with different headers");
+    Log("Test comparing filters with different title headers");
     {
         const a = [
             "! Title: Filter a",
@@ -154,6 +154,26 @@ const TestMain = () => {
         ].join("\n");
         const b = [
             "! Title: Filter b",
+            "example.com",
+            "www.example.com",
+        ].join("\n");
+        Assert(comparator.AreEqual(a, b) === false);
+    }
+    Log("Test passed");
+
+    Log("");
+
+    // ----------------------------------------------------------------------------------------- //
+
+    Log("Test comparing filters with different expires headers");
+    {
+        const a = [
+            "! EXPIRES: 3 days",
+            "example.com",
+            "www.example.com",
+        ].join("\n");
+        const b = [
+            "! EXPIRES: 4 days",
             "example.com",
             "www.example.com",
         ].join("\n");
