@@ -43,7 +43,6 @@ export interface ConfigManifestEntry {
     Name: string,
     Link: string,
 
-    // Only for subfilters
     IsSubfilter: boolean,
     Parent?: string,
     Original?: string,
