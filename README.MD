@@ -52,8 +52,8 @@ explicitly listed, `!#include` directive will not be honored. This is designed
 this way to avoid surprises when a filter suddenly gets a lot of `!#include`
 directives.
 
-A warning will be logged if `!#include` directives no longer matches this
-manifest.
+A warning will be logged if the actual `!#include` directives no longer match
+this manifest.
 
 ```TypeScript
 interface IncludeJsonEntry {
