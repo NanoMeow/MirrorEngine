@@ -63,6 +63,25 @@ const TestMain = () => {
     assert(m.length === 1 && m[0] === 1);
     Log("Test passed");
 
+    Log("");
+
+    // ----------------------------------------------------------------------------------------- //
+
+    Log("Test shuffling manifest with 10 items 1000 times");
+    {
+        let i = 1000;
+        while (i-- > 0) {
+            m = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+            ConfigManifestShuffle(m);
+
+            assert(m.length === 10);
+            const s = new Set(m);
+            for (let i = 0; i < 10; i++)
+                assert(s.has(i));
+        }
+    }
+    Log("Test passed");
+
     // ----------------------------------------------------------------------------------------- //
 
 };
