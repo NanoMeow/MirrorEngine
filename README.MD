@@ -75,10 +75,13 @@ interface IncludeJson {
 One `Name` per line, including file extension. Empty lines and lines starting
 with `# ` (hashtag space) are ignored.
 
-Locked files will be skipped when updating. Locking files is intended to be a
-temporary measure, mirroring will pause for 5 minutes when a locked file is hit
-(with default timer scale). This is designed this way to prevent too many
-network requests being sent when many files are locked.
+`lockfile.txt` will be redownloaded before each resource update. Locked files]
+will be skipped when updating. 
+
+Locking files is intended to be a temporary measure, mirroring will pause for
+5 minutes (with default timer scale) when a locked file is hit. This is
+designed this way to prevent too many network requests being sent when many
+files are locked.
 
 ### `name-override.json`
 
