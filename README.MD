@@ -16,6 +16,9 @@ interface ConfigFile {
     Repo: string,            // GitHub repository name
     Secret: string,          // Base 64 encoded "user:token"
 
+    TimerScale?: number,     // Timer will be scaled by this many times
+                             // Integer from 1 to 10, default 1
+
     BaseManifest: string,    // Link to "assets.json"
     IncludeManifest: string, // Link to "include.json"
 
@@ -46,7 +49,8 @@ interface AssetsJson {
 
 Similar to `assets.json`, but for subfilters. All subfilters to mirror must be
 explicitly listed, `!#include` directive will not be honored. This is designed
-this way to avoid surprises.
+this way to avoid surprises when a filter suddenly gets a lot of `!#include`
+directives.
 
 ```TypeScript
 interface IncludeJsonEntry {
@@ -108,12 +112,12 @@ Run `node dist`.
 
 - Incoming requests are capped at 16 MiB.
 
-- One file will be mirrored every 15 minutes.
+- One file will be mirrored every 15 minutes (with default timer scale).
 
 - Locking files is intended to be a temporary measure, and will pause mirroring
-  for 5 minutes. This is designed this way to prevent too many network requests
-  being sent when many files are locked.
+  for 5 minutes (with default timer scale). This is designed this way to
+  prevent too many network requests being sent when many files are locked.
 
 - To prevent committing `0 changed files`, the current data will be checked with
   GitCDN, which caches the files for 2 hours. So the manifest should have at
-  least 9 entries that are not locked.
+  least 9 entries (with default timer scale) that are not locked.
