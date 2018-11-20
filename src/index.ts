@@ -36,7 +36,13 @@ import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
 
-import { ConfigManifestEntry, ConfigData, ConfigTextToIterable, ConfigLoad } from "./config";
+import {
+    ConfigManifestEntry,
+    ConfigData,
+    ConfigTextToIterable,
+    ConfigLoad,
+    ConfigManifestShuffle,
+} from "./config";
 import { GitHubFileUpdateRequest, GitHubFileUpdateResponse, GitHub } from "./github";
 import { LogSetFile, LogDebug, LogMessage, LogError, LogWarning } from "./log";
 import { ParserValidateRaw, ParserComparatorRaw, ParserResolveInclude } from "./parser";
@@ -160,14 +166,19 @@ const Main = async (): Promise<void> => {
 
     // ----------------------------------------------------------------------------------------- //
 
-    let i: number = 0;
+    let i: number = manifest.length;
 
     while (Running) {
 
         // ------------------------------------------------------------------------------------- //
 
-        if (i == manifest.length)
+        if (i == manifest.length) {
             i = 0;
+
+            ConfigManifestShuffle(manifest);
+            LogDebug("Manifest shuffled:");
+            LogDebug(JSON.stringify(manifest, null, 2));
+        }
 
         // ------------------------------------------------------------------------------------- //
 

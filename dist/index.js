@@ -73,10 +73,14 @@ const Main = async () => {
     const comparator = new parser_1.ParserComparatorRaw();
     const resolver = new parser_1.ParserResolveInclude(manifest);
     const github = new github_1.GitHub(config.User, config.Secret, comparator);
-    let i = 0;
+    let i = manifest.length;
     while (Running) {
-        if (i == manifest.length)
+        if (i == manifest.length) {
             i = 0;
+            config_1.ConfigManifestShuffle(manifest);
+            log_1.LogDebug("Manifest shuffled:");
+            log_1.LogDebug(JSON.stringify(manifest, null, 2));
+        }
         const lockfile = await requester.Get(config.Lockfile);
         if (typeof lockfile.Text === "undefined") {
             log_1.LogError("Lockfile Error: Network error");
