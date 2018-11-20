@@ -52,6 +52,9 @@ explicitly listed, `!#include` directive will not be honored. This is designed
 this way to avoid surprises when a filter suddenly gets a lot of `!#include`
 directives.
 
+A warning will be logged if `!#include` directives no longer matches this
+manifest.
+
 ```TypeScript
 interface IncludeJsonEntry {
     Name: string,     // Name of this subfilter, should be prefixed with
