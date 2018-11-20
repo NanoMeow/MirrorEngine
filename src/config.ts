@@ -55,6 +55,8 @@ interface ConfigFile {
     Repo: string,
     Secret: string, // Base 64 encoded "user:token"
 
+    TimerScale: number, // Default 1
+
     BaseManifest: string,
     IncludeManifest: string,
 
