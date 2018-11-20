@@ -339,4 +339,13 @@ export const ConfigLoad = async (file: string): Promise<ConfigData> => {
     return config;
 };
 
+export const ConfigManifestShuffle = (m: ConfigManifestEntry[]): void => {
+    let i: number = m.length;
+
+    while (i-- > 1) {
+        const j: number = Math.floor(Math.random() * (i + 1));
+        [m[i], m[j]] = [m[j], m[i]];
+    }
+};
+
 // --------------------------------------------------------------------------------------------- //

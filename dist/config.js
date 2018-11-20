@@ -173,3 +173,10 @@ exports.ConfigLoad = async (file) => {
     config.Manifest = ConfigManifestResolve(remote, resolved);
     return config;
 };
+exports.ConfigManifestShuffle = (m) => {
+    let i = m.length;
+    while (i-- > 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [m[i], m[j]] = [m[j], m[i]];
+    }
+};
