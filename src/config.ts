@@ -104,7 +104,7 @@ export const ConfigTextToIterable = function* (str: string): Iterable<string> {
 
 // --------------------------------------------------------------------------------------------- //
 
-const ConfigNonEmptyString = (data: any): boolean => {
+const ConfigStringNonEmpty = (data: any): boolean => {
     if (typeof data !== "string")
         return false;
 
@@ -114,8 +114,8 @@ const ConfigNonEmptyString = (data: any): boolean => {
     return true;
 };
 
-const ConfigValidLink = (data: any): boolean => {
-    if (!ConfigNonEmptyString(data))
+const ConfigLinkValid = (data: any): boolean => {
+    if (!ConfigStringNonEmpty(data))
         return false;
 
     if (!data.startsWith("https://"))
@@ -133,14 +133,14 @@ const ConfigParse = (data: string): ConfigData => {
         throw new Error("Configuration Error: Object expected");
 
     if (
-        !ConfigNonEmptyString(parsed.User) ||
-        !ConfigNonEmptyString(parsed.Repo) ||
-        !ConfigNonEmptyString(parsed.Secret) ||
-        !ConfigValidLink(parsed.BaseManifest) ||
-        !ConfigValidLink(parsed.IncludeManifest) ||
-        !ConfigValidLink(parsed.Lockfile) ||
-        !ConfigValidLink(parsed.NameOverride) ||
-        !ConfigValidLink(parsed.LinkBlacklist)
+        !ConfigStringNonEmpty(parsed.User) ||
+        !ConfigStringNonEmpty(parsed.Repo) ||
+        !ConfigStringNonEmpty(parsed.Secret) ||
+        !ConfigLinkValid(parsed.BaseManifest) ||
+        !ConfigLinkValid(parsed.IncludeManifest) ||
+        !ConfigLinkValid(parsed.Lockfile) ||
+        !ConfigLinkValid(parsed.NameOverride) ||
+        !ConfigLinkValid(parsed.LinkBlacklist)
     ) {
         throw new Error("Configuration Error: Invalid configuration file");
     }
@@ -290,10 +290,10 @@ const ConfigManifestParseInclude = function* (data: string): Iterable<ConfigMani
 
     for (const elem of parsed) {
         if (
-            !ConfigNonEmptyString(elem.Name) ||
-            !ConfigValidLink(elem.Link) ||
-            !ConfigNonEmptyString(elem.Parent) ||
-            !ConfigNonEmptyString(elem.Original)
+            !ConfigStringNonEmpty(elem.Name) ||
+            !ConfigLinkValid(elem.Link) ||
+            !ConfigStringNonEmpty(elem.Parent) ||
+            !ConfigStringNonEmpty(elem.Original)
         ) {
             throw new Error("Manifest Error: Invalid manifest");
         }

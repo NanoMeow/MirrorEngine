@@ -15,15 +15,15 @@ exports.ConfigTextToIterable = function* (str) {
         yield line;
     }
 };
-const ConfigNonEmptyString = (data) => {
+const ConfigStringNonEmpty = (data) => {
     if (typeof data !== "string")
         return false;
     if (data.length === 0)
         return false;
     return true;
 };
-const ConfigValidLink = (data) => {
-    if (!ConfigNonEmptyString(data))
+const ConfigLinkValid = (data) => {
+    if (!ConfigStringNonEmpty(data))
         return false;
     if (!data.startsWith("https://"))
         return false;
@@ -33,14 +33,14 @@ const ConfigParse = (data) => {
     const parsed = JSON.parse(data);
     if (!IsObject(parsed))
         throw new Error("Configuration Error: Object expected");
-    if (!ConfigNonEmptyString(parsed.User) ||
-        !ConfigNonEmptyString(parsed.Repo) ||
-        !ConfigNonEmptyString(parsed.Secret) ||
-        !ConfigValidLink(parsed.BaseManifest) ||
-        !ConfigValidLink(parsed.IncludeManifest) ||
-        !ConfigValidLink(parsed.Lockfile) ||
-        !ConfigValidLink(parsed.NameOverride) ||
-        !ConfigValidLink(parsed.LinkBlacklist)) {
+    if (!ConfigStringNonEmpty(parsed.User) ||
+        !ConfigStringNonEmpty(parsed.Repo) ||
+        !ConfigStringNonEmpty(parsed.Secret) ||
+        !ConfigLinkValid(parsed.BaseManifest) ||
+        !ConfigLinkValid(parsed.IncludeManifest) ||
+        !ConfigLinkValid(parsed.Lockfile) ||
+        !ConfigLinkValid(parsed.NameOverride) ||
+        !ConfigLinkValid(parsed.LinkBlacklist)) {
         throw new Error("Configuration Error: Invalid configuration file");
     }
     return {
@@ -143,10 +143,10 @@ const ConfigManifestParseInclude = function* (data) {
     if (!Array.isArray(parsed))
         throw new Error("Manifest Error: Array expected");
     for (const elem of parsed) {
-        if (!ConfigNonEmptyString(elem.Name) ||
-            !ConfigValidLink(elem.Link) ||
-            !ConfigNonEmptyString(elem.Parent) ||
-            !ConfigNonEmptyString(elem.Original)) {
+        if (!ConfigStringNonEmpty(elem.Name) ||
+            !ConfigLinkValid(elem.Link) ||
+            !ConfigStringNonEmpty(elem.Parent) ||
+            !ConfigStringNonEmpty(elem.Original)) {
             throw new Error("Manifest Error: Invalid manifest");
         }
         yield {
