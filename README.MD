@@ -16,7 +16,7 @@ interface ConfigFile {
     Repo: string,            // GitHub repository name
     Secret: string,          // Base 64 encoded "user:token"
 
-    TimerScale?: number,     // Timer will be scaled by this many times
+    TimerScale?: number,     // Timer will be this many times longer
                              // Integer from 1 to 10, default 1
 
     BaseManifest: string,    // Link to "assets.json"
