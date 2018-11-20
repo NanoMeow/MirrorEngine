@@ -39,6 +39,10 @@ import { RequestResponse, RequestEngine } from "./request";
 
 // --------------------------------------------------------------------------------------------- //
 
+const DEFAULT_TIMER_SCALE: number = 1;
+
+// --------------------------------------------------------------------------------------------- //
+
 export interface ConfigManifestEntry {
     Name: string,
     Link: string,
@@ -55,7 +59,7 @@ interface ConfigFile {
     Repo: string,
     Secret: string, // Base 64 encoded "user:token"
 
-    TimerScale: number, // Default 1
+    TimerScale: number,
 
     BaseManifest: string,
     IncludeManifest: string,
@@ -147,10 +151,22 @@ const ConfigParse = (data: string): ConfigData => {
         throw new Error("Configuration Error: Invalid configuration file");
     }
 
+    if (typeof parsed.TimerScale === "undefined")
+        parsed.TimerScale = DEFAULT_TIMER_SCALE;
+    if (isNaN(parsed.TimerScale))
+        throw new Error("Configuration Error: Integer expected");
+    if (parsed.TimerScale < 1)
+        throw new Error("Configuration Error: At least 1 expected");
+    if (parsed.TimerScale > 10)
+        throw new Error("Configuration Error: At most 10 expected");
+    if (parsed.TimerScale !== Math.round(parsed.TimerScale))
+        throw new Error("Configuration Error: Integer expected");
+
     return {
         User: parsed.User,
         Repo: parsed.Repo,
         Secret: parsed.Secret,
+        TimerScale: parsed.TimerScale,
         BaseManifest: parsed.BaseManifest,
         IncludeManifest: parsed.IncludeManifest,
         Lockfile: parsed.Lockfile,

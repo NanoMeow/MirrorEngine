@@ -186,7 +186,7 @@ const Main = async (): Promise<void> => {
 
         if (typeof lockfile.Text === "undefined") {
             LogError("Lockfile Error: Network error");
-            await SleepWhileRunning(60 * 60);
+            await SleepWhileRunning(60 * 60 * config.TimerScale);
             continue;
         }
 
@@ -203,7 +203,7 @@ const Main = async (): Promise<void> => {
             LogWarning("Update Skipped: File locked");
 
             i++;
-            await SleepWhileRunning(5 * 60);
+            await SleepWhileRunning(5 * 60 * config.TimerScale);
             continue;
 
         } else {
@@ -237,7 +237,7 @@ const Main = async (): Promise<void> => {
         // ------------------------------------------------------------------------------------- //
 
         i++;
-        await SleepWhileRunning(15 * 60);
+        await SleepWhileRunning(15 * 60 * config.TimerScale);
 
         // ------------------------------------------------------------------------------------- //
 

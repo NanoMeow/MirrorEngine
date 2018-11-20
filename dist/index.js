@@ -84,7 +84,7 @@ const Main = async () => {
         const lockfile = await requester.Get(config.Lockfile);
         if (typeof lockfile.Text === "undefined") {
             log_1.LogError("Lockfile Error: Network error");
-            await SleepWhileRunning(60 * 60);
+            await SleepWhileRunning(60 * 60 * config.TimerScale);
             continue;
         }
         const lock = LockfileParse(lockfile.Text);
@@ -92,7 +92,7 @@ const Main = async () => {
         if (lock.has(entry.Name)) {
             log_1.LogWarning("Update Skipped: File locked");
             i++;
-            await SleepWhileRunning(5 * 60);
+            await SleepWhileRunning(5 * 60 * config.TimerScale);
             continue;
         }
         else {
@@ -115,7 +115,7 @@ const Main = async () => {
             }
         }
         i++;
-        await SleepWhileRunning(15 * 60);
+        await SleepWhileRunning(15 * 60 * config.TimerScale);
     }
 };
 Main();
