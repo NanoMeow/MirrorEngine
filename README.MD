@@ -121,8 +121,8 @@ Run `node dist`.
 
 - Incoming requests are capped at 16 MiB.
 
-- One file will be mirrored every 15 minutes (with default timer scale).
+- One resource will be updated every 15 minutes (with default timer scale).
 
-- To prevent committing `0 changed files`, the current data will be checked with
-  GitCDN, which caches the files for 2 hours. So the manifest should have at
+- To prevent committing `0 changed files`, the current data will be checked
+  with GitCDN, which caches files for 2 hours. So the manifest should have at
   least 9 entries (with default timer scale) that are not locked.
