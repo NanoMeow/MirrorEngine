@@ -72,10 +72,12 @@ interface IncludeJson {
 
 ### `lockfile.txt`
 
-Locked files will be skipped when updating.
-
 One `Name` per line, including file extension. Empty lines and lines starting
 with `# ` (hashtag space) are ignored.
+
+Locked files will be skipped when updating, and mirroring will pause for 5
+minutes (with default timer scale). This is designed this way to prevent too
+many network requests being sent when many files are locked.
 
 ### `name-override.json`
 
@@ -116,10 +118,6 @@ Run `node dist`.
 - Incoming requests are capped at 16 MiB.
 
 - One file will be mirrored every 15 minutes (with default timer scale).
-
-- Locking files is intended to be a temporary measure, and will pause mirroring
-  for 5 minutes (with default timer scale). This is designed this way to
-  prevent too many network requests being sent when many files are locked.
 
 - To prevent committing `0 changed files`, the current data will be checked with
   GitCDN, which caches the files for 2 hours. So the manifest should have at
