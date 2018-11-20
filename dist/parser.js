@@ -73,7 +73,8 @@ class ParserResolveInclude {
             }
             const original = line.substring(INCLUDE_DIRECTIVE.length).trim();
             if (!map.has(original)) {
-                log_1.LogWarning("Subresource '" + original + "' of '" + entry.Name + "' is not recognized");
+                log_1.LogWarning("Subresource '" + original + "' of '" + entry.Name + "' is not in the " +
+                    "manifest");
                 continue;
             }
             out.push(INCLUDE_DIRECTIVE + map.get(original));
@@ -83,7 +84,8 @@ class ParserResolveInclude {
             out.push("");
         for (const [key] of map) {
             if (!matched.has(key))
-                log_1.LogWarning("Subresource '" + key + "' of '" + entry.Name + "' does not exist");
+                log_1.LogWarning("Subresource '" + key + "' of '" + entry.Name + "' is not in the source " +
+                    "filter");
         }
         return out.join("\n");
     }

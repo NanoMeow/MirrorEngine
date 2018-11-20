@@ -165,7 +165,8 @@ export class ParserResolveInclude {
 
             if (!map.has(original)) {
                 LogWarning(
-                    "Subresource '" + original + "' of '" + entry.Name + "' is not recognized",
+                    "Subresource '" + original + "' of '" + entry.Name + "' is not in the " +
+                    "manifest",
                 );
 
                 // Do not push the line, all include directives must be explicitly whitelisted
@@ -181,7 +182,10 @@ export class ParserResolveInclude {
 
         for (const [key] of map) {
             if (!matched.has(key))
-                LogWarning("Subresource '" + key + "' of '" + entry.Name + "' does not exist");
+                LogWarning(
+                    "Subresource '" + key + "' of '" + entry.Name + "' is not in the source " +
+                    "filter",
+                );
         }
 
         return out.join("\n");
