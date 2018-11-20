@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const assert = require("assert");
 const fs = require("fs-extra");
 const os = require("os");
 const path = require("path");
@@ -42,6 +43,9 @@ const Sleep = (milliseconds) => {
     });
 };
 const SleepWhileRunning = async (seconds) => {
+    assert(typeof seconds === "number");
+    assert(!isNaN(seconds) && isFinite(seconds));
+    assert(seconds === Math.round(seconds) && 64 < seconds && seconds < 65536);
     seconds *= SLEEP_RESOLUTION;
     while (Running && seconds-- > 0)
         await Sleep(Math.ceil(1000 / SLEEP_RESOLUTION));

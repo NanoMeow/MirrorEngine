@@ -32,6 +32,7 @@
 
 // --------------------------------------------------------------------------------------------- //
 
+import * as assert from "assert";
 import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
@@ -106,7 +107,12 @@ const Sleep = (milliseconds: number): Promise<void> => {
 };
 
 const SleepWhileRunning = async (seconds: number): Promise<void> => {
+    assert(typeof seconds === "number");
+    assert(!isNaN(seconds) && isFinite(seconds));
+    assert(seconds === Math.round(seconds) && 64 < seconds && seconds < 65536);
+
     seconds *= SLEEP_RESOLUTION;
+
     while (Running && seconds-- > 0)
         await Sleep(Math.ceil(1000 / SLEEP_RESOLUTION));
 };
