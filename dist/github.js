@@ -26,14 +26,15 @@ class GitHub {
         this.Requester = new request_1.RequestEngine();
         this.Requester.SetHeadersCustom(request_1.RequestHeadersCustomizable.UserAgent, this.User);
         this.Requester.SetHeadersCustom(request_1.RequestHeadersCustomizable.Authorization, "Basic " + this.Secret);
-        this.RequesterAnonymous = new request_1.RequestEngine();
+        this.RequesterUnauthenticated = new request_1.RequestEngine();
+        this.RequesterUnauthenticated.SetHeadersCustom(request_1.RequestHeadersCustomizable.UserAgent, this.User);
     }
     static ValidateOptions(opt) {
         assert(!opt.Path.startsWith("/"));
     }
     async FileContent(opt) {
         GitHub.ValidateOptions(opt);
-        const response = await this.RequesterAnonymous.Get("https://gitcdn.xyz/repo/" + this.User + "/" + opt.Repo + "/master/" + opt.Path);
+        const response = await this.RequesterUnauthenticated.Get("https://gitcdn.xyz/repo/" + this.User + "/" + opt.Repo + "/master/" + opt.Path);
         return { Text: response.Text };
     }
     async BlobSha(opt) {

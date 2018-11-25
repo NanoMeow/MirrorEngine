@@ -112,7 +112,7 @@ export class GitHub {
     private Comparator: ComparatorSimple<string>;
 
     private Requester: RequestEngine;
-    private RequesterAnonymous: RequestEngine;
+    private RequesterUnauthenticated: RequestEngine;
 
     // ----------------------------------------------------------------------------------------- //
 
@@ -132,7 +132,11 @@ export class GitHub {
             "Basic " + this.Secret,
         );
 
-        this.RequesterAnonymous = new RequestEngine();
+        this.RequesterUnauthenticated = new RequestEngine();
+        this.RequesterUnauthenticated.SetHeadersCustom(
+            RequestHeadersCustomizable.UserAgent,
+            this.User,
+        );
     }
 
     // ----------------------------------------------------------------------------------------- //
@@ -145,7 +149,7 @@ export class GitHub {
 
     public async FileContent(opt: GitHubFileContentRequest): Promise<GitHubFileContentResponse> {
         GitHub.ValidateOptions(opt);
-        const response: RequestResponse = await this.RequesterAnonymous.Get(
+        const response: RequestResponse = await this.RequesterUnauthenticated.Get(
             "https://gitcdn.xyz/repo/" + this.User + "/" + opt.Repo + "/master/" + opt.Path,
         );
         return { Text: response.Text };

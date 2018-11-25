@@ -35,7 +35,7 @@
 import * as fs from "fs-extra";
 
 import { LogWarning } from "./log";
-import { RequestResponse, RequestEngine } from "./request";
+import { RequestHeadersCustomizable, RequestResponse, RequestEngine } from "./request";
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -189,6 +189,7 @@ const ConfigRemoteRequest = async (requester: RequestEngine, link: string): Prom
 
 const ConfigRemoteRequestAll = async (data: ConfigData): Promise<ConfigFileRemote> => {
     const requester = new RequestEngine();
+    requester.SetHeadersCustom(RequestHeadersCustomizable.UserAgent, data.User);
 
     return {
         BaseManifest: await ConfigRemoteRequest(requester, data.BaseManifest),
