@@ -177,6 +177,7 @@ export class ParserResolveInclude {
             matched.add(original);
         }
 
+        // TODO: Is it good to push a new line when the output would be an empty string?
         if (out.length === 0 || out[out.length - 1].length > 0)
             out.push(""); // Ensure file ends with new line
 
