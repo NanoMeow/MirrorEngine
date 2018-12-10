@@ -212,7 +212,7 @@ const ConfigRemoteResolveNameOverride = (data: string): Map<string, string> => {
         const a: any = elem[0];
         const b: any = elem[1];
 
-        if (typeof a !== "string" || typeof b !== "string")
+        if (elem.length !== 2 || typeof a !== "string" || typeof b !== "string")
             throw new Error("Configuration Error: String array of length 2 expected");
 
         out.set(a, b);

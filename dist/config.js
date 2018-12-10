@@ -91,7 +91,7 @@ const ConfigRemoteResolveNameOverride = (data) => {
     for (const elem of parsed) {
         const a = elem[0];
         const b = elem[1];
-        if (typeof a !== "string" || typeof b !== "string")
+        if (elem.length !== 2 || typeof a !== "string" || typeof b !== "string")
             throw new Error("Configuration Error: String array of length 2 expected");
         out.set(a, b);
     }
