@@ -66,12 +66,15 @@ process.on("uncaughtException", (err: Error): void => {
 
     const content: string[] = [];
     content.push("Node version: " + process.version);
+
     for (const arg of process.argv)
         content.push("Argument: " + arg);
+
     content.push(<string>err.stack);
     content.push("");
 
     fs.appendFileSync(file, content.join("\n"), "utf8");
+
     throw err;
 });
 
