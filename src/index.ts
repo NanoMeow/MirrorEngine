@@ -104,7 +104,7 @@ process.on("SIGINT", Shutdown);
 // clear timeout then resolve early?
 
 const Sleep = (milliseconds: number): Promise<void> => {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
         setTimeout(resolve, milliseconds);
     });
 };

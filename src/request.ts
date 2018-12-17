@@ -142,7 +142,7 @@ export class RequestEngine {
     }
 
     private static StreamToText(res: http.IncomingMessage): Promise<string> {
-        return new Promise((
+        return new Promise<string>((
             resolve: (txt: string) => void,
             reject: (err: Error) => void,
         ): void => {
@@ -220,7 +220,7 @@ export class RequestEngine {
         method: RequestMethods,
         opt: RequestRequest,
     ): Promise<http.IncomingMessage> {
-        return new Promise((
+        return new Promise<http.IncomingMessage>((
             resolve: (res: http.IncomingMessage) => void,
             reject: (err: Error) => void,
         ): void => {
