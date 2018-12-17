@@ -39,7 +39,7 @@ import * as stream from "stream";
 import * as url from "url";
 import * as zlib from "zlib";
 
-import { LogMessage, LogError, LogDebug } from "./log";
+import { LogDebug, LogMessage, LogError } from "./log";
 
 // --------------------------------------------------------------------------------------------- //
 
