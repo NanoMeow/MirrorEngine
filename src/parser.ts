@@ -164,12 +164,11 @@ export class ParserResolveInclude {
             const original: string = line.substring(INCLUDE_DIRECTIVE.length).trim();
 
             if (!map.has(original)) {
+                // Do not push the line, all include directives must be explicitly whitelisted
                 LogWarning(
                     "Subresource '" + original + "' of '" + entry.Name + "' is not in the " +
                     "manifest",
                 );
-
-                // Do not push the line, all include directives must be explicitly whitelisted
                 continue;
             }
 
@@ -182,11 +181,12 @@ export class ParserResolveInclude {
             out.push(""); // Ensure file ends with new line
 
         for (const [key] of map) {
-            if (!matched.has(key))
+            if (!matched.has(key)) {
                 LogWarning(
                     "Subresource '" + key + "' of '" + entry.Name + "' is not in the source " +
                     "filter",
                 );
+            }
         }
 
         return out.join("\n");

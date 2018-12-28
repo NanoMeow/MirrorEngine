@@ -52,7 +52,7 @@ import { ComparatorSimple } from "./comparator";
 
 // --------------------------------------------------------------------------------------------- //
 
-const VERSION: string = "1.0.4";
+const VERSION: string = "1.0.5";
 
 const CONFIG_FILE_NAME: string = "mirror-engine-config.json";
 const LOG_DIRECTORY_NAME: string = "mirror-engine-logs";
@@ -90,8 +90,9 @@ const Shutdown = (): void => {
     if (!Running)
         return;
 
-    Running = false;
     LogMessage("Shutdown initiated");
+
+    Running = false;
 };
 
 process.on("SIGHUP", Shutdown);
@@ -181,10 +182,11 @@ const Main = async (): Promise<void> => {
 
         // ------------------------------------------------------------------------------------- //
 
-        if (i == manifest.length) {
+        if (i === manifest.length) {
             i = 0;
 
             ConfigManifestShuffle(manifest);
+
             LogDebug("Manifest shuffled:");
             LogDebug(JSON.stringify(manifest, null, 2));
         }
@@ -208,39 +210,33 @@ const Main = async (): Promise<void> => {
         // ------------------------------------------------------------------------------------- //
 
         if (lock.has(entry.Name)) {
-
             LogWarning("Update Skipped: File locked");
 
             i++;
             await SleepWhileRunning(5 * 60 * config.TimerScale);
             continue;
+        }
 
+        // ------------------------------------------------------------------------------------- //
+
+        const data: RequestResponse = await requester.Get(entry.Link);
+
+        if (typeof data.Text === "string" && ParserValidateRaw(data.Text)) {
+            const payload: GitHubFileUpdateRequest = {
+                Repo: config.Repo,
+                Path: "raw/" + entry.Name,
+                Content: resolver.Resolve(entry, data.Text),
+                Message: "Automatic mirror update - Mirror Engine v" + VERSION,
+            };
+
+            const response: GitHubFileUpdateResponse = await github.FileUpdate(payload);
+
+            if (response.Success)
+                LogMessage("Updated '" + entry.Name + "' successfully");
+            else
+                LogError("Update Error: Could not update '" + entry.Name + "'");
         } else {
-
-            const data: RequestResponse = await requester.Get(entry.Link);
-
-            if (typeof data.Text === "string" && ParserValidateRaw(data.Text)) {
-
-                const payload: GitHubFileUpdateRequest = {
-                    Repo: config.Repo,
-                    Path: "raw/" + entry.Name,
-                    Content: resolver.Resolve(entry, data.Text),
-                    Message: "Automatic mirror update - Mirror Engine v" + VERSION,
-                };
-
-                const response: GitHubFileUpdateResponse = await github.FileUpdate(payload);
-
-                if (response.Success)
-                    LogMessage("Updated '" + entry.Name + "' successfully");
-                else
-                    LogError("Update Error: Could not update '" + entry.Name + "'");
-
-            } else {
-
-                LogError("Update Error: Could not download '" + entry.Name + "'");
-
-            }
-
+            LogError("Update Error: Could not download '" + entry.Name + "'");
         }
 
         // ------------------------------------------------------------------------------------- //

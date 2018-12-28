@@ -9,7 +9,7 @@ const github_1 = require("./github");
 const log_1 = require("./log");
 const parser_1 = require("./parser");
 const request_1 = require("./request");
-const VERSION = "1.0.4";
+const VERSION = "1.0.5";
 const CONFIG_FILE_NAME = "mirror-engine-config.json";
 const LOG_DIRECTORY_NAME = "mirror-engine-logs";
 const SLEEP_RESOLUTION = 4;
@@ -31,8 +31,8 @@ let Running = true;
 const Shutdown = () => {
     if (!Running)
         return;
-    Running = false;
     log_1.LogMessage("Shutdown initiated");
+    Running = false;
 };
 process.on("SIGHUP", Shutdown);
 process.on("SIGTERM", Shutdown);
@@ -79,7 +79,7 @@ const Main = async () => {
     const github = new github_1.GitHub(config.User, config.Secret, comparator);
     let i = manifest.length;
     while (Running) {
-        if (i == manifest.length) {
+        if (i === manifest.length) {
             i = 0;
             config_1.ConfigManifestShuffle(manifest);
             log_1.LogDebug("Manifest shuffled:");
@@ -99,24 +99,22 @@ const Main = async () => {
             await SleepWhileRunning(5 * 60 * config.TimerScale);
             continue;
         }
+        const data = await requester.Get(entry.Link);
+        if (typeof data.Text === "string" && parser_1.ParserValidateRaw(data.Text)) {
+            const payload = {
+                Repo: config.Repo,
+                Path: "raw/" + entry.Name,
+                Content: resolver.Resolve(entry, data.Text),
+                Message: "Automatic mirror update - Mirror Engine v" + VERSION,
+            };
+            const response = await github.FileUpdate(payload);
+            if (response.Success)
+                log_1.LogMessage("Updated '" + entry.Name + "' successfully");
+            else
+                log_1.LogError("Update Error: Could not update '" + entry.Name + "'");
+        }
         else {
-            const data = await requester.Get(entry.Link);
-            if (typeof data.Text === "string" && parser_1.ParserValidateRaw(data.Text)) {
-                const payload = {
-                    Repo: config.Repo,
-                    Path: "raw/" + entry.Name,
-                    Content: resolver.Resolve(entry, data.Text),
-                    Message: "Automatic mirror update - Mirror Engine v" + VERSION,
-                };
-                const response = await github.FileUpdate(payload);
-                if (response.Success)
-                    log_1.LogMessage("Updated '" + entry.Name + "' successfully");
-                else
-                    log_1.LogError("Update Error: Could not update '" + entry.Name + "'");
-            }
-            else {
-                log_1.LogError("Update Error: Could not download '" + entry.Name + "'");
-            }
+            log_1.LogError("Update Error: Could not download '" + entry.Name + "'");
         }
         i++;
         await SleepWhileRunning(15 * 60 * config.TimerScale);

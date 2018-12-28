@@ -83,9 +83,10 @@ class ParserResolveInclude {
         if (out.length === 0 || out[out.length - 1].length > 0)
             out.push("");
         for (const [key] of map) {
-            if (!matched.has(key))
+            if (!matched.has(key)) {
                 log_1.LogWarning("Subresource '" + key + "' of '" + entry.Name + "' is not in the source " +
                     "filter");
+            }
         }
         return out.join("\n");
     }

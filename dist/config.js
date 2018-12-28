@@ -139,16 +139,15 @@ const ConfigManifestParseBase = function* (data, config) {
     for (const key in parsed) {
         const name = ConfigManifestResolveName(key, config);
         const links = ConfigManifestResolveLinks(parsed[key].contentURL, config);
-        if (links.length > 0) {
-            yield {
-                Name: name,
-                Link: links[0],
-                IsSubfilter: false,
-            };
-        }
-        else {
+        if (links.length === 0) {
             log_1.LogWarning("No valid link found for '" + name + "'");
+            continue;
         }
+        yield {
+            Name: name,
+            Link: links[0],
+            IsSubfilter: false,
+        };
     }
 };
 const ConfigManifestParseInclude = function* (data) {

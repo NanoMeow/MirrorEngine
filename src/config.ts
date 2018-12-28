@@ -185,7 +185,7 @@ const ConfigRemoteRequest = async (requester: RequestEngine, link: string): Prom
         throw new Error("Configuration Error: Could not load '" + link + "'");
 
     return res.Text;
-}
+};
 
 const ConfigRemoteRequestAll = async (data: ConfigData): Promise<ConfigFileRemote> => {
     const requester = new RequestEngine();
@@ -286,22 +286,22 @@ const ConfigManifestParseBase = function* (
         const name: string = ConfigManifestResolveName(key, config);
         const links: string[] = ConfigManifestResolveLinks(parsed[key].contentURL, config);
 
-        if (links.length > 0) {
-            yield {
-                Name: name,
-                Link: links[0],
-
-                IsSubfilter: false,
-            }
-        } else {
+        if (links.length === 0) {
             LogWarning("No valid link found for '" + name + "'");
+            continue;
         }
+
+        yield {
+            Name: name,
+            Link: links[0],
+
+            IsSubfilter: false,
+        };
     }
 
 };
 
 const ConfigManifestParseInclude = function* (data: string): Iterable<ConfigManifestEntry> {
-
     const parsed = JSON.parse(data);
 
     if (!Array.isArray(parsed))
@@ -324,9 +324,8 @@ const ConfigManifestParseInclude = function* (data: string): Iterable<ConfigMani
             IsSubfilter: true,
             Parent: elem.Parent,
             Original: elem.Original,
-        }
+        };
     }
-
 };
 
 // --------------------------------------------------------------------------------------------- //

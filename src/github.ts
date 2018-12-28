@@ -141,14 +141,14 @@ export class GitHub {
 
     // ----------------------------------------------------------------------------------------- //
 
-    private static ValidateOptions(opt: GitHubBasicRequest): void {
+    private static OptionsValidate(opt: GitHubBasicRequest): void {
         assert(!opt.Path.startsWith("/"));
     }
 
     // ----------------------------------------------------------------------------------------- //
 
     public async FileContent(opt: GitHubFileContentRequest): Promise<GitHubFileContentResponse> {
-        GitHub.ValidateOptions(opt);
+        GitHub.OptionsValidate(opt);
         const response: RequestResponse = await this.RequesterUnauthenticated.Get(
             "https://gitcdn.xyz/repo/" + this.User + "/" + opt.Repo + "/master/" + opt.Path,
         );
@@ -161,7 +161,7 @@ export class GitHub {
 
         // ------------------------------------------------------------------------------------- //
 
-        GitHub.ValidateOptions(opt);
+        GitHub.OptionsValidate(opt);
 
         // ------------------------------------------------------------------------------------- //
 
@@ -206,11 +206,11 @@ export class GitHub {
                 parsed.data.repository.object.oid.length > 0
             ) {
                 return { Sha: parsed.data.repository.object.oid };
-            } else {
-                LogDebug("GitHub API returned unexpected response:");
-                LogDebug(JSON.stringify(parsed, null, 2));
-                return {};
             }
+
+            LogDebug("GitHub API returned unexpected response:");
+            LogDebug(JSON.stringify(parsed, null, 2));
+            return {};
         } catch (err) {
             LogError((<Error>err).message);
             return {};
@@ -226,7 +226,7 @@ export class GitHub {
 
         // ------------------------------------------------------------------------------------- //
 
-        GitHub.ValidateOptions(opt);
+        GitHub.OptionsValidate(opt);
 
         // ------------------------------------------------------------------------------------- //
 
@@ -283,11 +283,11 @@ export class GitHub {
                 parsed.commit.sha.length > 0
             ) {
                 return { Success: true };
-            } else {
-                LogDebug("GitHub API returned unexpected response:");
-                LogDebug(JSON.stringify(parsed, null, 2));
-                return { Success: false };
             }
+
+            LogDebug("GitHub API returned unexpected response:");
+            LogDebug(JSON.stringify(parsed, null, 2));
+            return { Success: false };
         } catch (err) {
             LogError((<Error>err).message);
             return { Success: false };

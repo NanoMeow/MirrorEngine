@@ -29,16 +29,16 @@ class GitHub {
         this.RequesterUnauthenticated = new request_1.RequestEngine();
         this.RequesterUnauthenticated.HeadersCustomSet(request_1.RequestHeadersCustomizable.UserAgent, this.User);
     }
-    static ValidateOptions(opt) {
+    static OptionsValidate(opt) {
         assert(!opt.Path.startsWith("/"));
     }
     async FileContent(opt) {
-        GitHub.ValidateOptions(opt);
+        GitHub.OptionsValidate(opt);
         const response = await this.RequesterUnauthenticated.Get("https://gitcdn.xyz/repo/" + this.User + "/" + opt.Repo + "/master/" + opt.Path);
         return { Text: response.Text };
     }
     async BlobSha(opt) {
-        GitHub.ValidateOptions(opt);
+        GitHub.OptionsValidate(opt);
         const payload = [
             "{",
             '  repository(owner: "' + this.User + '", name: "' + opt.Repo + '") {',
@@ -67,11 +67,9 @@ class GitHub {
                 parsed.data.repository.object.oid.length > 0) {
                 return { Sha: parsed.data.repository.object.oid };
             }
-            else {
-                log_1.LogDebug("GitHub API returned unexpected response:");
-                log_1.LogDebug(JSON.stringify(parsed, null, 2));
-                return {};
-            }
+            log_1.LogDebug("GitHub API returned unexpected response:");
+            log_1.LogDebug(JSON.stringify(parsed, null, 2));
+            return {};
         }
         catch (err) {
             log_1.LogError(err.message);
@@ -79,7 +77,7 @@ class GitHub {
         }
     }
     async FileUpdate(opt) {
-        GitHub.ValidateOptions(opt);
+        GitHub.OptionsValidate(opt);
         const current = await this.FileContent({
             Repo: opt.Repo,
             Path: opt.Path,
@@ -114,11 +112,9 @@ class GitHub {
                 parsed.commit.sha.length > 0) {
                 return { Success: true };
             }
-            else {
-                log_1.LogDebug("GitHub API returned unexpected response:");
-                log_1.LogDebug(JSON.stringify(parsed, null, 2));
-                return { Success: false };
-            }
+            log_1.LogDebug("GitHub API returned unexpected response:");
+            log_1.LogDebug(JSON.stringify(parsed, null, 2));
+            return { Success: false };
         }
         catch (err) {
             log_1.LogError(err.message);
