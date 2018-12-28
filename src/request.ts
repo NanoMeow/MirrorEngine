@@ -207,6 +207,8 @@ export class RequestEngine {
                     return;
 
                 aborted = true;
+                data = "";
+
                 reject(err);
             });
 

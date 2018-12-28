@@ -90,6 +90,7 @@ class RequestEngine {
                 if (aborted)
                     return;
                 aborted = true;
+                data = "";
                 reject(err);
             });
         });
