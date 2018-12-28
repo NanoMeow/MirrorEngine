@@ -67,6 +67,7 @@ const StringToIterable = function* (str: string, prefix?: string): Iterable<stri
 const LogAny = (message: string, prefix: string): void => {
     for (const line of StringToIterable(message, prefix)) {
         console.log(line);
+
         if (typeof LogStream !== "undefined")
             LogStream.write(line + "\n");
     }

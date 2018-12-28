@@ -52,7 +52,7 @@ import { ComparatorSimple } from "./comparator";
 
 // --------------------------------------------------------------------------------------------- //
 
-const VERSION: string = "1.0.2";
+const VERSION: string = "1.0.3";
 
 const CONFIG_FILE_NAME: string = "mirror-engine-config.json";
 const LOG_DIRECTORY_NAME: string = "mirror-engine-logs";
