@@ -9,7 +9,7 @@ const github_1 = require("./github");
 const log_1 = require("./log");
 const parser_1 = require("./parser");
 const request_1 = require("./request");
-const VERSION = "1.0.3";
+const VERSION = "1.0.4";
 const CONFIG_FILE_NAME = "mirror-engine-config.json";
 const LOG_DIRECTORY_NAME = "mirror-engine-logs";
 const SLEEP_RESOLUTION = 4;
@@ -73,7 +73,7 @@ const Main = async () => {
     if (manifest.length === 0)
         throw new Error("Manifest Error: No entry found");
     const requester = new request_1.RequestEngine();
-    requester.SetHeadersCustom(request_1.RequestHeadersCustomizable.UserAgent, config.User);
+    requester.HeadersCustomSet(request_1.RequestHeadersCustomizable.UserAgent, config.User);
     const comparator = new parser_1.ParserComparatorRaw();
     const resolver = new parser_1.ParserResolveInclude(manifest);
     const github = new github_1.GitHub(config.User, config.Secret, comparator);

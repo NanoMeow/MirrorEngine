@@ -52,7 +52,7 @@ import { ComparatorSimple } from "./comparator";
 
 // --------------------------------------------------------------------------------------------- //
 
-const VERSION: string = "1.0.3";
+const VERSION: string = "1.0.4";
 
 const CONFIG_FILE_NAME: string = "mirror-engine-config.json";
 const LOG_DIRECTORY_NAME: string = "mirror-engine-logs";
@@ -166,7 +166,7 @@ const Main = async (): Promise<void> => {
     // ----------------------------------------------------------------------------------------- //
 
     const requester: RequestEngine = new RequestEngine();
-    requester.SetHeadersCustom(RequestHeadersCustomizable.UserAgent, config.User);
+    requester.HeadersCustomSet(RequestHeadersCustomizable.UserAgent, config.User);
 
     const comparator: ComparatorSimple<string> = new ParserComparatorRaw();
     const resolver: ParserResolveInclude = new ParserResolveInclude(manifest);

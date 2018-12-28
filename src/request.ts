@@ -109,7 +109,7 @@ export class RequestEngine {
 
     private PendingRequestsCount: number = 0;
 
-    public GetPendingRequestsCount(): number {
+    public PendingRequestsCountGet(): number {
         return this.PendingRequestsCount;
     }
 
@@ -117,7 +117,7 @@ export class RequestEngine {
 
     private HeadersCustom: RequestHeaders = {};
 
-    public SetHeadersCustom(key: RequestHeadersCustomizable, val: string): void {
+    public HeadersCustomSet(key: RequestHeadersCustomizable, val: string): void {
         this.HeadersCustom[key] = val;
     }
 
@@ -189,6 +189,8 @@ export class RequestEngine {
                 data += c;
                 if (data.length > RESPONSE_MAX_SIZE) {
                     aborted = true;
+                    data = "";
+
                     reject(new Error("Request Error: Response payload too large"));
                 }
             });

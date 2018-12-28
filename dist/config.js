@@ -75,7 +75,7 @@ const ConfigRemoteRequest = async (requester, link) => {
 };
 const ConfigRemoteRequestAll = async (data) => {
     const requester = new request_1.RequestEngine();
-    requester.SetHeadersCustom(request_1.RequestHeadersCustomizable.UserAgent, data.User);
+    requester.HeadersCustomSet(request_1.RequestHeadersCustomizable.UserAgent, data.User);
     return {
         BaseManifest: await ConfigRemoteRequest(requester, data.BaseManifest),
         IncludeManifest: await ConfigRemoteRequest(requester, data.IncludeManifest),

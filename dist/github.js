@@ -24,10 +24,10 @@ class GitHub {
         else
             this.Comparator = comparator;
         this.Requester = new request_1.RequestEngine();
-        this.Requester.SetHeadersCustom(request_1.RequestHeadersCustomizable.UserAgent, this.User);
-        this.Requester.SetHeadersCustom(request_1.RequestHeadersCustomizable.Authorization, "Basic " + this.Secret);
+        this.Requester.HeadersCustomSet(request_1.RequestHeadersCustomizable.UserAgent, this.User);
+        this.Requester.HeadersCustomSet(request_1.RequestHeadersCustomizable.Authorization, "Basic " + this.Secret);
         this.RequesterUnauthenticated = new request_1.RequestEngine();
-        this.RequesterUnauthenticated.SetHeadersCustom(request_1.RequestHeadersCustomizable.UserAgent, this.User);
+        this.RequesterUnauthenticated.HeadersCustomSet(request_1.RequestHeadersCustomizable.UserAgent, this.User);
     }
     static ValidateOptions(opt) {
         assert(!opt.Path.startsWith("/"));

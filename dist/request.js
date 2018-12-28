@@ -35,10 +35,10 @@ class RequestEngine {
         this.PendingRequestsCount = 0;
         this.HeadersCustom = {};
     }
-    GetPendingRequestsCount() {
+    PendingRequestsCountGet() {
         return this.PendingRequestsCount;
     }
-    SetHeadersCustom(key, val) {
+    HeadersCustomSet(key, val) {
         this.HeadersCustom[key] = val;
     }
     static StreamToHeader(res, key, def = "") {
@@ -77,6 +77,7 @@ class RequestEngine {
                 data += c;
                 if (data.length > RESPONSE_MAX_SIZE) {
                     aborted = true;
+                    data = "";
                     reject(new Error("Request Error: Response payload too large"));
                 }
             });

@@ -126,14 +126,14 @@ export class GitHub {
             this.Comparator = comparator;
 
         this.Requester = new RequestEngine();
-        this.Requester.SetHeadersCustom(RequestHeadersCustomizable.UserAgent, this.User);
-        this.Requester.SetHeadersCustom(
+        this.Requester.HeadersCustomSet(RequestHeadersCustomizable.UserAgent, this.User);
+        this.Requester.HeadersCustomSet(
             RequestHeadersCustomizable.Authorization,
             "Basic " + this.Secret,
         );
 
         this.RequesterUnauthenticated = new RequestEngine();
-        this.RequesterUnauthenticated.SetHeadersCustom(
+        this.RequesterUnauthenticated.HeadersCustomSet(
             RequestHeadersCustomizable.UserAgent,
             this.User,
         );
