@@ -136,18 +136,16 @@ class RequestEngine {
                     link = location;
                     continue;
                 }
-                else if (RequestRedirectSafeRelativeLink.test(location)) {
+                if (RequestRedirectSafeRelativeLink.test(location)) {
                     res.resume();
                     link = "https://" + url.parse(link).hostname + location;
                     continue;
                 }
-                else {
-                    log_1.LogError("Request Error: Invalid redirect link '" + location + "'");
-                    return {
-                        RedirectRefused: true,
-                        Stream: res,
-                    };
-                }
+                log_1.LogError("Request Error: Invalid redirect link '" + location + "'");
+                return {
+                    RedirectRefused: true,
+                    Stream: res,
+                };
             }
             if (!opt.Stubborn && (res.statusCode < 200 || res.statusCode > 299)) {
                 log_1.LogError("Request Error: Unexpected status code '" + res.statusCode + "'");

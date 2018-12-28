@@ -297,17 +297,19 @@ export class RequestEngine {
                     res.resume();
                     link = location;
                     continue;
-                } else if (RequestRedirectSafeRelativeLink.test(location)) {
+                }
+
+                if (RequestRedirectSafeRelativeLink.test(location)) {
                     res.resume();
                     link = "https://" + url.parse(link).hostname + location;
                     continue;
-                } else {
-                    LogError("Request Error: Invalid redirect link '" + location + "'");
-                    return {
-                        RedirectRefused: true,
-                        Stream: res,
-                    };
                 }
+
+                LogError("Request Error: Invalid redirect link '" + location + "'");
+                return {
+                    RedirectRefused: true,
+                    Stream: res,
+                };
             }
 
             if (!opt.Stubborn && (<number>res.statusCode < 200 || <number>res.statusCode > 299)) {
