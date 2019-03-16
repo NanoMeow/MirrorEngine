@@ -43,10 +43,6 @@ class ParserComparatorRaw {
 }
 exports.ParserComparatorRaw = ParserComparatorRaw;
 class ParserResolveInclude {
-    static ValidateManifestEntry(entry) {
-        if (entry.IsSubfilter)
-            assert(typeof entry.Parent === "string" || typeof entry.Original === "string");
-    }
     constructor(manifest) {
         this.ParentToChild = new Map();
         for (const entry of manifest) {
@@ -58,6 +54,10 @@ class ParserResolveInclude {
             const map = this.ParentToChild.get(entry.Parent);
             map.set(entry.Original, entry.Name);
         }
+    }
+    static ValidateManifestEntry(entry) {
+        if (entry.IsSubfilter)
+            assert(typeof entry.Parent === "string" || typeof entry.Original === "string");
     }
     Resolve(entry, data) {
         ParserResolveInclude.ValidateManifestEntry(entry);

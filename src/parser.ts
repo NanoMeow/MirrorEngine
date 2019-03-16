@@ -115,7 +115,7 @@ export class ParserResolveInclude {
     // ----------------------------------------------------------------------------------------- //
 
     // Parent to a map, then child original name to override name
-    private ParentToChild: Map<string, StrToStr>;
+    private ParentToChild: Map<string, StrToStr> = new Map<string, StrToStr>();
 
     // ----------------------------------------------------------------------------------------- //
 
@@ -127,8 +127,6 @@ export class ParserResolveInclude {
     // ----------------------------------------------------------------------------------------- //
 
     constructor(manifest: ConfigManifestEntry[]) {
-        this.ParentToChild = new Map<string, StrToStr>();
-
         for (const entry of manifest) {
             if (!entry.IsSubfilter)
                 continue;
