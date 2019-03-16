@@ -2,7 +2,7 @@
 
 // MIT License
 //
-// Copyright (c) 2018 Hugo Xu
+// Copyright (c) 2018-2019 Hugo Xu
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -37,6 +37,7 @@ import * as fs from "fs-extra";
 import * as os from "os";
 import * as path from "path";
 
+import { ComparatorSimple } from "./comparator";
 import {
     ConfigManifestEntry,
     ConfigData,
@@ -48,7 +49,6 @@ import { GitHubFileUpdateRequest, GitHubFileUpdateResponse, GitHub } from "./git
 import { LogSetFile, LogDebug, LogMessage, LogError, LogWarning } from "./log";
 import { ParserValidateRaw, ParserComparatorRaw, ParserResolveInclude } from "./parser";
 import { RequestHeadersCustomizable, RequestResponse, RequestEngine } from "./request";
-import { ComparatorSimple } from "./comparator";
 
 // --------------------------------------------------------------------------------------------- //
 
