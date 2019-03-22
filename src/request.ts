@@ -69,7 +69,10 @@ enum RequestMethods {
 
 export interface RequestRequest {
     Payload?: string | Buffer,
+
     ErrorSuppress?: boolean,
+
+    Retry?: boolean,
     Stubborn?: boolean, // Get response text even if response code is not in the 200 range
 }
 
@@ -276,7 +279,7 @@ export class RequestEngine {
             opt = {};
 
         const log = (msg: string): void => {
-            if (opt!.ErrorSuppress)
+            if (opt!.ErrorSuppress || opt!.Retry)
                 LogDebug(msg);
             else
                 LogError(msg);
@@ -354,12 +357,30 @@ export class RequestEngine {
 
     // ----------------------------------------------------------------------------------------- //
 
-    public async Get(link: string, opt?: RequestRequest): Promise<RequestResponse> {
+    private async RequestWithRetry(
+        link: string,
+        method: RequestMethods,
+        opt?: RequestRequest,
+    ): Promise<RequestResponse> {
         this.PendingRequestsCount++;
-        const result: RequestResponse = await this.LinkToResponse(link, RequestMethods.GET, opt);
+
+        let result: RequestResponse = await this.LinkToResponse(link, method, opt);
+
+        if (typeof result.Text === "undefined" && typeof opt !== "undefined" && opt.Retry) {
+            // TODO: Add some delay, the sleep while running function in index is not accessible
+            opt.Retry = false;
+            result = await this.LinkToResponse(link, method, opt);
+        }
+
         this.PendingRequestsCount--;
 
         return result;
+    }
+
+    // ----------------------------------------------------------------------------------------- //
+
+    public async Get(link: string, opt?: RequestRequest): Promise<RequestResponse> {
+        return await this.RequestWithRetry(link, RequestMethods.GET, opt);
     }
 
     // ----------------------------------------------------------------------------------------- //
@@ -384,12 +405,7 @@ export class RequestEngine {
     ): Promise<RequestResponse> {
 
         opt = RequestEngine.BindPayload(payload, opt);
-
-        this.PendingRequestsCount++;
-        const result: RequestResponse = await this.LinkToResponse(link, RequestMethods.POST, opt);
-        this.PendingRequestsCount--;
-
-        return result;
+        return await this.RequestWithRetry(link, RequestMethods.POST, opt);
 
     }
 
@@ -400,12 +416,7 @@ export class RequestEngine {
     ): Promise<RequestResponse> {
 
         opt = RequestEngine.BindPayload(payload, opt);
-
-        this.PendingRequestsCount++;
-        const result: RequestResponse = await this.LinkToResponse(link, RequestMethods.PUT, opt);
-        this.PendingRequestsCount--;
-
-        return result;
+        return await this.RequestWithRetry(link, RequestMethods.PUT, opt);
 
     }
 

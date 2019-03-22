@@ -120,7 +120,7 @@ class RequestEngine {
         if (typeof opt === "undefined")
             opt = {};
         const log = (msg) => {
-            if (opt.ErrorSuppress)
+            if (opt.ErrorSuppress || opt.Retry)
                 log_1.LogDebug(msg);
             else
                 log_1.LogError(msg);
@@ -176,11 +176,18 @@ class RequestEngine {
             Stream: res,
         };
     }
-    async Get(link, opt) {
+    async RequestWithRetry(link, method, opt) {
         this.PendingRequestsCount++;
-        const result = await this.LinkToResponse(link, RequestMethods.GET, opt);
+        let result = await this.LinkToResponse(link, method, opt);
+        if (typeof result.Text === "undefined" && typeof opt !== "undefined" && opt.Retry) {
+            opt.Retry = false;
+            result = await this.LinkToResponse(link, method, opt);
+        }
         this.PendingRequestsCount--;
         return result;
+    }
+    async Get(link, opt) {
+        return await this.RequestWithRetry(link, RequestMethods.GET, opt);
     }
     static BindPayload(payload, opt) {
         if (typeof payload !== "string")
@@ -193,17 +200,11 @@ class RequestEngine {
     }
     async Post(link, payload, opt) {
         opt = RequestEngine.BindPayload(payload, opt);
-        this.PendingRequestsCount++;
-        const result = await this.LinkToResponse(link, RequestMethods.POST, opt);
-        this.PendingRequestsCount--;
-        return result;
+        return await this.RequestWithRetry(link, RequestMethods.POST, opt);
     }
     async Put(link, payload, opt) {
         opt = RequestEngine.BindPayload(payload, opt);
-        this.PendingRequestsCount++;
-        const result = await this.LinkToResponse(link, RequestMethods.PUT, opt);
-        this.PendingRequestsCount--;
-        return result;
+        return await this.RequestWithRetry(link, RequestMethods.PUT, opt);
     }
 }
 exports.RequestEngine = RequestEngine;
