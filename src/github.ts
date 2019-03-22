@@ -149,9 +149,22 @@ export class GitHub {
 
     public async FileContent(opt: GitHubFileContentRequest): Promise<GitHubFileContentResponse> {
         GitHub.OptionsValidate(opt);
-        const response: RequestResponse = await this.RequesterUnauthenticated.Get(
+
+        let response: RequestResponse = await this.RequesterUnauthenticated.Get(
             "https://gitcdn.xyz/repo/" + this.User + "/" + opt.Repo + "/master/" + opt.Path,
+            {
+                ErrorSuppress: true,
+            },
         );
+
+        if (typeof response.Text === "undefined") {
+            LogDebug("GitCDN errored out, falling back to source");
+            response = await this.RequesterUnauthenticated.Get(
+                "https://raw.githubusercontent.com/" + this.User + "/" + opt.Repo + "/master/" +
+                opt.Path,
+            );
+        }
+
         return { Text: response.Text };
     }
 

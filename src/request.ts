@@ -69,6 +69,7 @@ enum RequestMethods {
 
 export interface RequestRequest {
     Payload?: string | Buffer,
+    ErrorSuppress?: boolean,
     Stubborn?: boolean, // Get response text even if response code is not in the 200 range
 }
 
@@ -274,6 +275,13 @@ export class RequestEngine {
         if (typeof opt === "undefined")
             opt = {};
 
+        const log = (msg: string): void => {
+            if (opt!.ErrorSuppress)
+                LogDebug(msg);
+            else
+                LogError(msg);
+        };
+
         let res: http.IncomingMessage | undefined;
         let redirect: number = 5;
 
@@ -284,7 +292,7 @@ export class RequestEngine {
             try {
                 res = await this.LinkToStream(link, method, opt);
             } catch (err) {
-                LogError((<Error>err).message);
+                log((<Error>err).message);
                 return {};
             }
 
@@ -305,7 +313,7 @@ export class RequestEngine {
                     continue;
                 }
 
-                LogError("Request Error: Invalid redirect link '" + location + "'");
+                log("Request Error: Invalid redirect link '" + location + "'");
                 return {
                     RedirectRefused: true,
                     Stream: res,
@@ -313,7 +321,7 @@ export class RequestEngine {
             }
 
             if (!opt.Stubborn && (<number>res.statusCode < 200 || <number>res.statusCode > 299)) {
-                LogError("Request Error: Unexpected status code '" + res.statusCode + "'");
+                log("Request Error: Unexpected status code '" + res.statusCode + "'");
                 return { Stream: res };
             }
 
@@ -323,7 +331,7 @@ export class RequestEngine {
             try {
                 txt = await RequestEngine.StreamToText(res);
             } catch (err) {
-                LogError((<Error>err).message);
+                log((<Error>err).message);
                 return { Stream: res };
             }
 
@@ -336,11 +344,12 @@ export class RequestEngine {
 
         }
 
-        LogError("Request Error: Too many redirects");
+        log("Request Error: Too many redirects");
         return {
             RedirectRefused: true,
             Stream: res,
         };
+
     }
 
     // ----------------------------------------------------------------------------------------- //

@@ -119,6 +119,12 @@ class RequestEngine {
     async LinkToResponse(link, method, opt) {
         if (typeof opt === "undefined")
             opt = {};
+        const log = (msg) => {
+            if (opt.ErrorSuppress)
+                log_1.LogDebug(msg);
+            else
+                log_1.LogError(msg);
+        };
         let res;
         let redirect = 5;
         while (redirect-- > 0) {
@@ -126,7 +132,7 @@ class RequestEngine {
                 res = await this.LinkToStream(link, method, opt);
             }
             catch (err) {
-                log_1.LogError(err.message);
+                log(err.message);
                 return {};
             }
             if (RequestRedirectStatusCode.has(res.statusCode)) {
@@ -141,14 +147,14 @@ class RequestEngine {
                     link = "https://" + url.parse(link).hostname + location;
                     continue;
                 }
-                log_1.LogError("Request Error: Invalid redirect link '" + location + "'");
+                log("Request Error: Invalid redirect link '" + location + "'");
                 return {
                     RedirectRefused: true,
                     Stream: res,
                 };
             }
             if (!opt.Stubborn && (res.statusCode < 200 || res.statusCode > 299)) {
-                log_1.LogError("Request Error: Unexpected status code '" + res.statusCode + "'");
+                log("Request Error: Unexpected status code '" + res.statusCode + "'");
                 return { Stream: res };
             }
             let txt;
@@ -156,7 +162,7 @@ class RequestEngine {
                 txt = await RequestEngine.StreamToText(res);
             }
             catch (err) {
-                log_1.LogError(err.message);
+                log(err.message);
                 return { Stream: res };
             }
             return {
@@ -164,7 +170,7 @@ class RequestEngine {
                 Text: txt,
             };
         }
-        log_1.LogError("Request Error: Too many redirects");
+        log("Request Error: Too many redirects");
         return {
             RedirectRefused: true,
             Stream: res,
