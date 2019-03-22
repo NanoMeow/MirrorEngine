@@ -52,7 +52,7 @@ import { RequestHeadersCustomizable, RequestResponse, RequestEngine } from "./re
 
 // --------------------------------------------------------------------------------------------- //
 
-const VERSION: string = "1.0.5";
+const VERSION: string = "1.0.6";
 
 const CONFIG_FILE_NAME: string = "mirror-engine-config.json";
 const LOG_DIRECTORY_NAME: string = "mirror-engine-logs";

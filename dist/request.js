@@ -110,10 +110,10 @@ class RequestEngine {
             const req = https.request(option);
             req.on("response", resolve);
             req.on("error", reject);
-            if (typeof opt.Payload !== "undefined")
-                req.end(opt.Payload);
-            else
+            if (typeof opt.Payload === "undefined")
                 req.end();
+            else
+                req.end(opt.Payload);
         });
     }
     async LinkToResponse(link, method, opt) {
