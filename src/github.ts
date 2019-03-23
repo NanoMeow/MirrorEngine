@@ -152,9 +152,7 @@ export class GitHub {
 
         let response: RequestResponse = await this.RequesterUnauthenticated.Get(
             "https://gitcdn.xyz/repo/" + this.User + "/" + opt.Repo + "/master/" + opt.Path,
-            {
-                ErrorSuppress: true,
-            },
+            { ErrorSuppress: true },
         );
 
         if (typeof response.Text === "undefined") {
@@ -278,9 +276,7 @@ export class GitHub {
         const res: RequestResponse = await this.Requester.Put(
             "https://api.github.com/repos/" + this.User + "/" + opt.Repo + "/contents/" + opt.Path,
             payload,
-            {
-                Stubborn: true,
-            },
+            { Stubborn: true },
         );
 
         if (typeof res.Text === "undefined")

@@ -71,7 +71,7 @@ const LogAny = (message: string, prefix: string): void => {
         if (typeof LogStream !== "undefined")
             LogStream.write(line + "\n");
     }
-}
+};
 
 // --------------------------------------------------------------------------------------------- //
 

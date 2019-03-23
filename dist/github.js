@@ -34,9 +34,7 @@ class GitHub {
     }
     async FileContent(opt) {
         GitHub.OptionsValidate(opt);
-        let response = await this.RequesterUnauthenticated.Get("https://gitcdn.xyz/repo/" + this.User + "/" + opt.Repo + "/master/" + opt.Path, {
-            ErrorSuppress: true,
-        });
+        let response = await this.RequesterUnauthenticated.Get("https://gitcdn.xyz/repo/" + this.User + "/" + opt.Repo + "/master/" + opt.Path, { ErrorSuppress: true });
         if (typeof response.Text === "undefined") {
             log_1.LogDebug("GitCDN errored out, falling back to source");
             response = await this.RequesterUnauthenticated.Get("https://raw.githubusercontent.com/" + this.User + "/" + opt.Repo + "/master/" +
@@ -106,9 +104,7 @@ class GitHub {
             content: Base64Encode(opt.Content),
             sha: sha.Sha,
         };
-        const res = await this.Requester.Put("https://api.github.com/repos/" + this.User + "/" + opt.Repo + "/contents/" + opt.Path, payload, {
-            Stubborn: true,
-        });
+        const res = await this.Requester.Put("https://api.github.com/repos/" + this.User + "/" + opt.Repo + "/contents/" + opt.Path, payload, { Stubborn: true });
         if (typeof res.Text === "undefined")
             return { Success: false };
         try {
