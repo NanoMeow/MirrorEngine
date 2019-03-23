@@ -50,6 +50,15 @@ const SleepWhileRunning = async (seconds) => {
     while (Running && seconds-- > 0)
         await Sleep(Math.ceil(1000 / SLEEP_RESOLUTION));
 };
+const RequestTimerGet = (timeout) => {
+    return {
+        Retry: true,
+        Timer: {
+            Timer: SleepWhileRunning,
+            Timeout: timeout,
+        },
+    };
+};
 const LockfileParse = (data) => {
     const out = new Set();
     for (const line of config_1.ConfigTextToIterable(data)) {
@@ -85,7 +94,7 @@ const Main = async () => {
             log_1.LogDebug("Manifest shuffled:");
             log_1.LogDebug(JSON.stringify(manifest, null, 2));
         }
-        const lockfile = await requester.Get(config.Lockfile);
+        const lockfile = await requester.Get(config.Lockfile, RequestTimerGet(30 * config.TimerScale));
         if (typeof lockfile.Text === "undefined") {
             log_1.LogError("Lockfile Error: Network error");
             await SleepWhileRunning(60 * 60 * config.TimerScale);
@@ -99,7 +108,7 @@ const Main = async () => {
             await SleepWhileRunning(5 * 60 * config.TimerScale);
             continue;
         }
-        const data = await requester.Get(entry.Link);
+        const data = await requester.Get(entry.Link, RequestTimerGet(30 * config.TimerScale));
         if (typeof data.Text === "string" && parser_1.ParserValidateRaw(data.Text)) {
             const payload = {
                 Repo: config.Repo,

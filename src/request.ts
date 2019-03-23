@@ -67,13 +67,19 @@ enum RequestMethods {
 
 // --------------------------------------------------------------------------------------------- //
 
+export interface RequestSleepTimer {
+    Timer: (timeout: number) => Promise<void>,
+    Timeout: number,
+}
+
 export interface RequestRequest {
     Payload?: string | Buffer,
+    Timer?: RequestSleepTimer, // Required if Retry is true
 
     ErrorSuppress?: boolean,
+    Stubborn?: boolean, // Get response text even if response code is not in the 200 range
 
     Retry?: boolean,
-    Stubborn?: boolean, // Get response text even if response code is not in the 200 range
 }
 
 export interface RequestResponse {
@@ -357,7 +363,7 @@ export class RequestEngine {
 
     // ----------------------------------------------------------------------------------------- //
 
-    private async RequestWithRetry(
+    private async RequestRetryHandle(
         link: string,
         method: RequestMethods,
         opt?: RequestRequest,
@@ -367,8 +373,10 @@ export class RequestEngine {
         let result: RequestResponse = await this.LinkToResponse(link, method, opt);
 
         if (typeof result.Text === "undefined" && typeof opt !== "undefined" && opt.Retry) {
-            // TODO: Add some delay, the sleep while running function in index is not accessible
+            assert(typeof opt.Timer !== "undefined");
+
             opt.Retry = false;
+            await opt.Timer!.Timer(opt.Timer!.Timeout);
             result = await this.LinkToResponse(link, method, opt);
         }
 
@@ -380,7 +388,7 @@ export class RequestEngine {
     // ----------------------------------------------------------------------------------------- //
 
     public async Get(link: string, opt?: RequestRequest): Promise<RequestResponse> {
-        return await this.RequestWithRetry(link, RequestMethods.GET, opt);
+        return await this.RequestRetryHandle(link, RequestMethods.GET, opt);
     }
 
     // ----------------------------------------------------------------------------------------- //
@@ -405,7 +413,7 @@ export class RequestEngine {
     ): Promise<RequestResponse> {
 
         opt = RequestEngine.BindPayload(payload, opt);
-        return await this.RequestWithRetry(link, RequestMethods.POST, opt);
+        return await this.RequestRetryHandle(link, RequestMethods.POST, opt);
 
     }
 
@@ -416,7 +424,7 @@ export class RequestEngine {
     ): Promise<RequestResponse> {
 
         opt = RequestEngine.BindPayload(payload, opt);
-        return await this.RequestWithRetry(link, RequestMethods.PUT, opt);
+        return await this.RequestRetryHandle(link, RequestMethods.PUT, opt);
 
     }
 

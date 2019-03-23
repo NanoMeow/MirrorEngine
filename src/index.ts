@@ -48,7 +48,7 @@ import {
 import { GitHubFileUpdateRequest, GitHubFileUpdateResponse, GitHub } from "./github";
 import { LogSetFile, LogDebug, LogMessage, LogError, LogWarning } from "./log";
 import { ParserValidateRaw, ParserComparatorRaw, ParserResolveInclude } from "./parser";
-import { RequestHeadersCustomizable, RequestResponse, RequestEngine } from "./request";
+import { RequestHeadersCustomizable, RequestResponse, RequestEngine, RequestRequest } from "./request";
 
 // --------------------------------------------------------------------------------------------- //
 
@@ -119,6 +119,16 @@ const SleepWhileRunning = async (seconds: number): Promise<void> => {
 
     while (Running && seconds-- > 0)
         await Sleep(Math.ceil(1000 / SLEEP_RESOLUTION));
+};
+
+const RequestTimerGet = (timeout: number): RequestRequest => {
+    return {
+        Retry: true,
+        Timer: {
+            Timer: SleepWhileRunning,
+            Timeout: timeout,
+        },
+    };
 };
 
 // --------------------------------------------------------------------------------------------- //
@@ -193,7 +203,10 @@ const Main = async (): Promise<void> => {
 
         // ------------------------------------------------------------------------------------- //
 
-        const lockfile: RequestResponse = await requester.Get(config.Lockfile);
+        const lockfile: RequestResponse = await requester.Get(
+            config.Lockfile,
+            RequestTimerGet(30 * config.TimerScale),
+        );
 
         if (typeof lockfile.Text === "undefined") {
             LogError("Lockfile Error: Network error");
@@ -219,7 +232,10 @@ const Main = async (): Promise<void> => {
 
         // ------------------------------------------------------------------------------------- //
 
-        const data: RequestResponse = await requester.Get(entry.Link);
+        const data: RequestResponse = await requester.Get(
+            entry.Link,
+            RequestTimerGet(30 * config.TimerScale),
+        );
 
         if (typeof data.Text === "string" && ParserValidateRaw(data.Text)) {
             const payload: GitHubFileUpdateRequest = {

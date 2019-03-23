@@ -176,18 +176,20 @@ class RequestEngine {
             Stream: res,
         };
     }
-    async RequestWithRetry(link, method, opt) {
+    async RequestRetryHandle(link, method, opt) {
         this.PendingRequestsCount++;
         let result = await this.LinkToResponse(link, method, opt);
         if (typeof result.Text === "undefined" && typeof opt !== "undefined" && opt.Retry) {
+            assert(typeof opt.Timer !== "undefined");
             opt.Retry = false;
+            await opt.Timer.Timer(opt.Timer.Timeout);
             result = await this.LinkToResponse(link, method, opt);
         }
         this.PendingRequestsCount--;
         return result;
     }
     async Get(link, opt) {
-        return await this.RequestWithRetry(link, RequestMethods.GET, opt);
+        return await this.RequestRetryHandle(link, RequestMethods.GET, opt);
     }
     static BindPayload(payload, opt) {
         if (typeof payload !== "string")
@@ -200,11 +202,11 @@ class RequestEngine {
     }
     async Post(link, payload, opt) {
         opt = RequestEngine.BindPayload(payload, opt);
-        return await this.RequestWithRetry(link, RequestMethods.POST, opt);
+        return await this.RequestRetryHandle(link, RequestMethods.POST, opt);
     }
     async Put(link, payload, opt) {
         opt = RequestEngine.BindPayload(payload, opt);
-        return await this.RequestWithRetry(link, RequestMethods.PUT, opt);
+        return await this.RequestRetryHandle(link, RequestMethods.PUT, opt);
     }
 }
 exports.RequestEngine = RequestEngine;
