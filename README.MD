@@ -126,9 +126,9 @@ Run `node dist`.
 - If a request to `lockfile.txt` or a resource failed, it will be retried after
   30 seconds (with default timer scale).
 
-- If a request to GitCDN failed, `raw.githubusercontent.com` will be used as a
-  fallback.
-
 - To prevent committing `0 changed files`, the current data will be checked
   with GitCDN, which caches files for 2 hours. So the manifest should have at
   least 9 entries (with default timer scale) that are not locked.
+
+- If a request to GitCDN failed, `raw.githubusercontent.com` will be used as a
+  fallback.
