@@ -121,7 +121,7 @@ const SleepWhileRunning = async (seconds: number): Promise<void> => {
         await Sleep(Math.ceil(1000 / SLEEP_RESOLUTION));
 };
 
-const RequestTimerGet = (timeout: number): RequestRequest => {
+const RequestRetryTimerGet = (timeout: number): RequestRequest => {
     return {
         Retry: true,
         Timer: {
@@ -205,7 +205,7 @@ const Main = async (): Promise<void> => {
 
         const lockfile: RequestResponse = await requester.Get(
             config.Lockfile,
-            RequestTimerGet(30 * config.TimerScale),
+            RequestRetryTimerGet(30 * config.TimerScale),
         );
 
         if (typeof lockfile.Text === "undefined") {
@@ -234,7 +234,7 @@ const Main = async (): Promise<void> => {
 
         const data: RequestResponse = await requester.Get(
             entry.Link,
-            RequestTimerGet(30 * config.TimerScale),
+            RequestRetryTimerGet(30 * config.TimerScale),
         );
 
         if (typeof data.Text === "string" && ParserValidateRaw(data.Text)) {
