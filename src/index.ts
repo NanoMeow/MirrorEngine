@@ -48,7 +48,12 @@ import {
 import { GitHubFileUpdateRequest, GitHubFileUpdateResponse, GitHub } from "./github";
 import { LogSetFile, LogDebug, LogMessage, LogError, LogWarning } from "./log";
 import { ParserValidateRaw, ParserComparatorRaw, ParserResolveInclude } from "./parser";
-import { RequestHeadersCustomizable, RequestResponse, RequestEngine, RequestRequest } from "./request";
+import {
+    RequestHeadersCustomizable,
+    RequestRequest,
+    RequestResponse,
+    RequestEngine,
+} from "./request";
 
 // --------------------------------------------------------------------------------------------- //
 
