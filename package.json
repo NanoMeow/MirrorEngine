@@ -4,16 +4,16 @@
     "url": "https://github.com/NanoMeow/MirrorEngine/issues"
   },
   "dependencies": {
-    "fs-extra": "~7.0.1"
+    "fs-extra": "7.0.1"
   },
   "description": "Mirror everything",
   "devDependencies": {
-    "@types/fs-extra": "~5.0.4",
-    "@types/node": "~10.12.10",
-    "typescript": "~3.1.6"
+    "@types/fs-extra": "5.0.4",
+    "@types/node": "10.12.10",
+    "typescript": "3.1.6"
   },
   "engines": {
-    "node": "~10.15"
+    "node": "10.15.3"
   },
   "homepage": "https://github.com/NanoMeow/MirrorEngine",
   "license": "MIT",
