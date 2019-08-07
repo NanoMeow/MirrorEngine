@@ -13,7 +13,7 @@
     "typescript": "3.5.3"
   },
   "engines": {
-    "node": "10.16.1"
+    "node": "10.16.2"
   },
   "homepage": "https://github.com/NanoMeow/MirrorEngine",
   "license": "MIT",
