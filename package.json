@@ -8,7 +8,7 @@
   },
   "description": "Mirror everything",
   "devDependencies": {
-    "@types/fs-extra": "8.0.0",
+    "@types/fs-extra": "8.0.1",
     "@types/node": "10.14.22",
     "typescript": "3.6.4"
   },
