@@ -10,7 +10,7 @@
   "devDependencies": {
     "@types/fs-extra": "8.0.1",
     "@types/node": "10.17.11",
-    "typescript": "3.7.3"
+    "typescript": "3.7.4"
   },
   "engines": {
     "node": "10.18.0"
