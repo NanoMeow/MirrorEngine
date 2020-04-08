@@ -66,8 +66,14 @@ const SLEEP_RESOLUTION: number = 4; // Running check per second
 
 // --------------------------------------------------------------------------------------------- //
 
+const LogNameFormat = (): string => {
+    return "v" + VERSION.replace(/\./g, "_") + "-" + Date.now() + ".txt";
+};
+
+// --------------------------------------------------------------------------------------------- //
+
 process.on("uncaughtException", (err: Error): void => {
-    const file = path.resolve(os.homedir(), LOG_DIRECTORY_NAME, "crash-" + Date.now() + ".txt");
+    const file = path.resolve(os.homedir(), LOG_DIRECTORY_NAME, "crash-" + LogNameFormat());
 
     const content: string[] = [];
     content.push("Node version: " + process.version);
@@ -163,7 +169,7 @@ const Main = async (): Promise<void> => {
     let logs: string = path.resolve(home, LOG_DIRECTORY_NAME);
     await fs.mkdirp(logs);
 
-    logs = path.resolve(logs, "v" + VERSION.replace(/\./g, "_") + "-" + Date.now() + ".txt");
+    logs = path.resolve(logs, LogNameFormat());
     LogSetFile(logs);
 
     LogMessage("Logging to '" + logs + "'");

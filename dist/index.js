@@ -13,8 +13,11 @@ const VERSION = "1.0.7";
 const CONFIG_FILE_NAME = "mirror-engine-config.json";
 const LOG_DIRECTORY_NAME = "mirror-engine-logs";
 const SLEEP_RESOLUTION = 4;
+const LogNameFormat = () => {
+    return "v" + VERSION.replace(/\./g, "_") + "-" + Date.now() + ".txt";
+};
 process.on("uncaughtException", (err) => {
-    const file = path.resolve(os.homedir(), LOG_DIRECTORY_NAME, "crash-" + Date.now() + ".txt");
+    const file = path.resolve(os.homedir(), LOG_DIRECTORY_NAME, "crash-" + LogNameFormat());
     const content = [];
     content.push("Node version: " + process.version);
     for (const arg of process.argv)
@@ -72,7 +75,7 @@ const Main = async () => {
     const file = path.resolve(home, CONFIG_FILE_NAME);
     let logs = path.resolve(home, LOG_DIRECTORY_NAME);
     await fs.mkdirp(logs);
-    logs = path.resolve(logs, "v" + VERSION.replace(/\./g, "_") + "-" + Date.now() + ".txt");
+    logs = path.resolve(logs, LogNameFormat());
     log_1.LogSetFile(logs);
     log_1.LogMessage("Logging to '" + logs + "'");
     const config = await config_1.ConfigLoad(file);
