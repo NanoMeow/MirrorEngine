@@ -127,8 +127,8 @@ Run `bash test.sh`.
 
 - One resource will be updated every 15 minutes (with default timer scale).
 
-- If a request to `lockfile.txt` or a resource failed, it will be retried after
-  30 seconds (with default timer scale).
+- If a request to `lockfile.txt` or a resource failed, it will be retried once
+  after 30 seconds (with default timer scale).
 
 - To prevent committing `0 changed files`, the current data will be checked
   with GitCDN, which caches files for 2 hours. So the manifest should have at
