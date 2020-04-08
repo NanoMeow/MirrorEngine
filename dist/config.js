@@ -218,16 +218,16 @@ const ConfigManifestValidateInclude = (manifest) => {
             throw new Error("Manifest Error: Invalid link");
     }
 };
-const ConfigManifestValidateAll = (config, resolved) => {
-    ConfigManifestValidateNameOveride(config.Manifest, resolved.NameOverride);
-    ConfigManifestValidateInclude(config.Manifest);
+const ConfigManifestValidateAll = (manifest, overrides) => {
+    ConfigManifestValidateNameOveride(manifest, overrides);
+    ConfigManifestValidateInclude(manifest);
 };
 exports.ConfigLoad = async (file) => {
     const config = ConfigParse(await fs.readFile(file, "utf8"));
     const remote = await ConfigRemoteRequestAll(config);
     const resolved = ConfigRemoteResolveAll(remote);
     config.Manifest = ConfigManifestResolve(remote, resolved);
-    ConfigManifestValidateAll(config, resolved);
+    ConfigManifestValidateAll(config.Manifest, resolved.NameOverride);
     return config;
 };
 exports.ConfigManifestShuffle = (m) => {

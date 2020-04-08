@@ -407,9 +407,14 @@ const ConfigManifestValidateInclude = (manifest: ConfigManifestEntry[]): void =>
     }
 };
 
-const ConfigManifestValidateAll = (config: ConfigData, resolved: ConfigFileRemoteResolved): void => {
-    ConfigManifestValidateNameOveride(config.Manifest, resolved.NameOverride);
-    ConfigManifestValidateInclude(config.Manifest);
+const ConfigManifestValidateAll = (
+    manifest: ConfigManifestEntry[],
+    overrides: Map<string, string>,
+): void => {
+
+    ConfigManifestValidateNameOveride(manifest, overrides);
+    ConfigManifestValidateInclude(manifest);
+
 };
 
 // --------------------------------------------------------------------------------------------- //
@@ -419,7 +424,7 @@ export const ConfigLoad = async (file: string): Promise<ConfigData> => {
     const remote: ConfigFileRemote = await ConfigRemoteRequestAll(config);
     const resolved: ConfigFileRemoteResolved = ConfigRemoteResolveAll(remote);
     config.Manifest = ConfigManifestResolve(remote, resolved);
-    ConfigManifestValidateAll(config, resolved);
+    ConfigManifestValidateAll(config.Manifest, resolved.NameOverride);
     return config;
 };
 
