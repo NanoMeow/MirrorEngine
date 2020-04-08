@@ -355,7 +355,7 @@ const ConfigManifestResolve = (
 
 // --------------------------------------------------------------------------------------------- //
 
-const ConfigManifestValidateNameOveride = (
+const ConfigManifestValidateNames = (
     manifest: ConfigManifestEntry[],
     overrides: Map<string, string>,
 ): void => {
@@ -374,6 +374,17 @@ const ConfigManifestValidateNameOveride = (
             throw new Error("Manifest Error: Missing name");
     }
 
+};
+
+const ConfigManifestValidateLinks = (manifest: ConfigManifestEntry[]): void => {
+    const links: Set<string> = new Set<string>();
+
+    for (const elem of manifest) {
+        if (links.has(elem.Link))
+            throw new Error("Manifest Error: Duplicate links");
+
+        links.add(elem.Link);
+    }
 };
 
 const ConfigManifestValidateInclude = (manifest: ConfigManifestEntry[]): void => {
@@ -412,7 +423,8 @@ const ConfigManifestValidateAll = (
     overrides: Map<string, string>,
 ): void => {
 
-    ConfigManifestValidateNameOveride(manifest, overrides);
+    ConfigManifestValidateNames(manifest, overrides);
+    ConfigManifestValidateLinks(manifest);
     ConfigManifestValidateInclude(manifest);
 
 };

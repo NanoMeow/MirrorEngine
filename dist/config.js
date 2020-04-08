@@ -181,7 +181,7 @@ const ConfigManifestResolve = (data, config) => {
         out.push(elem);
     return out;
 };
-const ConfigManifestValidateNameOveride = (manifest, overrides) => {
+const ConfigManifestValidateNames = (manifest, overrides) => {
     const keys = new Set();
     for (const elem of manifest) {
         if (keys.has(elem.Name))
@@ -191,6 +191,14 @@ const ConfigManifestValidateNameOveride = (manifest, overrides) => {
     for (const [key, val] of overrides) {
         if (keys.has(key) || !keys.has(val))
             throw new Error("Manifest Error: Missing name");
+    }
+};
+const ConfigManifestValidateLinks = (manifest) => {
+    const links = new Set();
+    for (const elem of manifest) {
+        if (links.has(elem.Link))
+            throw new Error("Manifest Error: Duplicate links");
+        links.add(elem.Link);
     }
 };
 const ConfigManifestValidateInclude = (manifest) => {
@@ -219,7 +227,8 @@ const ConfigManifestValidateInclude = (manifest) => {
     }
 };
 const ConfigManifestValidateAll = (manifest, overrides) => {
-    ConfigManifestValidateNameOveride(manifest, overrides);
+    ConfigManifestValidateNames(manifest, overrides);
+    ConfigManifestValidateLinks(manifest);
     ConfigManifestValidateInclude(manifest);
 };
 exports.ConfigLoad = async (file) => {
