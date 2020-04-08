@@ -128,9 +128,7 @@ const ConfigManifestResolveLinks = (links, config) => {
     if (!Array.isArray(links))
         throw new Error("Manifest Error: String or string array expected");
     return links.filter((link) => {
-        if (typeof link !== "string")
-            return false;
-        if (!link.startsWith("https://"))
+        if (!ConfigLinkValid(link))
             return false;
         if (config.LinkBlacklist.has(link))
             return false;
