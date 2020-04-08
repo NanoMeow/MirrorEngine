@@ -301,13 +301,13 @@ export class RequestEngine {
             try {
                 res = await this.LinkToStream(link, method, opt);
             } catch (err) {
-                log((<Error>err).message);
+                log((err as Error).message);
                 return {};
             }
 
             // --------------------------------------------------------------------------------- //
 
-            if (RequestRedirectStatusCode.has(<number>res.statusCode)) {
+            if (RequestRedirectStatusCode.has(res.statusCode!)) {
                 const location: string = RequestEngine.StreamToHeader(res, "location");
 
                 if (RequestRedirectSafeAbsoluteLink.test(location)) {
@@ -329,7 +329,7 @@ export class RequestEngine {
                 };
             }
 
-            if (!opt.Stubborn && (<number>res.statusCode < 200 || <number>res.statusCode > 299)) {
+            if (!opt.Stubborn && (res.statusCode! < 200 || res.statusCode! > 299)) {
                 log("Request Error: Unexpected status code '" + res.statusCode + "'");
                 return { Stream: res };
             }
@@ -340,7 +340,7 @@ export class RequestEngine {
             try {
                 txt = await RequestEngine.StreamToText(res);
             } catch (err) {
-                log((<Error>err).message);
+                log((err as Error).message);
                 return { Stream: res };
             }
 
@@ -401,7 +401,7 @@ export class RequestEngine {
             opt = {};
 
         assert(typeof opt.Payload === "undefined");
-        opt.Payload = <string>payload;
+        opt.Payload = payload as string;
 
         return opt;
     }

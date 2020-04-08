@@ -187,16 +187,40 @@ const ConfigValidateNameOveride = (manifest, overrides) => {
     const keys = new Set();
     for (const elem of manifest) {
         if (keys.has(elem.Name))
-            throw new Error("Configuration Error: Duplicate keys");
+            throw new Error("Configuration Error: Duplicate names");
         keys.add(elem.Name);
     }
     for (const [key, val] of overrides) {
         if (keys.has(key) || !keys.has(val))
-            throw new Error("Configuration Error: Missing key");
+            throw new Error("Configuration Error: Missing name");
     }
 };
 const ConfigValidateInclude = (manifest) => {
-    void manifest;
+    const parents = new Map();
+    const children = [];
+    for (const elem of manifest) {
+        if (elem.IsSubfilter) {
+            children.push(elem);
+        }
+        else {
+            const i = elem.Link.lastIndexOf("/");
+            const dir = elem.Link.substring(0, i);
+            if (dir.endsWith("/"))
+                throw new Error("Configuration Error: Invalid link");
+            parents.set(elem.Name, dir + "/");
+        }
+    }
+    const names = new Set();
+    for (const elem of children) {
+        if (!parents.has(elem.Parent))
+            throw new Error("Configuration Error: Missing parent");
+        if (names.has(elem.Name))
+            throw new Error("Configuration Error: Duplicate names");
+        names.add(elem.Name);
+        const link = parents.get(elem.Parent) + elem.Original;
+        if (elem.Link != link)
+            throw new Error("Configuration Error: Invalid link");
+    }
 };
 const ConfigValidateAll = (config, resolved) => {
     ConfigValidateNameOveride(config.Manifest, resolved.NameOverride);

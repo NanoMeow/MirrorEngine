@@ -48,6 +48,8 @@ export interface ConfigManifestEntry {
     Link: string,
 
     IsSubfilter: boolean,
+
+    // TODO: Investigate ways to make this typing safer
     Parent?: string,
     Original?: string, // Subresource original name
 }
@@ -248,7 +250,7 @@ const ConfigRemoteResolveAll = (data: ConfigFileRemote): ConfigFileRemoteResolve
 
 const ConfigManifestResolveName = (key: string, config: ConfigFileRemoteResolved): string => {
     if (config.NameOverride.has(key))
-        return <string>config.NameOverride.get(key);
+        return config.NameOverride.get(key)!;
 
     if (key.includes("."))
         return key;
@@ -365,20 +367,51 @@ const ConfigValidateNameOveride = (
 
     for (const elem of manifest) {
         if (keys.has(elem.Name))
-            throw new Error("Configuration Error: Duplicate keys");
+            throw new Error("Configuration Error: Duplicate names");
 
         keys.add(elem.Name);
     }
 
     for (const [key, val] of overrides) {
         if (keys.has(key) || !keys.has(val))
-            throw new Error("Configuration Error: Missing key");
+            throw new Error("Configuration Error: Missing name");
     }
 
 };
 
 const ConfigValidateInclude = (manifest: ConfigManifestEntry[]): void => {
-    void manifest; // TODO
+    const parents: Map<string, string> = new Map<string, string>(); // Name to link directory
+    const children: ConfigManifestEntry[] = [];
+
+    for (const elem of manifest) {
+        if (elem.IsSubfilter) {
+            children.push(elem);
+        } else {
+            const i: number = elem.Link.lastIndexOf("/");
+            const dir: string = elem.Link.substring(0, i);
+
+            if (dir.endsWith("/"))
+                throw new Error("Configuration Error: Invalid link");
+
+            parents.set(elem.Name, dir + "/");
+        }
+    }
+
+    const names: Set<string> = new Set<string>();
+
+    for (const elem of children) {
+        if (!parents.has(elem.Parent!))
+            throw new Error("Configuration Error: Missing parent");
+
+        if (names.has(elem.Name))
+            throw new Error("Configuration Error: Duplicate names");
+
+        names.add(elem.Name);
+
+        const link: string = parents.get(elem.Parent!)! + elem.Original!;
+        if (elem.Link != link)
+            throw new Error("Configuration Error: Invalid link");
+    }
 };
 
 const ConfigValidateAll = (config: ConfigData, resolved: ConfigFileRemoteResolved): void => {

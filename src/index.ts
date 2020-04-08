@@ -75,7 +75,7 @@ process.on("uncaughtException", (err: Error): void => {
     for (const arg of process.argv)
         content.push("Argument: " + arg);
 
-    content.push(<string>err.stack);
+    content.push(err.stack!);
     content.push("");
 
     fs.appendFileSync(file, content.join("\n"), "utf8");
@@ -139,7 +139,7 @@ const RequestRetryTimerGet = (timeout: number): RequestRequest => {
 // --------------------------------------------------------------------------------------------- //
 
 const LockfileParse = (data: string): Set<string> => {
-    const out: Set<string> = new Set();
+    const out: Set<string> = new Set<string>();
 
     for (const line of ConfigTextToIterable(data)) {
         out.add(line);
@@ -220,6 +220,8 @@ const Main = async (): Promise<void> => {
         }
 
         const lock: Set<string> = LockfileParse(lockfile.Text);
+
+        // TODO: Warn if locked entries do not exist in the manifest
 
         // ------------------------------------------------------------------------------------- //
 

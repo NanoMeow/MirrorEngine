@@ -133,11 +133,11 @@ export class ParserResolveInclude {
 
             ParserResolveInclude.ValidateManifestEntry(entry);
 
-            if (!this.ParentToChild.has(<string>entry.Parent))
-                this.ParentToChild.set(<string>entry.Parent, new Map<string, string>());
+            if (!this.ParentToChild.has(entry.Parent!))
+                this.ParentToChild.set(entry.Parent!, new Map<string, string>());
 
-            const map: StrToStr = <StrToStr>this.ParentToChild.get(<string>entry.Parent);
-            map.set(<string>entry.Original, entry.Name);
+            const map: StrToStr = this.ParentToChild.get(entry.Parent!)!;
+            map.set(entry.Original!, entry.Name);
         }
     }
 
@@ -146,7 +146,7 @@ export class ParserResolveInclude {
     public Resolve(entry: ConfigManifestEntry, data: string): string {
         ParserResolveInclude.ValidateManifestEntry(entry);
 
-        let map: StrToStr | undefined = <StrToStr>this.ParentToChild.get(<string>entry.Name);
+        let map: StrToStr | undefined = this.ParentToChild.get(entry.Name!);
         if (typeof map === "undefined")
             map = new Map<string, string>();
 

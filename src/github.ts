@@ -223,7 +223,7 @@ export class GitHub {
             LogDebug(JSON.stringify(parsed, null, 2));
             return {};
         } catch (err) {
-            LogError((<Error>err).message);
+            LogError((err as Error).message);
             return {};
         }
 
@@ -298,7 +298,7 @@ export class GitHub {
             LogDebug(JSON.stringify(parsed, null, 2));
             return { Success: false };
         } catch (err) {
-            LogError((<Error>err).message);
+            LogError((err as Error).message);
             return { Success: false };
         }
 
