@@ -12,7 +12,7 @@ echo '# Starting github_test'
 if [ -f ~/mirror-engine-config.json ]; then
     node github_test
 else
-    echo 'Access tokens not found, skipping GitHub tests'
+    echo 'Configuration file not found, skipping GitHub tests'
     echo 'Create ~/mirror-engine-config.json with valid credentials to run GitHub tests'
 fi
 
