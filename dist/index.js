@@ -9,7 +9,7 @@ const github_1 = require("./github");
 const log_1 = require("./log");
 const parser_1 = require("./parser");
 const request_1 = require("./request");
-const VERSION = "1.0.6";
+const VERSION = "1.0.7";
 const CONFIG_FILE_NAME = "mirror-engine-config.json";
 const LOG_DIRECTORY_NAME = "mirror-engine-logs";
 const SLEEP_RESOLUTION = 4;
@@ -24,8 +24,8 @@ process.on("uncaughtException", (err) => {
     fs.appendFileSync(file, content.join("\n"), "utf8");
     throw err;
 });
-process.on("unhandledRejection", (err) => {
-    throw err;
+process.on("unhandledRejection", (reason) => {
+    throw reason;
 });
 let Running = true;
 const Shutdown = () => {
@@ -72,7 +72,7 @@ const Main = async () => {
     const file = path.resolve(home, CONFIG_FILE_NAME);
     let logs = path.resolve(home, LOG_DIRECTORY_NAME);
     await fs.mkdirp(logs);
-    logs = path.resolve(logs, Date.now() + ".txt");
+    logs = path.resolve(logs, "v" + VERSION.replace(/\./g, "_") + "-" + Date.now() + ".txt");
     log_1.LogSetFile(logs);
     log_1.LogMessage("Logging to '" + logs + "'");
     const config = await config_1.ConfigLoad(file);

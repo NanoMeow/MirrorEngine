@@ -57,7 +57,7 @@ import {
 
 // --------------------------------------------------------------------------------------------- //
 
-const VERSION: string = "1.0.6";
+const VERSION: string = "1.0.7";
 
 const CONFIG_FILE_NAME: string = "mirror-engine-config.json";
 const LOG_DIRECTORY_NAME: string = "mirror-engine-logs";
@@ -83,8 +83,8 @@ process.on("uncaughtException", (err: Error): void => {
     throw err;
 });
 
-process.on("unhandledRejection", (err: Error): void => {
-    throw err;
+process.on("unhandledRejection", (reason: any): void => {
+    throw reason;
 });
 
 // --------------------------------------------------------------------------------------------- //
@@ -163,7 +163,7 @@ const Main = async (): Promise<void> => {
     let logs: string = path.resolve(home, LOG_DIRECTORY_NAME);
     await fs.mkdirp(logs);
 
-    logs = path.resolve(logs, Date.now() + ".txt");
+    logs = path.resolve(logs, "v" + VERSION.replace(/\./g, "_") + "-" + Date.now() + ".txt");
     LogSetFile(logs);
 
     LogMessage("Logging to '" + logs + "'");

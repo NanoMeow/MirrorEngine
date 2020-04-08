@@ -215,6 +215,9 @@ const ConfigRemoteResolveNameOverride = (data: string): Map<string, string> => {
         if (elem.length !== 2 || typeof a !== "string" || typeof b !== "string")
             throw new Error("Configuration Error: String array of length 2 expected");
 
+        if (a === b)
+            throw new Error("Configuration Error: Different strings expected");
+
         out.set(a, b);
     }
 
@@ -224,8 +227,12 @@ const ConfigRemoteResolveNameOverride = (data: string): Map<string, string> => {
 const ConfigRemoteResolveLinkBlacklist = (data: string): Set<string> => {
     const out = new Set<string>();
 
-    for (const line of ConfigTextToIterable(data))
+    for (const line of ConfigTextToIterable(data)) {
+        if (!ConfigLinkValid(line))
+            throw new Error("Configuration Error: Invalid link");
+
         out.add(line);
+    }
 
     return out;
 };
@@ -349,11 +356,44 @@ const ConfigManifestResolve = (
 
 // --------------------------------------------------------------------------------------------- //
 
+const ConfigValidateNameOveride = (
+    manifest: ConfigManifestEntry[],
+    overrides: Map<string, string>,
+): void => {
+
+    const keys: Set<string> = new Set<string>();
+
+    for (const elem of manifest) {
+        if (keys.has(elem.Name))
+            throw new Error("Configuration Error: Duplicate keys");
+
+        keys.add(elem.Name);
+    }
+
+    for (const [key, val] of overrides) {
+        if (keys.has(key) || !keys.has(val))
+            throw new Error("Configuration Error: Missing key");
+    }
+
+};
+
+const ConfigValidateInclude = (manifest: ConfigManifestEntry[]): void => {
+    void manifest; // TODO
+};
+
+const ConfigValidateAll = (config: ConfigData, resolved: ConfigFileRemoteResolved): void => {
+    ConfigValidateNameOveride(config.Manifest, resolved.NameOverride);
+    ConfigValidateInclude(config.Manifest);
+};
+
+// --------------------------------------------------------------------------------------------- //
+
 export const ConfigLoad = async (file: string): Promise<ConfigData> => {
     const config: ConfigData = ConfigParse(await fs.readFile(file, "utf8"));
     const remote: ConfigFileRemote = await ConfigRemoteRequestAll(config);
     const resolved: ConfigFileRemoteResolved = ConfigRemoteResolveAll(remote);
     config.Manifest = ConfigManifestResolve(remote, resolved);
+    ConfigValidateAll(config, resolved);
     return config;
 };
 

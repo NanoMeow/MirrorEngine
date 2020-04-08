@@ -93,14 +93,19 @@ const ConfigRemoteResolveNameOverride = (data) => {
         const b = elem[1];
         if (elem.length !== 2 || typeof a !== "string" || typeof b !== "string")
             throw new Error("Configuration Error: String array of length 2 expected");
+        if (a === b)
+            throw new Error("Configuration Error: Different strings expected");
         out.set(a, b);
     }
     return out;
 };
 const ConfigRemoteResolveLinkBlacklist = (data) => {
     const out = new Set();
-    for (const line of exports.ConfigTextToIterable(data))
+    for (const line of exports.ConfigTextToIterable(data)) {
+        if (!ConfigLinkValid(line))
+            throw new Error("Configuration Error: Invalid link");
         out.add(line);
+    }
     return out;
 };
 const ConfigRemoteResolveAll = (data) => {
@@ -178,11 +183,31 @@ const ConfigManifestResolve = (data, config) => {
         out.push(elem);
     return out;
 };
+const ConfigValidateNameOveride = (manifest, overrides) => {
+    const keys = new Set();
+    for (const elem of manifest) {
+        if (keys.has(elem.Name))
+            throw new Error("Configuration Error: Duplicate keys");
+        keys.add(elem.Name);
+    }
+    for (const [key, val] of overrides) {
+        if (keys.has(key) || !keys.has(val))
+            throw new Error("Configuration Error: Missing key");
+    }
+};
+const ConfigValidateInclude = (manifest) => {
+    void manifest;
+};
+const ConfigValidateAll = (config, resolved) => {
+    ConfigValidateNameOveride(config.Manifest, resolved.NameOverride);
+    ConfigValidateInclude(config.Manifest);
+};
 exports.ConfigLoad = async (file) => {
     const config = ConfigParse(await fs.readFile(file, "utf8"));
     const remote = await ConfigRemoteRequestAll(config);
     const resolved = ConfigRemoteResolveAll(remote);
     config.Manifest = ConfigManifestResolve(remote, resolved);
+    ConfigValidateAll(config, resolved);
     return config;
 };
 exports.ConfigManifestShuffle = (m) => {
