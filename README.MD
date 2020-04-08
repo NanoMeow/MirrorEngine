@@ -111,6 +111,10 @@ are ignored.
 
 Run `node dist`.
 
+## Testing
+
+Run `bash test.sh`.
+
 ## Other Details
 
 - Logs will be written to `~/mirror-engine-logs/` directory.
