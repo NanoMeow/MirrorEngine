@@ -397,16 +397,12 @@ const ConfigManifestValidateInclude = (manifest: ConfigManifestEntry[]): void =>
         }
     }
 
-    const names: Set<string> = new Set<string>();
-
     for (const elem of children) {
         if (!parents.has(elem.Parent!))
             throw new Error("Manifest Error: Missing parent");
 
-        if (names.has(elem.Name))
-            throw new Error("Manifest Error: Duplicate names");
-
-        names.add(elem.Name);
+        if (!elem.Name.includes("/"))
+            LogWarning("The name of subfilter '" + elem.Name + "' does not include '/'");
 
         const link: string = parents.get(elem.Parent!)! + elem.Original!;
         if (elem.Link != link)

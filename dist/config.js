@@ -210,13 +210,11 @@ const ConfigManifestValidateInclude = (manifest) => {
             parents.set(elem.Name, dir + "/");
         }
     }
-    const names = new Set();
     for (const elem of children) {
         if (!parents.has(elem.Parent))
             throw new Error("Manifest Error: Missing parent");
-        if (names.has(elem.Name))
-            throw new Error("Manifest Error: Duplicate names");
-        names.add(elem.Name);
+        if (!elem.Name.includes("/"))
+            log_1.LogWarning("The name of subfilter '" + elem.Name + "' does not include '/'");
         const link = parents.get(elem.Parent) + elem.Original;
         if (elem.Link != link)
             throw new Error("Manifest Error: Invalid link");
