@@ -358,7 +358,7 @@ const ConfigManifestResolve = (
 
 // --------------------------------------------------------------------------------------------- //
 
-const ConfigValidateNameOveride = (
+const ConfigManifestValidateNameOveride = (
     manifest: ConfigManifestEntry[],
     overrides: Map<string, string>,
 ): void => {
@@ -367,19 +367,19 @@ const ConfigValidateNameOveride = (
 
     for (const elem of manifest) {
         if (keys.has(elem.Name))
-            throw new Error("Configuration Error: Duplicate names");
+            throw new Error("Manifest Error: Duplicate names");
 
         keys.add(elem.Name);
     }
 
     for (const [key, val] of overrides) {
         if (keys.has(key) || !keys.has(val))
-            throw new Error("Configuration Error: Missing name");
+            throw new Error("Manifest Error: Missing name");
     }
 
 };
 
-const ConfigValidateInclude = (manifest: ConfigManifestEntry[]): void => {
+const ConfigManifestValidateInclude = (manifest: ConfigManifestEntry[]): void => {
     const parents: Map<string, string> = new Map<string, string>(); // Name to link directory
     const children: ConfigManifestEntry[] = [];
 
@@ -391,7 +391,7 @@ const ConfigValidateInclude = (manifest: ConfigManifestEntry[]): void => {
             const dir: string = elem.Link.substring(0, i);
 
             if (dir.endsWith("/"))
-                throw new Error("Configuration Error: Invalid link");
+                throw new Error("Manifest Error: Invalid link");
 
             parents.set(elem.Name, dir + "/");
         }
@@ -401,22 +401,22 @@ const ConfigValidateInclude = (manifest: ConfigManifestEntry[]): void => {
 
     for (const elem of children) {
         if (!parents.has(elem.Parent!))
-            throw new Error("Configuration Error: Missing parent");
+            throw new Error("Manifest Error: Missing parent");
 
         if (names.has(elem.Name))
-            throw new Error("Configuration Error: Duplicate names");
+            throw new Error("Manifest Error: Duplicate names");
 
         names.add(elem.Name);
 
         const link: string = parents.get(elem.Parent!)! + elem.Original!;
         if (elem.Link != link)
-            throw new Error("Configuration Error: Invalid link");
+            throw new Error("Manifest Error: Invalid link");
     }
 };
 
-const ConfigValidateAll = (config: ConfigData, resolved: ConfigFileRemoteResolved): void => {
-    ConfigValidateNameOveride(config.Manifest, resolved.NameOverride);
-    ConfigValidateInclude(config.Manifest);
+const ConfigManifestValidateAll = (config: ConfigData, resolved: ConfigFileRemoteResolved): void => {
+    ConfigManifestValidateNameOveride(config.Manifest, resolved.NameOverride);
+    ConfigManifestValidateInclude(config.Manifest);
 };
 
 // --------------------------------------------------------------------------------------------- //
@@ -426,7 +426,7 @@ export const ConfigLoad = async (file: string): Promise<ConfigData> => {
     const remote: ConfigFileRemote = await ConfigRemoteRequestAll(config);
     const resolved: ConfigFileRemoteResolved = ConfigRemoteResolveAll(remote);
     config.Manifest = ConfigManifestResolve(remote, resolved);
-    ConfigValidateAll(config, resolved);
+    ConfigManifestValidateAll(config, resolved);
     return config;
 };
 
