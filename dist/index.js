@@ -9,7 +9,7 @@ const github_1 = require("./github");
 const log_1 = require("./log");
 const parser_1 = require("./parser");
 const request_1 = require("./request");
-const VERSION = "1.0.8";
+const VERSION = "1.0.9";
 const CONFIG_FILE_NAME = "mirror-engine-config.json";
 const LOG_DIRECTORY_NAME = "mirror-engine-logs";
 const SLEEP_RESOLUTION = 4;
@@ -131,5 +131,6 @@ const Main = async () => {
         i++;
         await SleepWhileRunning(15 * 60 * config.TimerScale);
     }
+    log_1.LogDebug("Shutdown completed");
 };
 Main();
