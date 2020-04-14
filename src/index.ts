@@ -57,7 +57,7 @@ import {
 
 // --------------------------------------------------------------------------------------------- //
 
-const VERSION: string = "1.0.9";
+const VERSION: string = "1.0.10";
 
 const CONFIG_FILE_NAME: string = "mirror-engine-config.json";
 const LOG_DIRECTORY_NAME: string = "mirror-engine-logs";
@@ -184,6 +184,8 @@ const Main = async (): Promise<void> => {
 
     if (manifest.length === 0)
         throw new Error("Manifest Error: No entry found");
+    else
+        LogDebug("Manifest size: " + manifest.length);
 
     // ----------------------------------------------------------------------------------------- //
 

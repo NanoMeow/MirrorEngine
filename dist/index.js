@@ -9,7 +9,7 @@ const github_1 = require("./github");
 const log_1 = require("./log");
 const parser_1 = require("./parser");
 const request_1 = require("./request");
-const VERSION = "1.0.9";
+const VERSION = "1.0.10";
 const CONFIG_FILE_NAME = "mirror-engine-config.json";
 const LOG_DIRECTORY_NAME = "mirror-engine-logs";
 const SLEEP_RESOLUTION = 4;
@@ -84,6 +84,8 @@ const Main = async () => {
     log_1.LogDebug(JSON.stringify(config, null, 2).replace(config.Secret, "<redacted>"));
     if (manifest.length === 0)
         throw new Error("Manifest Error: No entry found");
+    else
+        log_1.LogDebug("Manifest size: " + manifest.length);
     const requester = new request_1.RequestEngine();
     requester.HeadersCustomSet(request_1.RequestHeadersCustomizable.UserAgent, config.User);
     const comparator = new parser_1.ParserComparatorRaw();
