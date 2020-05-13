@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.LogError = exports.LogWarning = exports.LogMessage = exports.LogDebug = exports.LogSetFile = void 0;
 const fs = require("fs-extra");
 let LogStream;
 exports.LogSetFile = (file) => {

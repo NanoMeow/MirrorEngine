@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ParserResolveInclude = exports.ParserComparatorRaw = exports.ParserValidateRaw = void 0;
 const assert = require("assert");
 const log_1 = require("./log");
 const INCLUDE_DIRECTIVE = "!#include ";

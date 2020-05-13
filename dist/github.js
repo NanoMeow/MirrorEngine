@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.GitHub = void 0;
 const assert = require("assert");
 const log_1 = require("./log");
 const request_1 = require("./request");
