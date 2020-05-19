@@ -57,7 +57,7 @@ import {
 
 // --------------------------------------------------------------------------------------------- //
 
-const VERSION: string = "1.0.10";
+const VERSION: string = "1.0.11";
 
 const CONFIG_FILE_NAME: string = "mirror-engine-config.json";
 const LOG_DIRECTORY_NAME: string = "mirror-engine-logs";
