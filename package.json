@@ -9,11 +9,11 @@
   "description": "Mirror everything",
   "devDependencies": {
     "@types/fs-extra": "9.0.0",
-    "@types/node": "10.17.21",
+    "@types/node": "12.12.39",
     "typescript": "3.9.2"
   },
   "engines": {
-    "node": "10.20.1"
+    "node": "12.16.3"
   },
   "homepage": "https://github.com/NanoMeow/MirrorEngine",
   "license": "MIT",
