@@ -9,7 +9,7 @@
   "description": "Mirror everything",
   "devDependencies": {
     "@types/fs-extra": "9.0.1",
-    "@types/node": "12.12.41",
+    "@types/node": "12.12.42",
     "typescript": "3.9.3"
   },
   "engines": {
